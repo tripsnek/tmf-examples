@@ -1,0 +1,270 @@
+    <div class="tmf-editor">
+      <!-- Header -->
+      <header class="editor-header">
+        <div class="header-content">
+          <div class="logo">TMF</div>
+          <h1>Reflective Model Editor</h1>
+          <div class="package-info" *ngIf="ePackage">
+            <span class="package-name">{{ ePackage.getName() }}</span>
+            <span class="package-uri">{{ ePackage.getNsURI() }}</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="editor-body">
+        <!-- Tree Panel -->
+        <aside class="tree-panel">
+          <div class="panel-header">
+            <h2>Model Instances</h2>
+            <div class="panel-actions">
+              <button class="btn btn-primary" (click)="showCreateDialog()">
+                <span class="icon">+</span> Create
+              </button>
+              <button class="btn btn-danger" [disabled]="!selectedInstance" (click)="deleteInstance()">
+                <span class="icon">🗑</span> Delete
+              </button>
+            </div>
+          </div>
+          
+          <div class="tree-content">
+            <div *ngIf="rootInstances.length === 0" class="empty-state">
+              <div class="empty-icon">📦</div>
+              <p>No instances yet</p>
+              <small>Create your first instance to get started</small>
+            </div>
+            
+            <div class="tree" *ngIf="rootInstances.length > 0">
+              <ng-container *ngFor="let instance of rootInstances">
+                <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: instance, level: 0 }"></ng-container>
+              </ng-container>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Properties Panel -->
+        <main class="properties-panel">
+          <div class="panel-header">
+            <h2>Properties</h2>
+            <div class="instance-info" *ngIf="selectedInstance">
+              <span class="instance-type">{{ getEClassName(selectedInstance.eObject) }}</span>
+              <span class="instance-id">#{{ selectedInstance.id }}</span>
+            </div>
+          </div>
+
+          <div class="properties-content">
+            <div *ngIf="!selectedInstance" class="empty-state">
+              <div class="empty-icon">🔍</div>
+              <p>Select an instance</p>
+              <small>Choose an instance from the tree to view its properties</small>
+            </div>
+
+            <div *ngIf="selectedInstance" class="property-groups">
+              <!-- Attributes Group -->
+              <div class="property-group" *ngIf="getAttributes().length > 0">
+                <div class="group-header">
+                  <span class="group-icon">📝</span>
+                  <h3>Attributes</h3>
+                </div>
+                <div class="group-content">
+                  <div class="property-field" *ngFor="let attr of getAttributes()">
+                    <label class="property-label">
+                      {{ attr.getName() }}
+                      <span class="property-meta" *ngIf="attr.isId()">(ID)</span>
+                      <span class="property-type">{{ getAttributeType(attr) }}</span>
+                    </label>
+                    <div class="property-control">
+                      <input 
+                        *ngIf="isStringType(attr)"
+                        type="text"
+                        class="form-input"
+                        [value]="getAttributeValue(attr)"
+                        (change)="setAttributeValue(attr, $event)"
+                      />
+                      <input 
+                        *ngIf="isNumberType(attr)"
+                        type="number"
+                        class="form-input"
+                        [value]="getAttributeValue(attr)"
+                        (change)="setAttributeValue(attr, $event)"
+                      />
+                      <input 
+                        *ngIf="isBooleanType(attr)"
+                        type="checkbox"
+                        class="form-checkbox"
+                        [checked]="getAttributeValue(attr)"
+                        (change)="setAttributeValue(attr, $event)"
+                      />
+                      <input 
+                        *ngIf="isDateType(attr)"
+                        type="date"
+                        class="form-input"
+                        [value]="getAttributeValue(attr)"
+                        (change)="setAttributeValue(attr, $event)"
+                      />
+                      <select 
+                        *ngIf="isEnumType(attr)"
+                        class="form-select"
+                        [value]="getAttributeValue(attr)"
+                        (change)="setAttributeValue(attr, $event)"
+                      >
+                        <option *ngFor="let literal of getEnumLiterals(attr)" [value]="literal">
+                          {{ literal }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- References Group -->
+              <div class="property-group" *ngIf="getReferences().length > 0">
+                <div class="group-header">
+                  <span class="group-icon">🔗</span>
+                  <h3>References</h3>
+                </div>
+                <div class="group-content">
+                  <div class="property-field" *ngFor="let ref of getReferences()">
+                    <label class="property-label">
+                      {{ ref.getName() }}
+                      <span class="property-meta" *ngIf="ref.isContainment()">(containment)</span>
+                      <span class="property-meta" *ngIf="ref.isMany()">[{{ ref.getLowerBound() }}..{{ ref.getUpperBound() === -1 ? '*' : ref.getUpperBound() }}]</span>
+                      <span class="property-type">{{ ref.getEReferenceType().getName() }}</span>
+                    </label>
+                    
+                    <div class="reference-control">
+                      <div *ngIf="ref.isMany()" class="reference-list">
+                        <div class="reference-item" *ngFor="let target of getReferenceValues(ref)">
+                          <span class="reference-label">{{ getInstanceLabel(target) }}</span>
+                          <button class="btn btn-sm btn-danger" (click)="removeReference(ref, target)">×</button>
+                        </div>
+                        <button class="btn btn-sm btn-primary" (click)="showAddReferenceDialog(ref)">
+                          + Add {{ ref.getName() }}
+                        </button>
+                      </div>
+                      
+                      <div *ngIf="!ref.isMany()" class="reference-single">
+                        <div class="reference-item" *ngIf="getReferenceValue(ref)">
+                          <span class="reference-label">{{ getInstanceLabel(getReferenceValue(ref)) }}</span>
+                          <button class="btn btn-sm btn-danger" (click)="clearReference(ref)">×</button>
+                        </div>
+                        <button *ngIf="!getReferenceValue(ref)" class="btn btn-sm btn-primary" (click)="showSetReferenceDialog(ref)">
+                          Set {{ ref.getName() }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- Create Instance Dialog -->
+      <div class="dialog" *ngIf="showCreateInstanceDialog">
+        <div class="dialog-backdrop" (click)="hideCreateDialog()"></div>
+        <div class="dialog-content">
+          <div class="dialog-header">
+            <h3>Create New Instance</h3>
+            <button class="dialog-close" (click)="hideCreateDialog()">×</button>
+          </div>
+          
+          <div class="dialog-body">
+            <div class="form-group">
+              <label>Select Class Type</label>
+              <div class="class-grid">
+                <div 
+                  class="class-card"
+                  *ngFor="let eClass of getInstantiableClasses()"
+                  [class.selected]="selectedEClass === eClass"
+                  (click)="selectEClass(eClass)"
+                >
+                  <div class="class-name">{{ eClass.getName() }}</div>
+                  <div class="class-info">
+                    <span>{{ eClass.getEAttributes().size() }} attributes</span>
+                    <span>{{ eClass.getEReferences().size() }} references</span>
+                  </div>
+                  <div class="class-badges">
+                    <span class="badge badge-abstract" *ngIf="eClass.isAbstract()">abstract</span>
+                    <span class="badge badge-interface" *ngIf="eClass.isInterface()">interface</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" *ngIf="selectedEClass && getPossibleContainers().length > 0">
+              <label>Container (Optional)</label>
+              <select class="form-select" [(ngModel)]="selectedContainer">
+                <option [value]="null">No Container</option>
+                <option *ngFor="let container of getPossibleContainers()" [value]="container">
+                  {{ container.instance.label }} ({{ container.reference.getName() }})
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="dialog-footer">
+            <button class="btn btn-secondary" (click)="hideCreateDialog()">Cancel</button>
+            <button class="btn btn-primary" [disabled]="!selectedEClass" (click)="createInstance()">Create</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference Dialog -->
+      <div class="dialog" *ngIf="showReferenceDialog">
+        <div class="dialog-backdrop" (click)="hideReferenceDialog()"></div>
+        <div class="dialog-content">
+          <div class="dialog-header">
+            <h3>{{ referenceDialogTitle }}</h3>
+            <button class="dialog-close" (click)="hideReferenceDialog()">×</button>
+          </div>
+          
+          <div class="dialog-body">
+            <div class="form-group">
+              <label>Select Target Instance</label>
+              <select class="form-select" [(ngModel)]="selectedReferenceTarget">
+                <option [value]="null">Select an instance...</option>
+                <option *ngFor="let instance of getValidReferenceTargets()" [value]="instance">
+                  {{ instance.label }} (#{{ instance.id }})
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="dialog-footer">
+            <button class="btn btn-secondary" (click)="hideReferenceDialog()">Cancel</button>
+            <button class="btn btn-primary" [disabled]="!selectedReferenceTarget" (click)="applyReference()">
+              {{ currentReference?.isMany() ? 'Add' : 'Set' }} Reference
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tree Node Template -->
+    <ng-template #treeNode let-instance let-level="level">
+      <div class="tree-node" [style.margin-left.px]="level * 20">
+        <div 
+          class="tree-node-content"
+          [class.selected]="selectedInstance === instance"
+          (click)="selectInstance(instance)"
+        >
+          <span 
+            class="tree-toggle"
+            *ngIf="instance.children.length > 0"
+            (click)="toggleExpanded(instance, $event)"
+          >
+            {{ instance.expanded ? '▼' : '▶' }}
+          </span>
+          <span class="tree-icon" *ngIf="instance.children.length === 0">•</span>
+          <span class="tree-label">{{ instance.label }}</span>
+          <span class="tree-type">{{ getEClassName(instance.eObject) }}</span>
+        </div>
+        
+        <div class="tree-children" *ngIf="instance.expanded">
+          <ng-container *ngFor="let child of instance.children">
+            <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: child, level: level + 1 }"></ng-container>
+          </ng-container>
+        </div>
+      </div>
+    </ng-template>

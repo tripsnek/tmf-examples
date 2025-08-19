@@ -1,3 +1,4 @@
 node_modules
 .angular
 dist
+angular-node-npm/.claude/settings.local.json
