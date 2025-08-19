@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-// import { TripplanningFactory } from '@tmf-example/data-model';
+import { TripplanningFactory } from '@tmf-example/data-model';
 import {EClassImpl, EObject, EObjectImpl} from '@tripsnek/tmf';
 
 const app = express();
@@ -14,11 +14,11 @@ eobj.setName('TestClass');
 console.log("Can I import tripsnek types: " + eobj.getName())
 
 // Example route using your data model
-// app.get('/api/trips', (req, res) => {
-//   const factory = TripplanningFactory.eINSTANCE;
-//   // Use your generated factories and types here
-//   res.json({ message: 'Trips endpoint', factory: !!factory });
-// });
+app.get('/api/trips', (req, res) => {
+  const factory = TripplanningFactory.eINSTANCE;
+  // Use your generated factories and types here
+  res.json({ message: 'Trips endpoint', factory: !!factory });
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
