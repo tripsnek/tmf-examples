@@ -58,7 +58,7 @@
               <small>Choose an instance from the tree to view its properties</small>
             </div>
 
-            <div *ngIf="selectedInstance" class="property-groups">
+            <div *ngIf="selectedInstance" class="property-groups" style="max-width: 500px">
               <!-- Attributes Group -->
               <div class="property-group" *ngIf="getAttributes().length > 0">
                 <div class="group-header">
