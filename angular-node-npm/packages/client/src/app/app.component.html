@@ -165,7 +165,7 @@
         <div class="dialog-backdrop" (click)="hideCreateDialog()"></div>
         <div class="dialog-content">
           <div class="dialog-header">
-            <h3>Create New Instance</h3>
+            <h3>{{ isContainmentCreation ? 'Create ' + containmentReference?.getName() : 'Create New Instance' }}</h3>
             <button class="dialog-close" (click)="hideCreateDialog()">×</button>
           </div>
           
@@ -175,7 +175,7 @@
               <div class="class-grid">
                 <div 
                   class="class-card"
-                  *ngFor="let eClass of getInstantiableClasses()"
+                  *ngFor="let eClass of getAvailableClasses()"
                   [class.selected]="selectedEClass === eClass"
                   (click)="selectEClass(eClass)"
                 >
@@ -190,16 +190,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div class="form-group" *ngIf="selectedEClass && getPossibleContainers().length > 0">
-              <label>Container (Optional)</label>
-              <select class="form-select" [(ngModel)]="selectedContainer">
-                <option [value]="null">No Container</option>
-                <option *ngFor="let container of getPossibleContainers()" [value]="container">
-                  {{ container.instance.label }} ({{ container.reference.getName() }})
-                </option>
-              </select>
             </div>
           </div>
           

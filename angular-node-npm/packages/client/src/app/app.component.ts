@@ -64,6 +64,11 @@ export class TMFReflectiveEditorComponent implements OnInit {
   selectedReferenceTarget: ModelInstance | null = null;
   referenceDialogTitle = '';
   
+  // For containment creation
+  isContainmentCreation = false;
+  containmentReference: EReference | null = null;
+  containmentParent: ModelInstance | null = null;
+  
   private nextId = 1;
 
   ngOnInit() {
@@ -76,6 +81,69 @@ export class TMFReflectiveEditorComponent implements OnInit {
     // For now, we'll assume it's available via injection or import
     this.ePackage = TripplanningPackage.eINSTANCE;
     this.eFactory = TripplanningFactory.eINSTANCE;
+  }
+
+  // Get only root EClasses (not contained by any other EClass)
+  getRootEClasses(): EClass[] {
+    if (!this.ePackage) return [];
+    
+    const allClasses: EClass[] = [];
+    const containedClasses = new Set<EClass>();
+    
+    // First, collect all non-abstract, non-interface classes
+    this.ePackage.getEClassifiers().forEach(classifier => {
+      if (classifier instanceof EClassImpl && 
+          !classifier.isAbstract() && 
+          !classifier.isInterface()) {
+        allClasses.push(classifier);
+      }
+    });
+    
+    // Then, find which classes are contained by others
+    allClasses.forEach(eClass => {
+      eClass.getEAllReferences().forEach(ref => {
+        if (ref.isContainment()) {
+          const targetType = ref.getEType();
+          if (targetType instanceof EClassImpl) {
+            containedClasses.add(targetType);
+            // Also add all subtypes
+            allClasses.forEach(otherClass => {
+              if (otherClass.getEAllSuperTypes().contains(targetType)) {
+                containedClasses.add(otherClass);
+              }
+            });
+          }
+        }
+      });
+    });
+    
+    // Return classes that are not contained by any other class
+    return allClasses.filter(c => !containedClasses.has(c));
+  }
+
+  // Get classes available for creation (root classes or classes for containment)
+  getAvailableClasses(): EClass[] {
+    if (this.isContainmentCreation && this.containmentReference) {
+      // For containment creation, show classes compatible with the reference type
+      const targetType = this.containmentReference.getEType();
+      if (!(targetType instanceof EClassImpl)) return [];
+      
+      const compatibleClasses: EClass[] = [];
+      this.ePackage!.getEClassifiers().forEach(classifier => {
+        if (classifier instanceof EClassImpl && 
+            !classifier.isAbstract() && 
+            !classifier.isInterface()) {
+          if (classifier === targetType || 
+              classifier.getEAllSuperTypes().contains(targetType)) {
+            compatibleClasses.push(classifier);
+          }
+        }
+      });
+      return compatibleClasses;
+    } else {
+      // For root creation, show only root classes
+      return this.getRootEClasses();
+    }
   }
 
   getInstantiableClasses(): EClass[] {
@@ -127,7 +195,11 @@ export class TMFReflectiveEditorComponent implements OnInit {
     
     this.instances.push(instance);
     
-    if (this.selectedContainer) {
+    if (this.isContainmentCreation && this.containmentParent && this.containmentReference) {
+      // Add to container
+      this.addToContainer(this.containmentParent, this.containmentReference, instance);
+      this.updateInstanceTree(this.containmentParent);
+    } else if (this.selectedContainer) {
       const { instance: container, reference } = this.selectedContainer;
       this.addToContainer(container, reference, instance);
     } else {
@@ -145,8 +217,46 @@ export class TMFReflectiveEditorComponent implements OnInit {
     } else {
       container.eObject.eSet(reference, instance.eObject);
     }
-    container.children.push(instance);
+    
+    // Update the tree structure
+    if (!container.children.includes(instance)) {
+      container.children.push(instance);
+    }
+    
+    // Remove from root if it was there
+    const rootIndex = this.rootInstances.indexOf(instance);
+    if (rootIndex > -1) {
+      this.rootInstances.splice(rootIndex, 1);
+    }
+    
     this.updateInstanceLabel(container);
+  }
+
+  // Update the tree structure based on containment references
+  private updateInstanceTree(parent: ModelInstance) {
+    parent.children = [];
+    
+    parent.eObject.eClass().getEAllReferences().forEach(ref => {
+      if (ref.isContainment()) {
+        if (ref.isMany()) {
+          const list = parent.eObject.eGet(ref);
+          list.forEach((childEObject: EObject) => {
+            const childInstance = this.instances.find(i => i.eObject === childEObject);
+            if (childInstance && !parent.children.includes(childInstance)) {
+              parent.children.push(childInstance);
+            }
+          });
+        } else {
+          const childEObject = parent.eObject.eGet(ref);
+          if (childEObject) {
+            const childInstance = this.instances.find(i => i.eObject === childEObject);
+            if (childInstance && !parent.children.includes(childInstance)) {
+              parent.children.push(childInstance);
+            }
+          }
+        }
+      }
+    });
   }
 
   deleteInstance() {

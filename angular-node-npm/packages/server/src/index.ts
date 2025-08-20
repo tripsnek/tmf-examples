@@ -12,7 +12,7 @@ app.use(express.json());
 const eobj = new EClassImpl();
 eobj.setName('TestClass');
 console.log("Can I import tripsnek types: " + eobj.getName())
-console.log("instanceof works? " + (TripplanningPackage.eINSTANCE.getTripWaypoint() instanceof EClassImpl));
+console.log("instanceof works? " + (TripplanningPackage.eINSTANCE.getTripSegment() instanceof EClassImpl));
 
 // Example route using your data model
 app.get('/api/trips', (req, res) => {
