@@ -47,7 +47,6 @@
             <h2>Properties</h2>
             <div class="instance-info" *ngIf="selectedInstance">
               <span class="instance-type">{{ getEClassName(selectedInstance.eObject) }}</span>
-              <span class="instance-id">#{{ selectedInstance.id }}</span>
             </div>
           </div>
 
@@ -281,7 +280,7 @@
               <select class="form-select" [(ngModel)]="selectedReferenceTarget">
                 <option [value]="null">Select an instance...</option>
                 <option *ngFor="let instance of getValidReferenceTargets()" [value]="instance">
-                  {{ instance.label }} (#{{ instance.id }})
+                  {{ instance.label }}
                 </option>
               </select>
             </div>

@@ -17,7 +17,6 @@ import {
 import { TripplanningFactory, TripplanningPackage } from '@tmf-example/data-model';
 
 interface ModelInstance {
-  id: number;
   eObject: EObject;
   label: string;
   children: ModelInstance[];
@@ -188,7 +187,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
     
     const eObject = this.eFactory.create(this.selectedEClass);
     const instance: ModelInstance = {
-      id: this.nextId++,
       eObject,
       label: this.generateInstanceLabel(eObject),
       children: [],
