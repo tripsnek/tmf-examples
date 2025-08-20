@@ -384,7 +384,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       return null; // Handled by getAttributeValues
     }
     
-    return this.selectedInstance.eObject.eGet(attr);
+    const value = this.selectedInstance.eObject.eGet(attr);
+    return value || '';
   }
 
   getAttributeValues(attr: EAttribute): any[] {
