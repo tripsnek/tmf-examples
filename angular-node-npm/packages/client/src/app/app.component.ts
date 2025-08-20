@@ -85,17 +85,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.ePackage.getEClassifiers().forEach(classifier => {
       const eclass = classifier as EClass;
       
-      // Debug logging to identify instanceof issue
-      console.log('=== Classifier Debug ===');
-      console.log('Classifier:', classifier);
-      console.log('Classifier constructor name:', classifier.constructor.name);
-      console.log('instanceof EClassImpl:', classifier instanceof EClassImpl);
-      console.log('EClassImpl constructor:', EClassImpl);
-      console.log('Classifier constructor === EClassImpl:', classifier.constructor === EClassImpl);
-      console.log('isAbstract():', eclass.isAbstract());
-      console.log('isInterface():', eclass.isInterface());
-      console.log('========================');
-      
       if (classifier instanceof EClassImpl && 
           !classifier.isAbstract() && 
           !classifier.isInterface()) {
@@ -116,7 +105,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.instances.forEach(instance => {
       instance.eObject.eClass().getEReferences().forEach(ref => {
         if (ref.isContainment() && 
-            ref.getEReferenceType() === this.selectedEClass) {
+            ref.getEType() === this.selectedEClass) {
           containers.push({ instance, reference: ref });
         }
       });
@@ -223,12 +212,13 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   getAttributes(): EAttribute[] {
     if (!this.selectedInstance) return [];
-    return Array.from(this.selectedInstance.eObject.eClass().getEAttributes());
+    const eClass = this.selectedInstance.eObject.eClass();
+    return Array.from(eClass.getEAllAttributes());
   }
 
   getReferences(): EReference[] {
     if (!this.selectedInstance) return [];
-    return Array.from(this.selectedInstance.eObject.eClass().getEReferences());
+    return Array.from(this.selectedInstance.eObject.eClass().getEAllReferences());
   }
 
   getAttributeValue(attr: EAttribute): any {
@@ -275,7 +265,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
   getValidReferenceTargets(): ModelInstance[] {
     if (!this.currentReference) return [];
     
-    const targetType = this.currentReference.getEReferenceType();
+    const targetType = this.currentReference.getEType();
     return this.instances.filter(instance => 
       instance !== this.selectedInstance &&
       (instance.eObject.eClass() === targetType ||
@@ -364,36 +354,36 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   getAttributeType(attr: EAttribute): string {
-    const type = attr.getEAttributeType();
+    const type = attr.getEType();
     return type.getName();
   }
 
   isStringType(attr: EAttribute): boolean {
-    const typeName = attr.getEAttributeType().getName();
+    const typeName = attr.getEType().getName();
     return typeName === 'EString' || typeName === 'String';
   }
 
   isNumberType(attr: EAttribute): boolean {
-    const typeName = attr.getEAttributeType().getName();
+    const typeName = attr.getEType().getName();
     return ['EInt', 'ELong', 'EFloat', 'EDouble', 'EBigDecimal', 'EBigInteger'].includes(typeName);
   }
 
   isBooleanType(attr: EAttribute): boolean {
-    const typeName = attr.getEAttributeType().getName();
+    const typeName = attr.getEType().getName();
     return typeName === 'EBoolean' || typeName === 'Boolean';
   }
 
   isDateType(attr: EAttribute): boolean {
-    const typeName = attr.getEAttributeType().getName();
+    const typeName = attr.getEType().getName();
     return typeName === 'EDate' || typeName === 'Date';
   }
 
   isEnumType(attr: EAttribute): boolean {
-    return attr.getEAttributeType() instanceof EEnumImpl;
+    return attr.getEType() instanceof EEnumImpl;
   }
 
   getEnumLiterals(attr: EAttribute): string[] {
-    const type = attr.getEAttributeType();
+    const type = attr.getEType();
     if (type instanceof EEnumImpl) {
       return Array.from(type.getELiterals()).map(lit => lit.getLiteral());
     }

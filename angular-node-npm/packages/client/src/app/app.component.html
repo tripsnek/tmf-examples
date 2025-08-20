@@ -128,7 +128,7 @@
                       {{ ref.getName() }}
                       <span class="property-meta" *ngIf="ref.isContainment()">(containment)</span>
                       <span class="property-meta" *ngIf="ref.isMany()">[{{ ref.getLowerBound() }}..{{ ref.getUpperBound() === -1 ? '*' : ref.getUpperBound() }}]</span>
-                      <span class="property-type">{{ ref.getEReferenceType().getName() }}</span>
+                      <span class="property-type">{{ ref.getEType().getName() }}</span>
                     </label>
                     
                     <div class="reference-control">
