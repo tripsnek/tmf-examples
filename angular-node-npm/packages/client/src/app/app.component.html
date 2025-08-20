@@ -1,4 +1,4 @@
-    <div class="tmf-editor">
+<div class="tmf-editor">
       <!-- Header -->
       <header class="editor-header">
         <div class="header-content">
@@ -70,47 +70,99 @@
                     <label class="property-label">
                       {{ attr.getName() }}
                       <span class="property-meta" *ngIf="attr.isId()">(ID)</span>
+                      <span class="property-meta" *ngIf="attr.isMany()">[{{ attr.getLowerBound() }}..{{ attr.getUpperBound() === -1 ? '*' : attr.getUpperBound() }}]</span>
                       <span class="property-type">{{ getAttributeType(attr) }}</span>
                     </label>
                     <div class="property-control">
-                      <input 
-                        *ngIf="isStringType(attr)"
-                        type="text"
-                        class="form-input"
-                        [value]="getAttributeValue(attr)"
-                        (change)="setAttributeValue(attr, $event)"
-                      />
-                      <input 
-                        *ngIf="isNumberType(attr)"
-                        type="number"
-                        class="form-input"
-                        [value]="getAttributeValue(attr)"
-                        (change)="setAttributeValue(attr, $event)"
-                      />
-                      <input 
-                        *ngIf="isBooleanType(attr)"
-                        type="checkbox"
-                        class="form-checkbox"
-                        [checked]="getAttributeValue(attr)"
-                        (change)="setAttributeValue(attr, $event)"
-                      />
-                      <input 
-                        *ngIf="isDateType(attr)"
-                        type="date"
-                        class="form-input"
-                        [value]="getAttributeValue(attr)"
-                        (change)="setAttributeValue(attr, $event)"
-                      />
-                      <select 
-                        *ngIf="isEnumType(attr)"
-                        class="form-select"
-                        [value]="getAttributeValue(attr)"
-                        (change)="setAttributeValue(attr, $event)"
-                      >
-                        <option *ngFor="let literal of getEnumLiterals(attr)" [value]="literal">
-                          {{ literal }}
-                        </option>
-                      </select>
+                      <!-- Many-valued attributes -->
+                      <div *ngIf="attr.isMany()" class="reference-list">
+                        <div class="reference-item" *ngFor="let value of getAttributeValues(attr); let i = index">
+                          <span class="reference-label">{{ value }}</span>
+                          <button class="btn btn-sm btn-danger" (click)="removeAttributeValue(attr, i)">×</button>
+                        </div>
+                        <!-- String type input -->
+                        <div *ngIf="isStringType(attr)" style="display: flex; gap: 0.5rem; align-items: center;">
+                          <input 
+                            type="text"
+                            class="form-input"
+                            #stringValue
+                            placeholder="New value"
+                            (keyup.enter)="addAttributeValue(attr, stringValue)"
+                          />
+                          <button class="btn btn-sm btn-primary" (click)="addAttributeValue(attr, stringValue)">
+                            + Add
+                          </button>
+                        </div>
+                        <!-- Number type input -->
+                        <div *ngIf="isNumberType(attr)" style="display: flex; gap: 0.5rem; align-items: center;">
+                          <input 
+                            type="number"
+                            class="form-input"
+                            #numberValue
+                            placeholder="New value"
+                            (keyup.enter)="addAttributeValue(attr, numberValue)"
+                          />
+                          <button class="btn btn-sm btn-primary" (click)="addAttributeValue(attr, numberValue)">
+                            + Add
+                          </button>
+                        </div>
+                        <!-- Enum type input -->
+                        <div *ngIf="isEnumType(attr)" style="display: flex; gap: 0.5rem; align-items: center;">
+                          <select 
+                            class="form-select"
+                            #enumValue
+                          >
+                            <option *ngFor="let literal of getEnumLiterals(attr)" [value]="literal">
+                              {{ literal }}
+                            </option>
+                          </select>
+                          <button class="btn btn-sm btn-primary" (click)="addAttributeValue(attr, enumValue)">
+                            + Add
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- Single-valued attributes -->
+                      <ng-container *ngIf="!attr.isMany()">
+                        <input 
+                          *ngIf="isStringType(attr)"
+                          type="text"
+                          class="form-input"
+                          [value]="getAttributeValue(attr)"
+                          (change)="setAttributeValue(attr, $event)"
+                        />
+                        <input 
+                          *ngIf="isNumberType(attr)"
+                          type="number"
+                          class="form-input"
+                          [value]="getAttributeValue(attr)"
+                          (change)="setAttributeValue(attr, $event)"
+                        />
+                        <input 
+                          *ngIf="isBooleanType(attr)"
+                          type="checkbox"
+                          class="form-checkbox"
+                          [checked]="getAttributeValue(attr)"
+                          (change)="setAttributeValue(attr, $event)"
+                        />
+                        <input 
+                          *ngIf="isDateType(attr)"
+                          type="date"
+                          class="form-input"
+                          [value]="getAttributeValue(attr)"
+                          (change)="setAttributeValue(attr, $event)"
+                        />
+                        <select 
+                          *ngIf="isEnumType(attr)"
+                          class="form-select"
+                          [value]="getAttributeValue(attr)"
+                          (change)="setAttributeValue(attr, $event)"
+                        >
+                          <option *ngFor="let literal of getEnumLiterals(attr)" [value]="literal">
+                            {{ literal }}
+                          </option>
+                        </select>
+                      </ng-container>
                     </div>
                   </div>
                 </div>
@@ -133,21 +185,35 @@
                     
                     <div class="reference-control">
                       <div *ngIf="ref.isMany()" class="reference-list">
-                        <div class="reference-item" *ngFor="let target of getReferenceValues(ref)">
-                          <span class="reference-label">{{ getInstanceLabel(target) }}</span>
-                          <button class="btn btn-sm btn-danger" (click)="removeReference(ref, target)">×</button>
+                        <div class="reference-item" *ngFor="let target of getReferenceValues(ref)" (click)="selectReferenceTarget(target)">
+                          <span class="reference-label" style="cursor: pointer;">{{ getInstanceLabel(target) }}</span>
+                          <button class="btn btn-sm btn-danger" (click)="removeReference(ref, target, $event)">×</button>
                         </div>
-                        <button class="btn btn-sm btn-primary" (click)="showAddReferenceDialog(ref)">
+                        <button class="btn btn-sm btn-primary" 
+                                *ngIf="ref.isContainment()"
+                                (click)="showCreateContainmentDialog(ref)">
+                          + Create {{ ref.getName() }}
+                        </button>
+                        <button class="btn btn-sm btn-primary" 
+                                *ngIf="!ref.isContainment()"
+                                (click)="showAddReferenceDialog(ref)">
                           + Add {{ ref.getName() }}
                         </button>
                       </div>
                       
                       <div *ngIf="!ref.isMany()" class="reference-single">
-                        <div class="reference-item" *ngIf="getReferenceValue(ref)">
-                          <span class="reference-label">{{ getInstanceLabel(getReferenceValue(ref)) }}</span>
-                          <button class="btn btn-sm btn-danger" (click)="clearReference(ref)">×</button>
+                        <div class="reference-item" *ngIf="getReferenceValue(ref)" (click)="selectReferenceTarget(getReferenceValue(ref))">
+                          <span class="reference-label" style="cursor: pointer;">{{ getInstanceLabel(getReferenceValue(ref)) }}</span>
+                          <button class="btn btn-sm btn-danger" (click)="clearReference(ref, $event)">×</button>
                         </div>
-                        <button *ngIf="!getReferenceValue(ref)" class="btn btn-sm btn-primary" (click)="showSetReferenceDialog(ref)">
+                        <button *ngIf="!getReferenceValue(ref) && ref.isContainment()" 
+                                class="btn btn-sm btn-primary" 
+                                (click)="showCreateContainmentDialog(ref)">
+                          Create {{ ref.getName() }}
+                        </button>
+                        <button *ngIf="!getReferenceValue(ref) && !ref.isContainment()" 
+                                class="btn btn-sm btn-primary" 
+                                (click)="showSetReferenceDialog(ref)">
                           Set {{ ref.getName() }}
                         </button>
                       </div>

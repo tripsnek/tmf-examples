@@ -133,8 +133,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
         if (classifier instanceof EClassImpl && 
             !classifier.isAbstract() && 
             !classifier.isInterface()) {
+          // Check if this class is compatible with the reference type
           if (classifier === targetType || 
-              classifier.getEAllSuperTypes().contains(targetType)) {
+              classifier.getEAllSuperTypes().contains(targetType) ||
+              targetType.getEAllSuperTypes().contains(classifier)) {
             compatibleClasses.push(classifier);
           }
         }
@@ -196,13 +198,28 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.instances.push(instance);
     
     if (this.isContainmentCreation && this.containmentParent && this.containmentReference) {
-      // Add to container
-      this.addToContainer(this.containmentParent, this.containmentReference, instance);
-      this.updateInstanceTree(this.containmentParent);
+      // Creating a new instance for a containment reference
+      if (this.containmentReference.isMany()) {
+        const list = this.containmentParent.eObject.eGet(this.containmentReference);
+        list.add(eObject);
+      } else {
+        this.containmentParent.eObject.eSet(this.containmentReference, eObject);
+      }
+      
+      // Add to parent's children in the tree
+      if (!this.containmentParent.children.includes(instance)) {
+        this.containmentParent.children.push(instance);
+      }
+      
+      // Make sure parent is expanded to show new child
+      this.containmentParent.expanded = true;
+      
+      this.updateInstanceLabel(this.containmentParent);
     } else if (this.selectedContainer) {
       const { instance: container, reference } = this.selectedContainer;
       this.addToContainer(container, reference, instance);
     } else {
+      // Root instance
       this.rootInstances.push(instance);
     }
     
@@ -311,6 +328,35 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.selectedInstance = instance;
   }
 
+  // Select an instance in the tree when clicking on a reference
+  selectReferenceTarget(eObject: EObject | undefined) {
+    if (!eObject) return;
+    
+    const instance = this.instances.find(i => i.eObject === eObject);
+    if (instance) {
+      this.selectedInstance = instance;
+      // Expand all parents to make it visible
+      this.expandToInstance(instance);
+    }
+  }
+
+  private expandToInstance(target: ModelInstance) {
+    // Find and expand all parents
+    const expandPath = (node: ModelInstance): boolean => {
+      if (node === target) return true;
+      
+      for (const child of node.children) {
+        if (expandPath(child)) {
+          node.expanded = true;
+          return true;
+        }
+      }
+      return false;
+    };
+    
+    this.rootInstances.forEach(root => expandPath(root));
+  }
+
   toggleExpanded(instance: ModelInstance, event: Event) {
     event.stopPropagation();
     instance.expanded = !instance.expanded;
@@ -332,7 +378,20 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   getAttributeValue(attr: EAttribute): any {
-    return this.selectedInstance?.eObject.eGet(attr);
+    if (!this.selectedInstance) return null;
+    
+    if (attr.isMany()) {
+      return null; // Handled by getAttributeValues
+    }
+    
+    return this.selectedInstance.eObject.eGet(attr);
+  }
+
+  getAttributeValues(attr: EAttribute): any[] {
+    if (!this.selectedInstance || !attr.isMany()) return [];
+    
+    const list = this.selectedInstance.eObject.eGet(attr);
+    return list ? Array.from(list) : [];
   }
 
   setAttributeValue(attr: EAttribute, event: any) {
@@ -349,6 +408,46 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.updateInstanceLabel(this.selectedInstance);
   }
 
+  addAttributeValue(attr: EAttribute, inputElement: any) {
+    if (!this.selectedInstance || !attr.isMany() || !inputElement) return;
+    
+    let value = inputElement.value;
+    if (!value) return;
+    
+    // Convert value based on type
+    if (this.isNumberType(attr)) {
+      value = parseFloat(value);
+    }
+    
+    const list = this.selectedInstance.eObject.eGet(attr);
+    if (!list.add) {
+      // If the list doesn't have an add method, we might need to create a new array
+      const currentValues = Array.from(list || []);
+      currentValues.push(value);
+      this.selectedInstance.eObject.eSet(attr, currentValues);
+    } else {
+      list.add(value);
+    }
+    
+    // Clear the input
+    inputElement.value = '';
+    this.updateInstanceLabel(this.selectedInstance);
+  }
+
+  removeAttributeValue(attr: EAttribute, index: number) {
+    if (!this.selectedInstance || !attr.isMany()) return;
+    
+    const list = this.selectedInstance.eObject.eGet(attr);
+    if (list && list.remove) {
+      const values = Array.from(list);
+      if (index >= 0 && index < values.length) {
+        list.remove(values[index]);
+      }
+    }
+    
+    this.updateInstanceLabel(this.selectedInstance);
+  }
+
   getReferenceValue(ref: EReference): EObject | undefined {
     if (!this.selectedInstance || ref.isMany()) return undefined;
     return this.selectedInstance.eObject.eGet(ref);
@@ -360,12 +459,24 @@ export class TMFReflectiveEditorComponent implements OnInit {
     return Array.from(list);
   }
 
+  // Show dialog to CREATE a new instance for a containment reference
+  showCreateContainmentDialog(ref: EReference) {
+    this.isContainmentCreation = true;
+    this.containmentReference = ref;
+    this.containmentParent = this.selectedInstance;
+    this.selectedEClass = null;
+    this.selectedContainer = null;  // Clear any previous container selection
+    this.showCreateInstanceDialog = true;
+  }
+
+  // Show dialog to ADD an existing instance for a non-containment reference
   showAddReferenceDialog(ref: EReference) {
     this.currentReference = ref;
     this.referenceDialogTitle = `Add ${ref.getName()}`;
     this.showReferenceDialog = true;
   }
 
+  // Show dialog to SET an existing instance for a non-containment reference
   showSetReferenceDialog(ref: EReference) {
     this.currentReference = ref;
     this.referenceDialogTitle = `Set ${ref.getName()}`;
@@ -405,7 +516,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.hideReferenceDialog();
   }
 
-  removeReference(ref: EReference, target: EObject) {
+  removeReference(ref: EReference, target: EObject, event?: Event) {
+    if (event) event.stopPropagation();
     if (!this.selectedInstance) return;
     
     if (ref.isMany()) {
@@ -423,7 +535,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
   }
 
-  clearReference(ref: EReference) {
+  clearReference(ref: EReference, event?: Event) {
+    if (event) event.stopPropagation();
     if (!this.selectedInstance) return;
     
     const current = this.selectedInstance.eObject.eGet(ref);
@@ -442,12 +555,19 @@ export class TMFReflectiveEditorComponent implements OnInit {
   getInstanceLabel(eObject?: EObject): string {
     if(!eObject) return 'Unknown'
     const instance = this.instances.find(i => i.eObject === eObject);
-    return instance?.label || 'Unknown';
+    return instance?.label || this.generateInstanceLabel(eObject);
   }
 
   private generateInstanceLabel(eObject: EObject): string {
-    // Try common name attributes
-    const nameAttrs = ['name', 'title', 'label', 'id'];
+    // First, specifically look for 'name' attribute
+    const nameAttr = eObject.eClass().getEStructuralFeature('name');
+    if (nameAttr && nameAttr instanceof EAttributeImpl) {
+      const value = eObject.eGet(nameAttr);
+      if (value) return String(value);
+    }
+    
+    // Then try other common name attributes
+    const nameAttrs = ['title', 'label', 'id'];
     for (const attrName of nameAttrs) {
       const attr = eObject.eClass().getEStructuralFeature(attrName);
       if (attr && attr instanceof EAttributeImpl) {
@@ -456,7 +576,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       }
     }
     
-    return `${eObject.eClass().getName()} #${this.nextId}`;
+    // Default to class name with ID
+    return `${eObject.eClass().getName()} #${this.instances.findIndex(i => i.eObject === eObject) + 1}`;
   }
 
   private updateInstanceLabel(instance: ModelInstance) {
@@ -501,6 +622,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   showCreateDialog() {
+    this.isContainmentCreation = false;
+    this.containmentReference = null;
+    this.containmentParent = null;
     this.showCreateInstanceDialog = true;
     this.selectedEClass = null;
     this.selectedContainer = null;
@@ -510,6 +634,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.showCreateInstanceDialog = false;
     this.selectedEClass = null;
     this.selectedContainer = null;
+    this.isContainmentCreation = false;
+    this.containmentReference = null;
+    this.containmentParent = null;
   }
 
   hideReferenceDialog() {
