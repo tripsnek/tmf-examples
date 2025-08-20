@@ -8,13 +8,15 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
-
-import { TripGen } from '../gen/trip-gen'
 import { Trip } from '../api/trip';
+import { Location } from '../api/location';
+
+import { TripSegmentGen } from '../gen/trip-segment-gen'
+import { TripSegment } from '../api/trip-segment';
 
 /**
  * Editable Impl class.
  */
-export class TripImpl extends TripGen {
+export class TripSegmentImpl extends TripSegmentGen {
 
 }

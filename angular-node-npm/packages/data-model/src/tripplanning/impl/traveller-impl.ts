@@ -1,3 +1,4 @@
+
 import { EObject } from '@tripsnek/tmf';
 import { TUtils } from '@tripsnek/tmf';
 import { EStructuralFeature } from '@tripsnek/tmf';
@@ -7,18 +8,14 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
+import { PersonalInterest } from '../api/personal-interest';
 
-import { Trip } from './trip';
-import { TripplanningPackage } from '../tripplanning-package';
+import { TravellerGen } from '../gen/traveller-gen'
+import { Traveller } from '../api/traveller';
 
 /**
- * Source-gen API for TripWaypoint.
+ * Editable Impl class.
  */
-export interface TripWaypoint extends EObject {
-  getCity(): string;
-  setCity(newCity: string): void;
-  getNights(): number;
-  setNights(newNights: number): void;
-  getTrip(): Trip;
-  setTrip(newTrip: Trip): void;
+export class TravellerImpl extends TravellerGen {
+
 }

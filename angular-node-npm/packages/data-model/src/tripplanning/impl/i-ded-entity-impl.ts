@@ -9,12 +9,12 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { TripGen } from '../gen/trip-gen'
-import { Trip } from '../api/trip';
+import { IDedEntityGen } from '../gen/i-ded-entity-gen'
+import { IDedEntity } from '../api/i-ded-entity';
 
 /**
  * Editable Impl class.
  */
-export class TripImpl extends TripGen {
+export class IDedEntityImpl extends IDedEntityGen {
 
 }

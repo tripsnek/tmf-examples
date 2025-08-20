@@ -7,20 +7,28 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
-import { Trip } from '../api/trip';
+import { IDedEntity } from '../api/i-ded-entity';
+import { PersonalInterest } from '../api/personal-interest';
 
 import { TripplanningPackage } from '../tripplanning-package';
-import { TripWaypoint } from '../api/trip-waypoint';
+import { Traveller } from '../api/traveller';
+import { IDedEntityGen } from './i-ded-entity-gen';
+import { IDedEntityImpl } from '../impl/i-ded-entity-impl';
 
 /**
  * This file is source-code generated and should never be edited. It implements
- * the core TMF functionality for TripWaypoint.
+ * the core TMF functionality for Traveller.
  */
-export abstract class TripWaypointGen extends EObjectImpl implements TripWaypoint {
+export abstract class TravellerGen extends IDedEntityImpl implements Traveller {
   /** feature declarations */
-  protected city!: string;
-  protected nights!: number;
-  protected trip!: Trip;
+  protected name!: string;
+  protected email!: string;
+  protected interests: EList<PersonalInterest> = new BasicEList<PersonalInterest>(
+    undefined,
+    this,
+    TripplanningPackage.TRAVELLER__INTERESTS,
+    undefined
+  );
 
 
 
@@ -28,36 +36,24 @@ export abstract class TripWaypointGen extends EObjectImpl implements TripWaypoin
   // Getters and Setters
 
 
-  public getCity(): string {
-    return this.city;
+  public getName(): string {
+    return this.name;
   }
 
-  public setCity(newCity: string): void {
-    this.basicSetCity(newCity);
+  public setName(newName: string): void {
+    this.basicSetName(newName);
   }
 
-  public getNights(): number {
-    return this.nights;
+  public getEmail(): string {
+    return this.email;
   }
 
-  public setNights(newNights: number): void {
-    this.basicSetNights(newNights);
+  public setEmail(newEmail: string): void {
+    this.basicSetEmail(newEmail);
   }
 
-  public getTrip(): Trip {
-    return this.trip;
-  }
-
-  public setTrip(newTrip: Trip): void {
-    if (this.trip !== newTrip) {
-      if (this.trip) {
-        this.trip.eInverseRemove(this, TripplanningPackage.TRIP__WAYPOINTS);
-      }
-      if (newTrip) {
-        newTrip.eInverseAdd(this, TripplanningPackage.TRIP__WAYPOINTS);
-      }
-    }
-    this.basicSetTrip(newTrip);
+  public getInterests(): EList<PersonalInterest> {
+    return this.interests;
   }
 
   //======================================================================
@@ -75,12 +71,12 @@ export abstract class TripWaypointGen extends EObjectImpl implements TripWaypoin
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRIP_WAYPOINT__CITY:
-        return this.getCity();
-      case TripplanningPackage.TRIP_WAYPOINT__NIGHTS:
-        return this.getNights();
-      case TripplanningPackage.TRIP_WAYPOINT__TRIP:
-        return this.getTrip();
+      case TripplanningPackage.TRAVELLER__NAME:
+        return this.getName();
+      case TripplanningPackage.TRAVELLER__EMAIL:
+        return this.getEmail();
+      case TripplanningPackage.TRAVELLER__INTERESTS:
+        return this.getInterests();
     }
     return super.eGet(featureID);
   }
@@ -95,14 +91,15 @@ export abstract class TripWaypointGen extends EObjectImpl implements TripWaypoin
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRIP_WAYPOINT__CITY:
-        this.setCity(newValue);
+      case TripplanningPackage.TRAVELLER__NAME:
+        this.setName(newValue);
         return;
-      case TripplanningPackage.TRIP_WAYPOINT__NIGHTS:
-        this.setNights(newValue);
+      case TripplanningPackage.TRAVELLER__EMAIL:
+        this.setEmail(newValue);
         return;
-      case TripplanningPackage.TRIP_WAYPOINT__TRIP:
-        this.setTrip(newValue);
+      case TripplanningPackage.TRAVELLER__INTERESTS:
+        this.getInterests().clear();
+        this.getInterests().addAll(newValue);
         return;
     }
     return super.eSet(featureID, newValue);
@@ -118,12 +115,12 @@ export abstract class TripWaypointGen extends EObjectImpl implements TripWaypoin
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRIP_WAYPOINT__CITY:
-        return this.getCity === undefined;
-      case TripplanningPackage.TRIP_WAYPOINT__NIGHTS:
-        return this.getNights === undefined;
-      case TripplanningPackage.TRIP_WAYPOINT__TRIP:
-        return this.getTrip === undefined;
+      case TripplanningPackage.TRAVELLER__NAME:
+        return this.getName === undefined;
+      case TripplanningPackage.TRAVELLER__EMAIL:
+        return this.getEmail === undefined;
+      case TripplanningPackage.TRAVELLER__INTERESTS:
+        return this.getInterests().isEmpty();
     }
     return super.eIsSet(featureID);
   }
@@ -138,14 +135,14 @@ export abstract class TripWaypointGen extends EObjectImpl implements TripWaypoin
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRIP_WAYPOINT__CITY:
-        this.setCity(undefined!);
+      case TripplanningPackage.TRAVELLER__NAME:
+        this.setName(undefined!);
         return;
-      case TripplanningPackage.TRIP_WAYPOINT__NIGHTS:
-        this.setNights(undefined!);
+      case TripplanningPackage.TRAVELLER__EMAIL:
+        this.setEmail(undefined!);
         return;
-      case TripplanningPackage.TRIP_WAYPOINT__TRIP:
-        this.setTrip(undefined!);
+      case TripplanningPackage.TRAVELLER__INTERESTS:
+        this.getInterests().clear();
         return;
     }
     return super.eUnset(featureID);
@@ -155,48 +152,25 @@ export abstract class TripWaypointGen extends EObjectImpl implements TripWaypoin
   // Basic setters (allow EOpposite enforcement without triggering infinite cycles)
 
 
-  public basicSetCity(newCity: string): void {
-    this.city = newCity;
+  public basicSetName(newName: string): void {
+    this.name = newName;
   }
 
-  public basicSetNights(newNights: number): void {
-    this.nights = newNights;
-  }
-
-  public basicSetTrip(newTrip: Trip): void {
-    this.trip = newTrip;
+  public basicSetEmail(newEmail: string): void {
+    this.email = newEmail;
   }
 
   //======================================================================
   // Inverse Adders (if needed)
-  public override eInverseAdd(otherEnd: EObject, featureID: number): void {
-    switch (featureID) {
-      case TripplanningPackage.TRIP_WAYPOINT__TRIP:
-        if (this.trip)
-          this.trip.eInverseRemove(
-            this,
-            TripplanningPackage.TRIP__WAYPOINTS
-          );
-        return this.basicSetTrip(<Trip>otherEnd);
-    }
-    return super.eInverseAdd(otherEnd, featureID);
-  }
 
 
   //======================================================================
   // Inverse Removers (if needed)
-  public override eInverseRemove(otherEnd: EObject, featureID: number): void {
-    switch (featureID) {
-      case TripplanningPackage.TRIP_WAYPOINT__TRIP:
-        return this.basicSetTrip(undefined!);
-    }
-    return super.eInverseRemove(otherEnd, featureID);
-  }
 
   //======================================================================
   // eClass()
 
   public override eClass(): EClass {
-    return TripplanningPackage.Literals.TRIP_WAYPOINT;
+    return TripplanningPackage.Literals.TRAVELLER;
   }
 }

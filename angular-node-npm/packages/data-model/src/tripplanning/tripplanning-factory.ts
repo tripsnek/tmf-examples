@@ -15,8 +15,12 @@ import { TripplanningPackage } from './tripplanning-package';
 
 import { Trip } from './api/trip';
 import { TripImpl } from './impl/trip-impl';
-import { TripWaypoint } from './api/trip-waypoint';
-import { TripWaypointImpl } from './impl/trip-waypoint-impl';
+import { TripSegment } from './api/trip-segment';
+import { TripSegmentImpl } from './impl/trip-segment-impl';
+import { Traveller } from './api/traveller';
+import { TravellerImpl } from './impl/traveller-impl';
+import { Location } from './api/location';
+import { LocationImpl } from './impl/location-impl';
 
 export class TripplanningFactory extends EFactory {
   /* Singleton */
@@ -35,8 +39,12 @@ export class TripplanningFactory extends EFactory {
     switch (eClass.getClassifierId()) {
       case TripplanningPackage.TRIP:
         return this.createTrip();
-      case TripplanningPackage.TRIP_WAYPOINT:
-        return this.createTripWaypoint();
+      case TripplanningPackage.TRIP_SEGMENT:
+        return this.createTripSegment();
+      case TripplanningPackage.TRAVELLER:
+        return this.createTraveller();
+      case TripplanningPackage.LOCATION:
+        return this.createLocation();
       default:
         throw new Error(
           "The class '" + eClass.getName() + "' is not a valid classifier"
@@ -47,7 +55,13 @@ export class TripplanningFactory extends EFactory {
   public createTrip(): Trip {
     return new TripImpl();
   }
-  public createTripWaypoint(): TripWaypoint {
-    return new TripWaypointImpl();
+  public createTripSegment(): TripSegment {
+    return new TripSegmentImpl();
+  }
+  public createTraveller(): Traveller {
+    return new TravellerImpl();
+  }
+  public createLocation(): Location {
+    return new LocationImpl();
   }
 }

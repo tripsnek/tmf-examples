@@ -8,16 +8,27 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { TripWaypoint } from './trip-waypoint';
+import { IDedEntity } from './i-ded-entity';
+import { TripSegment } from './trip-segment';
+import { Traveller } from './traveller';
 import { TripplanningPackage } from '../tripplanning-package';
 
 /**
  * Source-gen API for Trip.
  */
-export interface Trip extends EObject {
-  getWaypoints(): EList<TripWaypoint>;
-  getDescription(): string;
-  setDescription(newDescription: string): void;
+export interface Trip extends IDedEntity {
+  getSegments(): EList<TripSegment>;
+  getName(): string;
+  setName(newName: string): void;
   getStartDate(): Date;
   setStartDate(newStartDate: Date): void;
+  getEndDate(): Date;
+  setEndDate(newEndDate: Date): void;
+  getParticipants(): EList<Traveller>;
+  getDescription(): string;
+  setDescription(newDescription: string): void;
+  getBudgetDollars(): number;
+  setBudgetDollars(newBudgetDollars: number): void;
+  isTentative(): boolean;
+  setTentative(newTentative: boolean): void;
 }

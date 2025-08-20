@@ -1,4 +1,3 @@
-
 import { EObject } from '@tripsnek/tmf';
 import { TUtils } from '@tripsnek/tmf';
 import { EStructuralFeature } from '@tripsnek/tmf';
@@ -9,12 +8,12 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { TripGen } from '../gen/trip-gen'
-import { Trip } from '../api/trip';
+import { TripplanningPackage } from '../tripplanning-package';
 
 /**
- * Editable Impl class.
+ * Source-gen API for IDedEntity.
  */
-export class TripImpl extends TripGen {
-
+export interface IDedEntity extends EObject {
+  getId(): string;
+  setId(newId: string): void;
 }

@@ -8,14 +8,14 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
-import { Trip } from '../api/trip';
+import { LocationType } from '../api/location-type';
 
-import { TripWaypointGen } from '../gen/trip-waypoint-gen'
-import { TripWaypoint } from '../api/trip-waypoint';
+import { LocationGen } from '../gen/location-gen'
+import { Location } from '../api/location';
 
 /**
  * Editable Impl class.
  */
-export class TripWaypointImpl extends TripWaypointGen {
+export class LocationImpl extends LocationGen {
 
 }
