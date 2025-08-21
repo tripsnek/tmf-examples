@@ -189,21 +189,21 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
       case TripplanningPackage.TRIP__SEGMENTS:
-        return this.getSegments().isEmpty();
+        return !this.getSegments().isEmpty();
       case TripplanningPackage.TRIP__NAME:
-        return this.getName === undefined;
+        return this.getName() != null;
       case TripplanningPackage.TRIP__START_DATE:
-        return this.getStartDate === undefined;
+        return this.getStartDate() != null;
       case TripplanningPackage.TRIP__END_DATE:
-        return this.getEndDate === undefined;
+        return this.getEndDate() != null;
       case TripplanningPackage.TRIP__PARTICIPANTS:
-        return this.getParticipants().isEmpty();
+        return !this.getParticipants().isEmpty();
       case TripplanningPackage.TRIP__DESCRIPTION:
-        return this.getDescription === undefined;
+        return this.getDescription() != null;
       case TripplanningPackage.TRIP__BUDGET_DOLLARS:
-        return this.getBudgetDollars === undefined;
+        return this.getBudgetDollars() != null;
       case TripplanningPackage.TRIP__TENTATIVE:
-        return this.isTentative === undefined;
+        return this.isTentative() != null;
     }
     return super.eIsSet(featureID);
   }

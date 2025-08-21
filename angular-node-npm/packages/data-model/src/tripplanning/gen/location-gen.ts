@@ -142,15 +142,15 @@ export abstract class LocationGen extends IDedEntityImpl implements Location {
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
       case TripplanningPackage.LOCATION__NAME:
-        return this.getName === undefined;
+        return this.getName() != null;
       case TripplanningPackage.LOCATION__ADDRESS:
-        return this.getAddress === undefined;
+        return this.getAddress() != null;
       case TripplanningPackage.LOCATION__TYPE:
-        return this.getType === undefined;
+        return this.getType() != null;
       case TripplanningPackage.LOCATION__LATITUDE:
-        return this.getLatitude === undefined;
+        return this.getLatitude() != null;
       case TripplanningPackage.LOCATION__LONGITUDE:
-        return this.getLongitude === undefined;
+        return this.getLongitude() != null;
     }
     return super.eIsSet(featureID);
   }

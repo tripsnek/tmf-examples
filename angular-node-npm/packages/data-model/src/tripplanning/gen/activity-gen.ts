@@ -7,17 +7,20 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
+import { Location } from '../api/location';
 
 import { TripplanningPackage } from '../tripplanning-package';
-import { IDedEntity } from '../api/i-ded-entity';
+import { Activity } from '../api/activity';
 
 /**
  * This file is source-code generated and should never be edited. It implements
- * the core TMF functionality for IDedEntity.
+ * the core TMF functionality for Activity.
  */
-export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
+export abstract class ActivityGen extends EObjectImpl implements Activity {
   /** feature declarations */
-  protected id!: string;
+  protected location!: Location;
+  protected durationHrs!: number;
+  protected name!: string;
 
 
 
@@ -25,12 +28,28 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
   // Getters and Setters
 
 
-  public getId(): string {
-    return this.id;
+  public getLocation(): Location {
+    return this.location;
   }
 
-  public setId(newId: string): void {
-    this.basicSetId(newId);
+  public setLocation(newLocation: Location): void {
+    this.basicSetLocation(newLocation);
+  }
+
+  public getDurationHrs(): number {
+    return this.durationHrs;
+  }
+
+  public setDurationHrs(newDurationHrs: number): void {
+    this.basicSetDurationHrs(newDurationHrs);
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+
+  public setName(newName: string): void {
+    this.basicSetName(newName);
   }
 
   //======================================================================
@@ -48,8 +67,12 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.I_DED_ENTITY__ID:
-        return this.getId();
+      case TripplanningPackage.ACTIVITY__LOCATION:
+        return this.getLocation();
+      case TripplanningPackage.ACTIVITY__DURATION_HRS:
+        return this.getDurationHrs();
+      case TripplanningPackage.ACTIVITY__NAME:
+        return this.getName();
     }
     return super.eGet(featureID);
   }
@@ -64,8 +87,14 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.I_DED_ENTITY__ID:
-        this.setId(newValue);
+      case TripplanningPackage.ACTIVITY__LOCATION:
+        this.setLocation(newValue);
+        return;
+      case TripplanningPackage.ACTIVITY__DURATION_HRS:
+        this.setDurationHrs(newValue);
+        return;
+      case TripplanningPackage.ACTIVITY__NAME:
+        this.setName(newValue);
         return;
     }
     return super.eSet(featureID, newValue);
@@ -81,8 +110,12 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.I_DED_ENTITY__ID:
-        return this.getId() != null;
+      case TripplanningPackage.ACTIVITY__LOCATION:
+        return this.getLocation() != null;
+      case TripplanningPackage.ACTIVITY__DURATION_HRS:
+        return this.getDurationHrs() != null;
+      case TripplanningPackage.ACTIVITY__NAME:
+        return this.getName() != null;
     }
     return super.eIsSet(featureID);
   }
@@ -97,8 +130,14 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.I_DED_ENTITY__ID:
-        this.setId(undefined!);
+      case TripplanningPackage.ACTIVITY__LOCATION:
+        this.setLocation(undefined!);
+        return;
+      case TripplanningPackage.ACTIVITY__DURATION_HRS:
+        this.setDurationHrs(undefined!);
+        return;
+      case TripplanningPackage.ACTIVITY__NAME:
+        this.setName(undefined!);
         return;
     }
     return super.eUnset(featureID);
@@ -108,8 +147,16 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
   // Basic setters (allow EOpposite enforcement without triggering infinite cycles)
 
 
-  public basicSetId(newId: string): void {
-    this.id = newId;
+  public basicSetLocation(newLocation: Location): void {
+    this.location = newLocation;
+  }
+
+  public basicSetDurationHrs(newDurationHrs: number): void {
+    this.durationHrs = newDurationHrs;
+  }
+
+  public basicSetName(newName: string): void {
+    this.name = newName;
   }
 
   //======================================================================
@@ -123,6 +170,6 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
   // eClass()
 
   public override eClass(): EClass {
-    return TripplanningPackage.Literals.I_DED_ENTITY;
+    return TripplanningPackage.Literals.ACTIVITY;
   }
 }

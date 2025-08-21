@@ -21,6 +21,8 @@ import { Traveller } from './api/traveller';
 import { TravellerImpl } from './impl/traveller-impl';
 import { Location } from './api/location';
 import { LocationImpl } from './impl/location-impl';
+import { Activity } from './api/activity';
+import { ActivityImpl } from './impl/activity-impl';
 
 export class TripplanningFactory extends EFactory {
   /* Singleton */
@@ -45,6 +47,8 @@ export class TripplanningFactory extends EFactory {
         return this.createTraveller();
       case TripplanningPackage.LOCATION:
         return this.createLocation();
+      case TripplanningPackage.ACTIVITY:
+        return this.createActivity();
       default:
         throw new Error(
           "The class '" + eClass.getName() + "' is not a valid classifier"
@@ -63,5 +67,8 @@ export class TripplanningFactory extends EFactory {
   }
   public createLocation(): Location {
     return new LocationImpl();
+  }
+  public createActivity(): Activity {
+    return new ActivityImpl();
   }
 }

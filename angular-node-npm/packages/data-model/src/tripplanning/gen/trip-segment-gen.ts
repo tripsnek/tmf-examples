@@ -9,6 +9,7 @@ import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 import { Trip } from '../api/trip';
 import { Location } from '../api/location';
+import { Activity } from '../api/activity';
 
 import { TripplanningPackage } from '../tripplanning-package';
 import { TripSegment } from '../api/trip-segment';
@@ -23,6 +24,13 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
   protected trip!: Trip;
   protected origin!: Location;
   protected destination!: Location;
+  protected activities: EList<Activity> = new BasicEList<Activity>(
+    undefined,
+    this,
+    TripplanningPackage.TRIP_SEGMENT__ACTIVITIES,
+    undefined
+  );
+  protected name!: string;
 
 
 
@@ -70,6 +78,18 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
     this.basicSetDestination(newDestination);
   }
 
+  public getActivities(): EList<Activity> {
+    return this.activities;
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+
+  public setName(newName: string): void {
+    this.basicSetName(newName);
+  }
+
   //======================================================================
   // API Operations
 
@@ -93,6 +113,10 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
         return this.getOrigin();
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
         return this.getDestination();
+      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+        return this.getActivities();
+      case TripplanningPackage.TRIP_SEGMENT__NAME:
+        return this.getName();
     }
     return super.eGet(featureID);
   }
@@ -119,6 +143,13 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
         this.setDestination(newValue);
         return;
+      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+        this.getActivities().clear();
+        this.getActivities().addAll(newValue);
+        return;
+      case TripplanningPackage.TRIP_SEGMENT__NAME:
+        this.setName(newValue);
+        return;
     }
     return super.eSet(featureID, newValue);
   }
@@ -134,13 +165,17 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION_NIGHTS:
-        return this.getDestinationNights === undefined;
+        return this.getDestinationNights() != null;
       case TripplanningPackage.TRIP_SEGMENT__TRIP:
-        return this.getTrip === undefined;
+        return this.getTrip() != null;
       case TripplanningPackage.TRIP_SEGMENT__ORIGIN:
-        return this.getOrigin === undefined;
+        return this.getOrigin() != null;
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
-        return this.getDestination === undefined;
+        return this.getDestination() != null;
+      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+        return !this.getActivities().isEmpty();
+      case TripplanningPackage.TRIP_SEGMENT__NAME:
+        return this.getName() != null;
     }
     return super.eIsSet(featureID);
   }
@@ -167,6 +202,12 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
         this.setDestination(undefined!);
         return;
+      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+        this.getActivities().clear();
+        return;
+      case TripplanningPackage.TRIP_SEGMENT__NAME:
+        this.setName(undefined!);
+        return;
     }
     return super.eUnset(featureID);
   }
@@ -180,7 +221,7 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
   }
 
   public basicSetTrip(newTrip: Trip): void {
-    this.eBasicSetContainer(newTrip, TripplanningPackage.TRIP_SEGMENT__TRIP);
+    this.eBasicSetContainer(newTrip, TripplanningPackage.TRIP__SEGMENTS);
     this.trip = newTrip;
   }
 
@@ -190,6 +231,10 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
 
   public basicSetDestination(newDestination: Location): void {
     this.destination = newDestination;
+  }
+
+  public basicSetName(newName: string): void {
+    this.name = newName;
   }
 
   //======================================================================

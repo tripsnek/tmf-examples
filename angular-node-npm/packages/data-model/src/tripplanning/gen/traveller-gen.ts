@@ -116,11 +116,11 @@ export abstract class TravellerGen extends IDedEntityImpl implements Traveller {
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
       case TripplanningPackage.TRAVELLER__NAME:
-        return this.getName === undefined;
+        return this.getName() != null;
       case TripplanningPackage.TRAVELLER__EMAIL:
-        return this.getEmail === undefined;
+        return this.getEmail() != null;
       case TripplanningPackage.TRAVELLER__INTERESTS:
-        return this.getInterests().isEmpty();
+        return !this.getInterests().isEmpty();
     }
     return super.eIsSet(featureID);
   }

@@ -16,6 +16,8 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="trip" eType="#//Trip" eOpposite="#//Trip/segments"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="origin" eType="#//Location"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="destination" eType="#//Location"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="activities" eType="#//Activity" upperBound="-1" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Traveller" eSuperTypes="#//IDedEntity">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -46,5 +48,10 @@
     <eLiterals name="Ocean" value="4" literal="LITERAL_7"/>
     <eLiterals name="Nightlife" value="5" literal="LITERAL_8"/>
     <eLiterals name="Museums" value="6" literal="LITERAL_9"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Activity">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="location" eType="#//Location"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="durationHrs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EFloat"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
 </ecore:EPackage>

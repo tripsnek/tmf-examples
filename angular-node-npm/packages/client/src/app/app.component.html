@@ -280,7 +280,7 @@
               <select class="form-select" [(ngModel)]="selectedReferenceTarget">
                 <option [value]="null">Select an instance...</option>
                 <option *ngFor="let instance of getValidReferenceTargets()" [value]="instance">
-                  {{ instance.label }}
+                  {{ getInstanceLabel(instance.eObject) }}
                 </option>
               </select>
             </div>
@@ -312,7 +312,7 @@
             {{ instance.expanded ? '▼' : '▶' }}
           </span>
           <span class="tree-icon" *ngIf="instance.children.length === 0">•</span>
-          <span class="tree-label">{{ instance.label }}</span>
+          <span class="tree-label">{{ getInstanceLabel(instance.eObject) }}</span>
           <span class="tree-type">{{ getEClassName(instance.eObject) }}</span>
         </div>
         

@@ -18,7 +18,6 @@ import { TripplanningFactory, TripplanningPackage } from '@tmf-example/data-mode
 
 interface ModelInstance {
   eObject: EObject;
-  label: string;
   children: ModelInstance[];
   expanded: boolean;
 }
@@ -68,7 +67,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
   containmentReference: EReference | null = null;
   containmentParent: ModelInstance | null = null;
   
-  private nextId = 1;
+  // Counters for auto-generating IDs for root EClasses
+  private eClassCounters = new Map<string, number>();
 
   ngOnInit() {
     // In a real application, this would be injected or loaded
@@ -182,13 +182,38 @@ export class TMFReflectiveEditorComponent implements OnInit {
     return containers;
   }
 
+  private isRootEClass(eClass: EClass): boolean {
+    return this.getRootEClasses().includes(eClass);
+  }
+
+  private hasIdAttribute(eClass: EClass): boolean {
+    return eClass.getEAllAttributes().some(attr => attr.getName() === 'id');
+  }
+
+  private getNextIdForEClass(eClass: EClass): string {
+    const className = eClass.getName();
+    const currentCount = this.eClassCounters.get(className) || 0;
+    const nextCount = currentCount + 1;
+    this.eClassCounters.set(className, nextCount);
+    return `${className}_${nextCount}`;
+  }
+
   createInstance() {
     if (!this.selectedEClass || !this.eFactory) return;
     
     const eObject = this.eFactory.create(this.selectedEClass);
+    
+    // Auto-generate ID for root EClasses that have an ID attribute
+    if (!this.isContainmentCreation && this.isRootEClass(this.selectedEClass) && this.hasIdAttribute(this.selectedEClass)) {
+      const idAttribute = this.selectedEClass.getEAllAttributes().find(attr => attr.getName() === 'id');
+      if (idAttribute) {
+        const generatedId = this.getNextIdForEClass(this.selectedEClass);
+        eObject.eSet(idAttribute, generatedId);
+      }
+    }
+    
     const instance: ModelInstance = {
       eObject,
-      label: this.generateInstanceLabel(eObject),
       children: [],
       expanded: true
     };
@@ -211,8 +236,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
       
       // Make sure parent is expanded to show new child
       this.containmentParent.expanded = true;
-      
-      this.updateInstanceLabel(this.containmentParent);
     } else if (this.selectedContainer) {
       const { instance: container, reference } = this.selectedContainer;
       this.addToContainer(container, reference, instance);
@@ -243,8 +266,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (rootIndex > -1) {
       this.rootInstances.splice(rootIndex, 1);
     }
-    
-    this.updateInstanceLabel(container);
   }
 
   // Update the tree structure based on containment references
@@ -404,7 +425,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
     
     this.selectedInstance.eObject.eSet(attr, value);
-    this.updateInstanceLabel(this.selectedInstance);
   }
 
   addAttributeValue(attr: EAttribute, inputElement: any) {
@@ -430,7 +450,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
     
     // Clear the input
     inputElement.value = '';
-    this.updateInstanceLabel(this.selectedInstance);
   }
 
   removeAttributeValue(attr: EAttribute, index: number) {
@@ -443,8 +462,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
         list.remove(values[index]);
       }
     }
-    
-    this.updateInstanceLabel(this.selectedInstance);
   }
 
   getReferenceValue(ref: EReference): EObject | undefined {
@@ -551,36 +568,48 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
   }
 
+  // Get the dynamic label for an instance
   getInstanceLabel(eObject?: EObject): string {
-    if(!eObject) return 'Unknown'
-    const instance = this.instances.find(i => i.eObject === eObject);
-    return instance?.label || this.generateInstanceLabel(eObject);
+    if (!eObject) return 'Unknown';
+    
+    const container = eObject.eContainer();
+    
+    if (container) {
+      // Object has a container - build hierarchical label
+      const containerLabel = this.getInstanceLabel(container);
+      const containingFeature = eObject.eContainingFeature();
+      
+      if (containingFeature && containingFeature.isMany()) {
+        // Get the index in the containing list
+        const list = container.eGet(containingFeature);
+        const index = Array.from(list).indexOf(eObject);
+        return `${containerLabel}->${containingFeature.getName()}.${index}`;
+      } else if (containingFeature) {
+        return `${containerLabel}->${containingFeature.getName()}`;
+      }
+    }
+    
+    // Object has no container - use intrinsic label
+    return this.generateIntrinsicLabel(eObject);
   }
 
-  private generateInstanceLabel(eObject: EObject): string {
-    // First, specifically look for 'name' attribute
+  private generateIntrinsicLabel(eObject: EObject): string {
+    // Try 'name' attribute first
     const nameAttr = eObject.eClass().getEStructuralFeature('name');
     if (nameAttr && nameAttr instanceof EAttributeImpl) {
       const value = eObject.eGet(nameAttr);
       if (value) return String(value);
     }
     
-    // Then try other common name attributes
-    const nameAttrs = ['title', 'label', 'id'];
-    for (const attrName of nameAttrs) {
-      const attr = eObject.eClass().getEStructuralFeature(attrName);
-      if (attr && attr instanceof EAttributeImpl) {
-        const value = eObject.eGet(attr);
-        if (value) return String(value);
-      }
+    // Try 'id' attribute second
+    const idAttr = eObject.eClass().getEStructuralFeature('id');
+    if (idAttr && idAttr instanceof EAttributeImpl) {
+      const value = eObject.eGet(idAttr);
+      if (value) return String(value);
     }
     
-    // Default to class name with ID
-    return `${eObject.eClass().getName()} #${this.instances.findIndex(i => i.eObject === eObject) + 1}`;
-  }
-
-  private updateInstanceLabel(instance: ModelInstance) {
-    instance.label = this.generateInstanceLabel(instance.eObject);
+    // Default to class name
+    return eObject.eClass().getName();
   }
 
   getAttributeType(attr: EAttribute): string {
