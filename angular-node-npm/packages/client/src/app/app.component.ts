@@ -14,6 +14,7 @@ import {
   EAttributeImpl,
   EEnumImpl,
   EList,
+  TUtils,
 } from "@tripsnek/tmf";
 import {
   TripplanningFactory,
@@ -62,6 +63,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
   eFactory: EFactory | null = null;
 
   instances: ModelInstance[] = [];
+  rootClasses: EClass[] = [];
   rootClassNodes: RootClassNode[] = [];
   selectedInstance: ModelInstance | null = null;
 
@@ -109,13 +111,14 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.ePackage = TripplanningPackage.eINSTANCE;
     this.eFactory = TripplanningFactory.eINSTANCE;
     
+    this.rootClasses = TUtils.getRootEClasses(this.ePackage);
+
     // Initialize root class nodes
     this.initializeRootClassNodes();
   }
 
   initializeRootClassNodes() {
-    const rootClasses = this.getRootEClasses();
-    this.rootClassNodes = rootClasses.map(eClass => ({
+    this.rootClassNodes = this.rootClasses.map(eClass => ({
       eClass,
       instances: [],
       expanded: true
@@ -124,46 +127,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   getRootClassNode(eClass: EClass): RootClassNode | undefined {
     return this.rootClassNodes.find(node => node.eClass === eClass);
-  }
-
-  // Get only root EClasses (not contained by any other EClass)
-  getRootEClasses(): EClass[] {
-    if (!this.ePackage) return [];
-
-    const allClasses: EClass[] = [];
-    const containedClasses = new Set<EClass>();
-
-    // First, collect all non-abstract, non-interface classes
-    this.ePackage.getEClassifiers().forEach((classifier) => {
-      if (
-        classifier instanceof EClassImpl &&
-        !classifier.isAbstract() &&
-        !classifier.isInterface()
-      ) {
-        allClasses.push(classifier);
-      }
-    });
-
-    // Then, find which classes are contained by others
-    allClasses.forEach((eClass) => {
-      eClass.getEAllReferences().forEach((ref) => {
-        if (ref.isContainment()) {
-          const targetType = ref.getEType();
-          if (targetType instanceof EClassImpl) {
-            containedClasses.add(targetType);
-            // Also add all subtypes
-            allClasses.forEach((otherClass) => {
-              if (otherClass.getEAllSuperTypes().contains(targetType)) {
-                containedClasses.add(otherClass);
-              }
-            });
-          }
-        }
-      });
-    });
-
-    // Return classes that are not contained by any other class
-    return allClasses.filter((c) => !containedClasses.has(c)).reverse();
   }
 
   // Get classes available for creation (root classes or classes for containment)
@@ -193,7 +156,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
       return compatibleClasses;
     } else {
       // For root creation, show only root classes
-      return this.getRootEClasses();
+      return this.rootClasses;
     }
   }
 
@@ -237,7 +200,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   private isRootEClass(eClass: EClass): boolean {
-    return this.getRootEClasses().includes(eClass);
+    return this.rootClasses.includes(eClass);
   }
 
   private hasIdAttribute(eClass: EClass): boolean {
