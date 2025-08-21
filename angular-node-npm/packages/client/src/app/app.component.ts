@@ -163,7 +163,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     });
 
     // Return classes that are not contained by any other class
-    return allClasses.filter((c) => !containedClasses.has(c));
+    return allClasses.filter((c) => !containedClasses.has(c)).reverse();
   }
 
   // Get classes available for creation (root classes or classes for containment)

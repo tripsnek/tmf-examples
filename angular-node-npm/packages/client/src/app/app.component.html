@@ -48,8 +48,8 @@
               >
                 {{ rootNode.expanded ? "▼" : "▶" }}
               </span>
-              <span class="tree-icon" *ngIf="rootNode.instances.length === 0">•</span>
-              <span class="root-class-label">{{ rootNode.eClass.getName() }} instances</span>
+              <!-- <span class="tree-icon" *ngIf="rootNode.instances.length === 0">•</span> -->
+              <span class="root-class-label">{{ rootNode.eClass.getName() }}s</span>
               <button
                 class="btn btn-sm btn-primary root-create-btn"
                 (click)="createInstanceForRootClass(rootNode.eClass)"
@@ -464,7 +464,7 @@
         >
           {{ instance.expanded ? "▼" : "▶" }}
         </span>
-        <span class="tree-icon" *ngIf="instance.children.length === 0">•</span>
+        <!-- <span class="tree-icon" *ngIf="instance.children.length === 0">•</span> -->
         <span class="tree-label">{{ getInstanceLabel(instance.eObject) }}</span>
         <span class="tree-type">{{ getEClassName(instance.eObject) }}</span>
       </div>
