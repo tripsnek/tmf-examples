@@ -1,17 +1,17 @@
-import { EObject } from '@tripsnek/tmf';
-import { TUtils } from '@tripsnek/tmf';
-import { EStructuralFeature } from '@tripsnek/tmf';
-import { BasicEList } from '@tripsnek/tmf';
-import { EClass } from '@tripsnek/tmf';
-import { EList } from '@tripsnek/tmf';
-import { EEnum } from '@tripsnek/tmf';
-import { EDataType } from '@tripsnek/tmf';
-import { EObjectImpl } from '@tripsnek/tmf';
+import { EObject } from "@tripsnek/tmf";
+import { TUtils } from "@tripsnek/tmf";
+import { EStructuralFeature } from "@tripsnek/tmf";
+import { BasicEList } from "@tripsnek/tmf";
+import { EClass } from "@tripsnek/tmf";
+import { EList } from "@tripsnek/tmf";
+import { EEnum } from "@tripsnek/tmf";
+import { EDataType } from "@tripsnek/tmf";
+import { EObjectImpl } from "@tripsnek/tmf";
 
-import { IDedEntity } from './i-ded-entity';
-import { TripSegment } from './trip-segment';
-import { Traveller } from './traveller';
-import { TripplanningPackage } from '../tripplanning-package';
+import { IDedEntity } from "./i-ded-entity";
+import { TripSegment } from "./trip-segment";
+import { Traveler } from "./traveler";
+import { TripplanningPackage } from "../tripplanning-package";
 
 /**
  * Source-gen API for Trip.
@@ -24,7 +24,7 @@ export interface Trip extends IDedEntity {
   setStartDate(newStartDate: Date): void;
   getEndDate(): Date;
   setEndDate(newEndDate: Date): void;
-  getParticipants(): EList<Traveller>;
+  getParticipants(): EList<Traveler>;
   getDescription(): string;
   setDescription(newDescription: string): void;
   getBudgetDollars(): number;

@@ -1,24 +1,27 @@
-import { EObject } from '@tripsnek/tmf';
-import { TUtils } from '@tripsnek/tmf';
-import { EStructuralFeature } from '@tripsnek/tmf';
-import { BasicEList } from '@tripsnek/tmf';
-import { EClass } from '@tripsnek/tmf';
-import { EList } from '@tripsnek/tmf';
-import { EEnum } from '@tripsnek/tmf';
-import { EDataType } from '@tripsnek/tmf';
-import { EObjectImpl } from '@tripsnek/tmf';
-import { Trip } from '../api/trip';
-import { Location } from '../api/location';
-import { Activity } from '../api/activity';
+import { EObject } from "@tripsnek/tmf";
+import { TUtils } from "@tripsnek/tmf";
+import { EStructuralFeature } from "@tripsnek/tmf";
+import { BasicEList } from "@tripsnek/tmf";
+import { EClass } from "@tripsnek/tmf";
+import { EList } from "@tripsnek/tmf";
+import { EEnum } from "@tripsnek/tmf";
+import { EDataType } from "@tripsnek/tmf";
+import { EObjectImpl } from "@tripsnek/tmf";
+import { Trip } from "../api/trip";
+import { Location } from "../api/location";
+import { Activity } from "../api/activity";
 
-import { TripplanningPackage } from '../tripplanning-package';
-import { TripSegment } from '../api/trip-segment';
+import { TripplanningPackage } from "../tripplanning-package";
+import { TripSegment } from "../api/trip-segment";
 
 /**
  * This file is source-code generated and should never be edited. It implements
  * the core TMF functionality for TripSegment.
  */
-export abstract class TripSegmentGen extends EObjectImpl implements TripSegment {
+export abstract class TripSegmentGen
+  extends EObjectImpl
+  implements TripSegment
+{
   /** feature declarations */
   protected destinationNights!: number;
   protected trip!: Trip;
@@ -32,11 +35,8 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
   );
   protected name!: string;
 
-
-
   //======================================================================
   // Getters and Setters
-
 
   public getDestinationNights(): number {
     return this.destinationNights;
@@ -101,7 +101,7 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
    */
   public override eGet(feature: number | EStructuralFeature): any {
     const featureID: number =
-      typeof feature === 'number'
+      typeof feature === "number"
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -121,13 +121,15 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
     return super.eGet(featureID);
   }
 
-
   /**
    * eSet() - provides ability to reflectively set all features.
    */
-  public override eSet(feature: number | EStructuralFeature, newValue: any): void {
+  public override eSet(
+    feature: number | EStructuralFeature,
+    newValue: any
+  ): void {
     const featureID: number =
-      typeof feature === 'number'
+      typeof feature === "number"
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -154,13 +156,12 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
     return super.eSet(featureID, newValue);
   }
 
-
   /**
    * eIsSet() - provides ability to reflectively check if any feature is set.
    */
   public override eIsSet(feature: number | EStructuralFeature): boolean {
     const featureID: number =
-      typeof feature === 'number'
+      typeof feature === "number"
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -180,13 +181,12 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
     return super.eIsSet(featureID);
   }
 
-
   /**
    * eUnset() - provides ability to reflectively unset any feature.
    */
   public override eUnset(feature: number | EStructuralFeature): void {
     const featureID: number =
-      typeof feature === 'number'
+      typeof feature === "number"
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -215,7 +215,6 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
   //======================================================================
   // Basic setters (allow EOpposite enforcement without triggering infinite cycles)
 
-
   public basicSetDestinationNights(newDestinationNights: number): void {
     this.destinationNights = newDestinationNights;
   }
@@ -243,15 +242,11 @@ export abstract class TripSegmentGen extends EObjectImpl implements TripSegment 
     switch (featureID) {
       case TripplanningPackage.TRIP_SEGMENT__TRIP:
         if (this.trip)
-          this.trip.eInverseRemove(
-            this,
-            TripplanningPackage.TRIP__SEGMENTS
-          );
+          this.trip.eInverseRemove(this, TripplanningPackage.TRIP__SEGMENTS);
         return this.basicSetTrip(<Trip>otherEnd);
     }
     return super.eInverseAdd(otherEnd, featureID);
   }
-
 
   //======================================================================
   // Inverse Removers (if needed)

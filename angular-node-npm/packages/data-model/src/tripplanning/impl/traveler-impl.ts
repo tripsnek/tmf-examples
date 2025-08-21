@@ -7,11 +7,13 @@ import { EList } from "@tripsnek/tmf";
 import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
+import { IDedEntity } from "../api/i-ded-entity";
+import { PersonalInterest } from "../api/personal-interest";
 
-import { TripGen } from "../gen/trip-gen";
-import { Trip } from "../api/trip";
+import { TravelerGen } from "../gen/traveler-gen";
+import { Traveler } from "../api/traveler";
 
 /**
  * Editable Impl class.
  */
-export class TripImpl extends TripGen {}
+export class TravelerImpl extends TravelerGen {}

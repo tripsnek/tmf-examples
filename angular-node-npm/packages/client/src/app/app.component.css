@@ -47,6 +47,7 @@
 
     .package-name {
       font-weight: 600;
+      font-size: large;
     }
 
     .package-uri {
@@ -543,4 +544,58 @@
     .badge-interface {
       background: #8b5cf6;
       color: white;
+    }
+
+    
+    .package-uri {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .connection-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      font-size: 0.875rem;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 2s infinite;
+    }
+
+    .connection-status.connected .status-indicator {
+      background: #10b981;
+      animation: none;
+    }
+
+    .status-text {
+      color: white;
+      opacity: 0.9;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .dirty-indicator {
+      color: #f59e0b;
+      font-weight: bold;
+      margin-right: 0.25rem;
+    }
+
+    .save-btn {
+      margin-left: auto;
     }

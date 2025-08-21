@@ -2,6 +2,7 @@
 import { Component, OnInit, ViewChildren, QueryList, ElementRef } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { HttpClientModule } from '@angular/common/http';
 import {
   EPackage,
   EClass,
@@ -20,11 +21,14 @@ import {
   TripplanningFactory,
   TripplanningPackage,
 } from "@tmf-example/data-model";
+import { CrudService, ConnectionStatus } from './services/crud.service';
 
 interface ModelInstance {
   eObject: EObject;
   children: ModelInstance[];
   expanded: boolean;
+  isDirty: boolean;
+  isNew: boolean;  // Track if this instance is new (not yet saved to server)
 }
 
 interface RootClassNode {
@@ -54,7 +58,8 @@ interface Property {
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css"],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
+  providers: [CrudService]
 })
 export class TMFReflectiveEditorComponent implements OnInit {
   @ViewChildren('propertyInput') propertyInputs!: QueryList<ElementRef>;
@@ -86,9 +91,25 @@ export class TMFReflectiveEditorComponent implements OnInit {
   // Counters for auto-generating IDs for root EClasses
   private eClassCounters = new Map<string, number>();
 
+  // Server connection status
+  connectionStatus: ConnectionStatus = {
+    connected: false,
+    message: 'Checking connection...'
+  };
+
+  constructor(private crudService: CrudService) {}
+
   ngOnInit() {
-    // In a real application, this would be injected or loaded
+    // Load metamodel
     this.loadMetamodel();
+
+    // Subscribe to connection status
+    this.crudService.connectionStatus$.subscribe(status => {
+      this.connectionStatus = status;
+    });
+
+    // Check server and load data
+    this.checkServerAndLoadData();
   }
 
   ngAfterViewChecked() {
@@ -103,6 +124,89 @@ export class TMFReflectiveEditorComponent implements OnInit {
         }, 100);
       }
     }
+  }
+
+  checkServerAndLoadData() {
+    this.crudService.checkConnection().subscribe(status => {
+      if (status) {
+        // Server is connected, load instances
+        this.loadInstancesFromServer();
+      }
+    });
+  }
+
+  loadInstancesFromServer() {
+    this.crudService.loadAllRootInstances(this.rootClasses).subscribe(
+      instanceMap => {
+        // Clear existing instances
+        this.instances = [];
+        this.rootClassNodes.forEach(node => node.instances = []);
+
+        // Process loaded instances
+        instanceMap.forEach((eObjects, eClass) => {
+          const rootNode = this.getRootClassNode(eClass);
+          if (rootNode) {
+            eObjects.forEach(eObject => {
+              const instance: ModelInstance = {
+                eObject,
+                children: [],
+                expanded: false,
+                isDirty: false,
+                isNew: false
+              };
+              this.instances.push(instance);
+              rootNode.instances.push(instance);
+              
+              // Build containment tree
+              this.buildContainmentTree(instance);
+            });
+          }
+        });
+      },
+      error => {
+        console.error('Failed to load instances from server:', error);
+      }
+    );
+  }
+
+  private buildContainmentTree(instance: ModelInstance) {
+    instance.eObject.eClass().getEAllReferences().forEach(ref => {
+      if (ref.isContainment()) {
+        if (ref.isMany()) {
+          const list = instance.eObject.eGet(ref) as EList<EObject>;
+          if (list) {
+            list.forEach(childEObject => {
+              const childInstance: ModelInstance = {
+                eObject: childEObject,
+                children: [],
+                expanded: false,
+                isDirty: false,
+                isNew: false
+              };
+              instance.children.push(childInstance);
+              this.instances.push(childInstance);
+              // Recursively build tree
+              this.buildContainmentTree(childInstance);
+            });
+          }
+        } else {
+          const childEObject = instance.eObject.eGet(ref) as EObject;
+          if (childEObject) {
+            const childInstance: ModelInstance = {
+              eObject: childEObject,
+              children: [],
+              expanded: false,
+              isDirty: false,
+              isNew: false
+            };
+            instance.children.push(childInstance);
+            this.instances.push(childInstance);
+            // Recursively build tree
+            this.buildContainmentTree(childInstance);
+          }
+        }
+      }
+    });
   }
 
   loadMetamodel() {
@@ -127,6 +231,59 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   getRootClassNode(eClass: EClass): RootClassNode | undefined {
     return this.rootClassNodes.find(node => node.eClass === eClass);
+  }
+
+  // Mark instance and all containers as dirty
+  markDirty(instance: ModelInstance) {
+    instance.isDirty = true;
+    
+    // Mark all containers up to root as dirty
+    const parent = this.findParentInstance(instance);
+    if (parent) {
+      this.markDirty(parent);
+    }
+  }
+
+  // Get the root container of an instance
+  getRootContainer(instance: ModelInstance): ModelInstance {
+    const parent = this.findParentInstance(instance);
+    return parent ? this.getRootContainer(parent) : instance;
+  }
+
+  // Save the root container of the selected instance
+  saveSelectedInstance() {
+    if (!this.selectedInstance) return;
+
+    const rootInstance = this.getRootContainer(this.selectedInstance);
+    this.saveInstance(rootInstance);
+  }
+
+  // Save a specific instance to the server
+  saveInstance(instance: ModelInstance) {
+    if (!instance.isDirty) return;
+
+    this.crudService.saveInstance(instance.eObject, instance.isNew).subscribe(
+      savedEObject => {
+        // Update the instance with the saved object
+        instance.eObject = savedEObject;
+        instance.isDirty = false;
+        instance.isNew = false;
+
+        // Clear dirty flag for all children
+        this.clearDirtyFlags(instance);
+
+        console.log('Instance saved successfully');
+      },
+      error => {
+        console.error('Failed to save instance:', error);
+        alert('Failed to save instance. Check console for details.');
+      }
+    );
+  }
+
+  private clearDirtyFlags(instance: ModelInstance) {
+    instance.isDirty = false;
+    instance.children.forEach(child => this.clearDirtyFlags(child));
   }
 
   // Get classes available for creation (root classes or classes for containment)
@@ -239,6 +396,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       eObject,
       children: [],
       expanded: true,
+      isDirty: true,
+      isNew: true
     };
 
     this.instances.push(instance);
@@ -263,11 +422,15 @@ export class TMFReflectiveEditorComponent implements OnInit {
         this.containmentParent.children.push(instance);
       }
 
+      // Mark parent as dirty
+      this.markDirty(this.containmentParent);
+
       // Make sure parent is expanded to show new child
       this.containmentParent.expanded = true;
     } else if (this.selectedContainer) {
       const { instance: container, reference } = this.selectedContainer;
       this.addToContainer(container, reference, instance);
+      this.markDirty(container);
     } else {
       // Root instance - add to appropriate root class node
       const rootNode = this.getRootClassNode(this.selectedEClass);
@@ -304,6 +467,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       eObject,
       children: [],
       expanded: true,
+      isDirty: true,
+      isNew: true
     };
 
     this.instances.push(instance);
@@ -391,6 +556,38 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   deleteInstance() {
+    if (!this.selectedInstance) return;
+
+    // If connected to server and not a new instance, delete from server
+    if (this.connectionStatus.connected && !this.selectedInstance.isNew) {
+      const rootInstance = this.getRootContainer(this.selectedInstance);
+      
+      // For now, we'll only allow deleting root instances from server
+      if (this.selectedInstance === rootInstance) {
+        this.crudService.deleteInstance(this.selectedInstance.eObject).subscribe(
+          () => {
+            this.removeInstanceFromTree();
+          },
+          error => {
+            console.error('Failed to delete from server:', error);
+            // Still remove locally
+            this.removeInstanceFromTree();
+          }
+        );
+      } else {
+        // For contained instances, mark parent as dirty
+        const parent = this.findParentInstance(this.selectedInstance);
+        if (parent) {
+          this.markDirty(parent);
+        }
+        this.removeInstanceFromTree();
+      }
+    } else {
+      this.removeInstanceFromTree();
+    }
+  }
+
+  private removeInstanceFromTree() {
     if (!this.selectedInstance) return;
 
     // Remove from parent if contained
@@ -564,6 +761,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
 
     this.selectedInstance.eObject.eSet(attr, value);
+    this.markDirty(this.selectedInstance);
   }
 
   addAttributeValue(attr: EAttribute, inputElement: any) {
@@ -587,6 +785,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       list.add(value);
     }
 
+    this.markDirty(this.selectedInstance);
+
     // Clear the input
     inputElement.value = "";
   }
@@ -599,6 +799,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
       const values = list.elements();
       if (index >= 0 && index < values.length) {
         list.remove(values[index]);
+        this.markDirty(this.selectedInstance);
       }
     }
   }
@@ -664,6 +865,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       eObject,
       children: [],
       expanded: true,
+      isDirty: false,  // Will be marked dirty through parent
+      isNew: false      // Contained instances inherit new status from parent
     };
 
     this.instances.push(instance);
@@ -680,6 +883,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (!this.selectedInstance.children.includes(instance)) {
       this.selectedInstance.children.push(instance);
     }
+
+    // Mark parent as dirty
+    this.markDirty(this.selectedInstance);
 
     // Make sure parent is expanded to show new child
     this.selectedInstance.expanded = true;
@@ -754,6 +960,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
       });
     }
 
+    this.markDirty(this.selectedInstance);
     this.hideReferenceDialog();
   }
 
@@ -780,6 +987,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
         }
       }
     }
+
+    this.markDirty(this.selectedInstance);
   }
 
   clearReference(ref: EReference, event?: Event) {
@@ -803,6 +1012,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
         }
       }
     }
+
+    this.markDirty(this.selectedInstance);
   }
 
   // Get the dynamic label for an instance

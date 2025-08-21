@@ -8,17 +8,17 @@ import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
 
-import { Location } from "./location";
+import { IDedEntity } from "./i-ded-entity";
+import { PersonalInterest } from "./personal-interest";
 import { TripplanningPackage } from "../tripplanning-package";
 
 /**
- * Source-gen API for Activity.
+ * Source-gen API for Traveler.
  */
-export interface Activity extends EObject {
-  getLocation(): Location;
-  setLocation(newLocation: Location): void;
-  getDurationHrs(): number;
-  setDurationHrs(newDurationHrs: number): void;
+export interface Traveler extends IDedEntity {
   getName(): string;
   setName(newName: string): void;
+  getEmail(): string;
+  setEmail(newEmail: string): void;
+  getInterests(): EList<PersonalInterest>;
 }
