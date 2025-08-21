@@ -1,5 +1,5 @@
 // app.component.ts
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, ElementRef } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import {
@@ -23,6 +23,12 @@ import {
 interface ModelInstance {
   eObject: EObject;
   children: ModelInstance[];
+  expanded: boolean;
+}
+
+interface RootClassNode {
+  eClass: EClass;
+  instances: ModelInstance[];
   expanded: boolean;
 }
 
@@ -50,11 +56,13 @@ interface Property {
   imports: [CommonModule, FormsModule],
 })
 export class TMFReflectiveEditorComponent implements OnInit {
+  @ViewChildren('propertyInput') propertyInputs!: QueryList<ElementRef>;
+
   ePackage: EPackage | null = null;
   eFactory: EFactory | null = null;
 
   instances: ModelInstance[] = [];
-  rootInstances: ModelInstance[] = [];
+  rootClassNodes: RootClassNode[] = [];
   selectedInstance: ModelInstance | null = null;
 
   showCreateInstanceDialog = false;
@@ -81,11 +89,41 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.loadMetamodel();
   }
 
+  ngAfterViewChecked() {
+    // Focus on the first property input when properties become visible
+    if (this.selectedInstance && this.propertyInputs && this.propertyInputs.length > 0) {
+      const firstInput = this.propertyInputs.first;
+      if (firstInput && firstInput.nativeElement && 
+          !firstInput.nativeElement.hasAttribute('data-focused')) {
+        setTimeout(() => {
+          firstInput.nativeElement.focus();
+          firstInput.nativeElement.setAttribute('data-focused', 'true');
+        }, 100);
+      }
+    }
+  }
+
   loadMetamodel() {
     // This would normally load the actual metamodel
     // For now, we'll assume it's available via injection or import
     this.ePackage = TripplanningPackage.eINSTANCE;
     this.eFactory = TripplanningFactory.eINSTANCE;
+    
+    // Initialize root class nodes
+    this.initializeRootClassNodes();
+  }
+
+  initializeRootClassNodes() {
+    const rootClasses = this.getRootEClasses();
+    this.rootClassNodes = rootClasses.map(eClass => ({
+      eClass,
+      instances: [],
+      expanded: true
+    }));
+  }
+
+  getRootClassNode(eClass: EClass): RootClassNode | undefined {
+    return this.rootClassNodes.find(node => node.eClass === eClass);
   }
 
   // Get only root EClasses (not contained by any other EClass)
@@ -268,12 +306,65 @@ export class TMFReflectiveEditorComponent implements OnInit {
       const { instance: container, reference } = this.selectedContainer;
       this.addToContainer(container, reference, instance);
     } else {
-      // Root instance
-      this.rootInstances.push(instance);
+      // Root instance - add to appropriate root class node
+      const rootNode = this.getRootClassNode(this.selectedEClass);
+      if (rootNode) {
+        rootNode.instances.push(instance);
+        rootNode.expanded = true;
+      }
     }
 
     this.selectedInstance = instance;
     this.hideCreateDialog();
+    
+    // Clear focus attributes when new instance is selected
+    this.clearFocusAttributes();
+  }
+
+  createInstanceForRootClass(eClass: EClass) {
+    if (!this.eFactory) return;
+
+    const eObject = this.eFactory.create(eClass);
+
+    // Auto-generate ID for root EClasses that have an ID attribute
+    if (this.hasIdAttribute(eClass)) {
+      const idAttribute = eClass
+        .getEAllAttributes()
+        .find((attr) => attr.getName() === "id");
+      if (idAttribute) {
+        const generatedId = this.getNextIdForEClass(eClass);
+        eObject.eSet(idAttribute, generatedId);
+      }
+    }
+
+    const instance: ModelInstance = {
+      eObject,
+      children: [],
+      expanded: true,
+    };
+
+    this.instances.push(instance);
+
+    // Add to appropriate root class node
+    const rootNode = this.getRootClassNode(eClass);
+    if (rootNode) {
+      rootNode.instances.push(instance);
+      rootNode.expanded = true;
+    }
+
+    this.selectedInstance = instance;
+    
+    // Clear focus attributes when new instance is selected
+    this.clearFocusAttributes();
+  }
+
+  private clearFocusAttributes() {
+    // Clear focus tracking attributes from all inputs
+    if (this.propertyInputs) {
+      this.propertyInputs.forEach(input => {
+        input.nativeElement.removeAttribute('data-focused');
+      });
+    }
   }
 
   private addToContainer(
@@ -294,10 +385,12 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
 
     // Remove from root if it was there
-    const rootIndex = this.rootInstances.indexOf(instance);
-    if (rootIndex > -1) {
-      this.rootInstances.splice(rootIndex, 1);
-    }
+    this.rootClassNodes.forEach(node => {
+      const index = node.instances.indexOf(instance);
+      if (index > -1) {
+        node.instances.splice(index, 1);
+      }
+    });
   }
 
   // Update the tree structure based on containment references
@@ -360,8 +453,13 @@ export class TMFReflectiveEditorComponent implements OnInit {
           }
         });
     } else {
-      const index = this.rootInstances.indexOf(this.selectedInstance);
-      if (index > -1) this.rootInstances.splice(index, 1);
+      // Remove from root class node
+      const eClass = this.selectedInstance.eObject.eClass();
+      const rootNode = this.getRootClassNode(eClass);
+      if (rootNode) {
+        const index = rootNode.instances.indexOf(this.selectedInstance);
+        if (index > -1) rootNode.instances.splice(index, 1);
+      }
     }
 
     const index = this.instances.indexOf(this.selectedInstance);
@@ -371,9 +469,11 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   private findParentInstance(instance: ModelInstance): ModelInstance | null {
-    for (const root of this.rootInstances) {
-      const parent = this.findParentInTree(root, instance);
-      if (parent) return parent;
+    for (const rootNode of this.rootClassNodes) {
+      for (const rootInstance of rootNode.instances) {
+        const parent = this.findParentInTree(rootInstance, instance);
+        if (parent) return parent;
+      }
     }
     return null;
   }
@@ -392,6 +492,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   selectInstance(instance: ModelInstance) {
     this.selectedInstance = instance;
+    this.clearFocusAttributes();
   }
 
   // Select an instance in the tree when clicking on a reference
@@ -401,6 +502,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     const instance = this.instances.find((i) => i.eObject === eObject);
     if (instance) {
       this.selectedInstance = instance;
+      this.clearFocusAttributes();
       // Expand all parents to make it visible
       this.expandToInstance(instance);
     }
@@ -420,12 +522,23 @@ export class TMFReflectiveEditorComponent implements OnInit {
       return false;
     };
 
-    this.rootInstances.forEach((root) => expandPath(root));
+    this.rootClassNodes.forEach((rootNode) => {
+      rootNode.instances.forEach((root) => expandPath(root));
+      // Also check if target is a direct child of rootNode
+      if (rootNode.instances.includes(target)) {
+        rootNode.expanded = true;
+      }
+    });
   }
 
   toggleExpanded(instance: ModelInstance, event: Event) {
     event.stopPropagation();
     instance.expanded = !instance.expanded;
+  }
+
+  toggleRootClassExpanded(node: RootClassNode, event: Event) {
+    event.stopPropagation();
+    node.expanded = !node.expanded;
   }
 
   getEClassName(eObject: EObject): string {
@@ -435,7 +548,20 @@ export class TMFReflectiveEditorComponent implements OnInit {
   getAttributes(): EAttribute[] {
     if (!this.selectedInstance) return [];
     const eClass = this.selectedInstance.eObject.eClass();
-    return eClass.getEAllAttributes().elements();
+    const attributes = eClass.getEAllAttributes().elements();
+    
+    // Sort attributes to put 'name' first, then 'id', then the rest
+    return attributes.sort((a, b) => {
+      const aName = a.getName();
+      const bName = b.getName();
+      
+      if (aName === 'name') return -1;
+      if (bName === 'name') return 1;
+      if (aName === 'id') return -1;
+      if (bName === 'id') return 1;
+      
+      return aName.localeCompare(bName);
+    });
   }
 
   getReferences(): EReference[] {
@@ -527,12 +653,77 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   // Show dialog to CREATE a new instance for a containment reference
   showCreateContainmentDialog(ref: EReference) {
-    this.isContainmentCreation = true;
-    this.containmentReference = ref;
-    this.containmentParent = this.selectedInstance;
-    this.selectedEClass = null;
-    this.selectedContainer = null; // Clear any previous container selection
-    this.showCreateInstanceDialog = true;
+    const availableClasses = this.getAvailableClassesForReference(ref);
+    
+    // If only one class is available, create it directly
+    if (availableClasses.length === 1) {
+      this.createContainmentDirectly(ref, availableClasses[0]);
+    } else {
+      // Show dialog for multiple choices
+      this.isContainmentCreation = true;
+      this.containmentReference = ref;
+      this.containmentParent = this.selectedInstance;
+      this.selectedEClass = null;
+      this.selectedContainer = null;
+      this.showCreateInstanceDialog = true;
+    }
+  }
+
+  private getAvailableClassesForReference(ref: EReference): EClass[] {
+    const targetType = ref.getEType();
+    if (!(targetType instanceof EClassImpl)) return [];
+
+    const compatibleClasses: EClass[] = [];
+    this.ePackage!.getEClassifiers().forEach((classifier) => {
+      if (
+        classifier instanceof EClassImpl &&
+        !classifier.isAbstract() &&
+        !classifier.isInterface()
+      ) {
+        // Check if this class is compatible with the reference type
+        if (
+          classifier === targetType ||
+          classifier.getEAllSuperTypes().contains(targetType) ||
+          targetType.getEAllSuperTypes().contains(classifier)
+        ) {
+          compatibleClasses.push(classifier);
+        }
+      }
+    });
+    return compatibleClasses;
+  }
+
+  private createContainmentDirectly(ref: EReference, eClass: EClass) {
+    if (!this.eFactory || !this.selectedInstance) return;
+
+    const eObject = this.eFactory.create(eClass);
+    const instance: ModelInstance = {
+      eObject,
+      children: [],
+      expanded: true,
+    };
+
+    this.instances.push(instance);
+
+    // Add to containment reference
+    if (ref.isMany()) {
+      const list = this.selectedInstance.eObject.eGet(ref);
+      list.add(eObject);
+    } else {
+      this.selectedInstance.eObject.eSet(ref, eObject);
+    }
+
+    // Add to parent's children in the tree
+    if (!this.selectedInstance.children.includes(instance)) {
+      this.selectedInstance.children.push(instance);
+    }
+
+    // Make sure parent is expanded to show new child
+    this.selectedInstance.expanded = true;
+
+    // Select the new instance
+    this.selectedInstance = instance;
+    this.clearFocusAttributes();
   }
 
   // Show dialog to ADD an existing instance for a non-containment reference
@@ -591,10 +782,13 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
     if (this.currentReference.isContainment()) {
       this.selectedInstance.children.push(selectedReferenceTarget);
-      const parentIndex = this.rootInstances.indexOf(selectedReferenceTarget);
-      if (parentIndex > -1) {
-        this.rootInstances.splice(parentIndex, 1);
-      }
+      // Remove from root class node if it was there
+      this.rootClassNodes.forEach(node => {
+        const index = node.instances.indexOf(selectedReferenceTarget);
+        if (index > -1) {
+          node.instances.splice(index, 1);
+        }
+      });
     }
 
     this.hideReferenceDialog();
@@ -613,7 +807,13 @@ export class TMFReflectiveEditorComponent implements OnInit {
         if (targetInstance) {
           const index = this.selectedInstance.children.indexOf(targetInstance);
           if (index > -1) this.selectedInstance.children.splice(index, 1);
-          this.rootInstances.push(targetInstance);
+          
+          // Add back to appropriate root class node
+          const eClass = target.eClass();
+          const rootNode = this.getRootClassNode(eClass);
+          if (rootNode) {
+            rootNode.instances.push(targetInstance);
+          }
         }
       }
     }
@@ -631,7 +831,13 @@ export class TMFReflectiveEditorComponent implements OnInit {
       if (targetInstance) {
         const index = this.selectedInstance.children.indexOf(targetInstance);
         if (index > -1) this.selectedInstance.children.splice(index, 1);
-        this.rootInstances.push(targetInstance);
+        
+        // Add back to appropriate root class node
+        const eClass = current.eClass();
+        const rootNode = this.getRootClassNode(eClass);
+        if (rootNode) {
+          rootNode.instances.push(targetInstance);
+        }
       }
     }
   }

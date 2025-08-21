@@ -1,4 +1,4 @@
-.tmf-editor {
+    .tmf-editor {
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -95,6 +95,29 @@
       flex: 1;
       overflow-y: auto;
       padding: 1rem;
+    }
+
+    .root-class-node {
+      margin-bottom: 0.5rem;
+    }
+
+    .root-class-header {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      background: #f3f4f6;
+      border-radius: 4px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .root-class-label {
+      flex: 1;
+      margin-left: 0.25rem;
+    }
+
+    .root-create-btn {
+      margin-left: auto;
     }
 
     .tree-node {

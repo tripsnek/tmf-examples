@@ -31,21 +31,44 @@
       </div>
 
       <div class="tree-content">
-        <div *ngIf="rootInstances.length === 0" class="empty-state">
+        <div *ngIf="rootClassNodes.length === 0" class="empty-state">
           <div class="empty-icon">📦</div>
-          <p>No instances yet</p>
-          <small>Create your first instance to get started</small>
+          <p>No model loaded</p>
+          <small>Load a metamodel to get started</small>
         </div>
 
-        <div class="tree" *ngIf="rootInstances.length > 0">
-          <ng-container *ngFor="let instance of rootInstances">
-            <ng-container
-              *ngTemplateOutlet="
-                treeNode;
-                context: { $implicit: instance, level: 0 }
-              "
-            ></ng-container>
-          </ng-container>
+        <div class="tree" *ngIf="rootClassNodes.length > 0">
+          <!-- Root Class Nodes -->
+          <div *ngFor="let rootNode of rootClassNodes" class="root-class-node">
+            <div class="root-class-header">
+              <span
+                class="tree-toggle"
+                *ngIf="rootNode.instances.length > 0"
+                (click)="toggleRootClassExpanded(rootNode, $event)"
+              >
+                {{ rootNode.expanded ? "▼" : "▶" }}
+              </span>
+              <span class="tree-icon" *ngIf="rootNode.instances.length === 0">•</span>
+              <span class="root-class-label">{{ rootNode.eClass.getName() }} instances</span>
+              <button
+                class="btn btn-sm btn-primary root-create-btn"
+                (click)="createInstanceForRootClass(rootNode.eClass)"
+              >
+                + Create
+              </button>
+            </div>
+            
+            <div class="tree-children" *ngIf="rootNode.expanded">
+              <ng-container *ngFor="let instance of rootNode.instances">
+                <ng-container
+                  *ngTemplateOutlet="
+                    treeNode;
+                    context: { $implicit: instance, level: 1 }
+                  "
+                ></ng-container>
+              </ng-container>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
@@ -80,7 +103,7 @@
               <h3>Attributes</h3>
             </div>
             <div class="group-content">
-              <div class="property-field" *ngFor="let attr of getAttributes()">
+              <div class="property-field" *ngFor="let attr of getAttributes(); let i = index">
                 <label class="property-label">
                   {{ attr.getName() }}
                   <span class="property-meta" *ngIf="attr.isId()">(ID)</span>
@@ -100,13 +123,13 @@
                       class="reference-item"
                       *ngFor="
                         let value of getAttributeValues(attr);
-                        let i = index
+                        let j = index
                       "
                     >
                       <span class="reference-label">{{ value }}</span>
                       <button
                         class="btn btn-sm btn-danger"
-                        (click)="removeAttributeValue(attr, i)"
+                        (click)="removeAttributeValue(attr, j)"
                       >
                         ×
                       </button>
@@ -120,6 +143,7 @@
                         type="text"
                         class="form-input"
                         #stringValue
+                        #propertyInput
                         placeholder="New value"
                         (keyup.enter)="addAttributeValue(attr, stringValue)"
                       />
@@ -139,6 +163,7 @@
                         type="number"
                         class="form-input"
                         #numberValue
+                        #propertyInput
                         placeholder="New value"
                         (keyup.enter)="addAttributeValue(attr, numberValue)"
                       />
@@ -154,7 +179,7 @@
                       *ngIf="isEnumType(attr)"
                       style="display: flex; gap: 0.5rem; align-items: center"
                     >
-                      <select class="form-select" #enumValue>
+                      <select class="form-select" #enumValue #propertyInput>
                         <option
                           *ngFor="let literal of getEnumLiterals(attr)"
                           [value]="literal"
@@ -177,6 +202,7 @@
                       *ngIf="isStringType(attr)"
                       type="text"
                       class="form-input"
+                      #propertyInput
                       [value]="getAttributeValue(attr)"
                       (change)="setAttributeValue(attr, $event)"
                     />
@@ -184,6 +210,7 @@
                       *ngIf="isNumberType(attr)"
                       type="number"
                       class="form-input"
+                      #propertyInput
                       [value]="getAttributeValue(attr)"
                       (change)="setAttributeValue(attr, $event)"
                     />
@@ -191,6 +218,7 @@
                       *ngIf="isBooleanType(attr)"
                       type="checkbox"
                       class="form-checkbox"
+                      #propertyInput
                       [checked]="getAttributeValue(attr)"
                       (change)="setAttributeValue(attr, $event)"
                     />
@@ -198,12 +226,14 @@
                       *ngIf="isDateType(attr)"
                       type="date"
                       class="form-input"
+                      #propertyInput
                       [value]="getAttributeValue(attr)"
                       (change)="setAttributeValue(attr, $event)"
                     />
                     <select
                       *ngIf="isEnumType(attr)"
                       class="form-select"
+                      #propertyInput
                       [value]="getAttributeValue(attr)"
                       (change)="setAttributeValue(attr, $event)"
                     >
