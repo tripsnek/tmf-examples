@@ -1,12 +1,12 @@
-    .tmf-editor {
+.tmf-editor {
       height: 100vh;
       display: flex;
       flex-direction: column;
-      background: linear-gradient(135deg, #6366f1 0%, #2e1447 100%);
+      background: linear-gradient(135deg, #21b17a 0%, #09491c 100%);
     }
 
     .editor-header {
-      background: linear-gradient(135deg, #6366f1 0%, #2e1447 100%);
+      background: linear-gradient(135deg, #21b17a 0%, #09491c 100%);
       color: white;
       padding: 1rem 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -22,7 +22,7 @@
       width: 40px;
       height: 40px;
       background: white;
-      color: #6366f1;
+      color: #21b17a;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -115,8 +115,8 @@
     }
 
     .tree-node-content.selected {
-      background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.1) 100%);
-      border-left: 3px solid #6366f1;
+      background: linear-gradient(135deg, rgba(30,202,136,0.1) 0%, rgba(20,180,120,0.1) 100%);
+      border-left: 3px solid #21b17a;
     }
 
     .tree-toggle, .tree-icon {
@@ -161,7 +161,7 @@
 
     .instance-type {
       font-weight: 600;
-      color: #6366f1;
+      color: #21b17a;
     }
 
     .instance-id {
@@ -229,8 +229,8 @@
     .property-type {
       margin-left: auto;
       font-size: 0.75rem;
-      color: #6366f1;
-      background: rgba(99,102,241,0.1);
+      color: #21b17a;
+      background: rgba(30,202,136,0.1);
       padding: 2px 6px;
       border-radius: 3px;
     }
@@ -246,8 +246,8 @@
 
     .form-input:focus, .form-select:focus {
       outline: none;
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+      border-color: #21b17a;
+      box-shadow: 0 0 0 3px rgba(30,202,136,0.1);
     }
 
     .form-checkbox {
@@ -298,13 +298,13 @@
     }
 
     .btn-primary {
-      background: #6366f1;
+      background: #21b17a;
       color: white;
     }
 
     .btn-primary:hover {
-      background: #4f46e5;
-      box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+      background: #16a673;
+      box-shadow: 0 4px 12px rgba(30,202,136,0.3);
     }
 
     .btn-secondary {
@@ -474,14 +474,14 @@
     }
 
     .class-card:hover {
-      border-color: #6366f1;
+      border-color: #21b17a;
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     .class-card.selected {
-      border-color: #6366f1;
-      background: linear-gradient(135deg, rgba(99,102,241,0.05) 0%, rgba(139,92,246,0.05) 100%);
+      border-color: #21b17a;
+      background: linear-gradient(135deg, rgba(30,202,136,0.05) 0%, rgba(20,180,120,0.05) 100%);
     }
 
     .class-name {
