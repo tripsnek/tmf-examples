@@ -12,7 +12,8 @@ import {
   EReference,
   EClassImpl,
   EAttributeImpl,
-  EEnumImpl
+  EEnumImpl,
+  EList
 } from '@tripsnek/tmf';
 import { TripplanningFactory, TripplanningPackage } from '@tmf-example/data-model';
 
@@ -388,12 +389,12 @@ export class TMFReflectiveEditorComponent implements OnInit {
   getAttributes(): EAttribute[] {
     if (!this.selectedInstance) return [];
     const eClass = this.selectedInstance.eObject.eClass();
-    return Array.from(eClass.getEAllAttributes());
+    return eClass.getEAllAttributes().elements();
   }
 
   getReferences(): EReference[] {
     if (!this.selectedInstance) return [];
-    return Array.from(this.selectedInstance.eObject.eClass().getEAllReferences());
+    return this.selectedInstance.eObject.eClass().getEAllReferences().elements();
   }
 
   getAttributeValue(attr: EAttribute): any {
@@ -410,8 +411,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
   getAttributeValues(attr: EAttribute): any[] {
     if (!this.selectedInstance || !attr.isMany()) return [];
     
-    const list = this.selectedInstance.eObject.eGet(attr);
-    return list ? Array.from(list) : [];
+    const list = this.selectedInstance.eObject.eGet(attr) as EList<any>;
+    return list ? list.elements() : [];
   }
 
   setAttributeValue(attr: EAttribute, event: any) {
@@ -438,10 +439,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
       value = parseFloat(value);
     }
     
-    const list = this.selectedInstance.eObject.eGet(attr);
+    const list = this.selectedInstance.eObject.eGet(attr) as EList<any>;
     if (!list.add) {
       // If the list doesn't have an add method, we might need to create a new array
-      const currentValues = Array.from(list || []);
+      const currentValues = list.elements();
       currentValues.push(value);
       this.selectedInstance.eObject.eSet(attr, currentValues);
     } else {
@@ -455,9 +456,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
   removeAttributeValue(attr: EAttribute, index: number) {
     if (!this.selectedInstance || !attr.isMany()) return;
     
-    const list = this.selectedInstance.eObject.eGet(attr);
+    const list = this.selectedInstance.eObject.eGet(attr) as EList<any>;
     if (list && list.remove) {
-      const values = Array.from(list);
+      const values = list.elements();
       if (index >= 0 && index < values.length) {
         list.remove(values[index]);
       }
@@ -471,8 +472,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   getReferenceValues(ref: EReference): EObject[] {
     if (!this.selectedInstance || !ref.isMany()) return [];
-    const list = this.selectedInstance.eObject.eGet(ref);
-    return Array.from(list);
+    const list = this.selectedInstance.eObject.eGet(ref) as EList<EObject>;
+    return list.elements();
   }
 
   // Show dialog to CREATE a new instance for a containment reference
@@ -589,8 +590,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       
       if (containingFeature && containingFeature.isMany()) {
         // Get the index in the containing list
-        const list = container.eGet(containingFeature);
-        const index = Array.from(list).indexOf(eObject);
+        const list = container.eGet(containingFeature) as EList<EObject>;
+        const index = list.indexOf(eObject);
         return `${containingFeature.getName()}.${index}`;
       } else if (containingFeature) {
         return `${containingFeature.getName()}`;
@@ -646,7 +647,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
   getEnumLiterals(attr: EAttribute): string[] {
     const type = attr.getEType();
     if (type instanceof EEnumImpl) {
-      return Array.from(type.getELiterals()).map(lit => lit.getLiteral());
+      return type.getELiterals().elements().map(lit => lit.getLiteral());
     }
     return [];
   }
