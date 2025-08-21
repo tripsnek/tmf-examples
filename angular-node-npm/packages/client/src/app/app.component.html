@@ -5,7 +5,7 @@
           <div class="logo">TMF</div>
           <h1>Reflective Model Editor</h1>
           <div class="package-info" *ngIf="ePackage">
-            <span class="package-name">{{ ePackage.getName() }}</span>
+            <span class="package-name">EPackage: {{ ePackage.getName() }}</span>
             <span class="package-uri">{{ ePackage.getNsURI() }}</span>
           </div>
         </div>
@@ -175,6 +175,7 @@
                 </div>
                 <div class="group-content">
                   <div class="property-field" *ngFor="let ref of getReferences()">
+                    <div *ngIf="!ref.isContainer()">
                     <label class="property-label">
                       {{ ref.getName() }}
                       <span class="property-meta" *ngIf="ref.isContainment()">(containment)</span>
@@ -216,6 +217,7 @@
                           Set {{ ref.getName() }}
                         </button>
                       </div>
+                    </div>
                     </div>
                   </div>
                 </div>

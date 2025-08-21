@@ -571,8 +571,16 @@ export class TMFReflectiveEditorComponent implements OnInit {
   // Get the dynamic label for an instance
   getInstanceLabel(eObject?: EObject): string {
     if (!eObject) return 'Unknown';
+
+        // Try 'name' attribute first
+    const nameAttr = eObject.eClass().getEStructuralFeature('name');
+    if (nameAttr && nameAttr instanceof EAttributeImpl) {
+      const value = eObject.eGet(nameAttr);
+      if (value) return String(value);
+    }
     
     const container = eObject.eContainer();
+    
     
     if (container) {
       // Object has a container - build hierarchical label
@@ -583,9 +591,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
         // Get the index in the containing list
         const list = container.eGet(containingFeature);
         const index = Array.from(list).indexOf(eObject);
-        return `${containerLabel}->${containingFeature.getName()}.${index}`;
+        return `${containingFeature.getName()}.${index}`;
       } else if (containingFeature) {
-        return `${containerLabel}->${containingFeature.getName()}`;
+        return `${containingFeature.getName()}`;
       }
     }
     
@@ -594,13 +602,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   private generateIntrinsicLabel(eObject: EObject): string {
-    // Try 'name' attribute first
-    const nameAttr = eObject.eClass().getEStructuralFeature('name');
-    if (nameAttr && nameAttr instanceof EAttributeImpl) {
-      const value = eObject.eGet(nameAttr);
-      if (value) return String(value);
-    }
-    
+
     // Try 'id' attribute second
     const idAttr = eObject.eClass().getEStructuralFeature('id');
     if (idAttr && idAttr instanceof EAttributeImpl) {
