@@ -93,6 +93,26 @@
           <span class="instance-type">{{
             getEClassName(selectedInstance.eObject)
           }}</span>
+          <!-- Debug info -->
+          <!-- <small style="margin-left: 10px; color: #999;">
+            (isDirty: {{selectedInstance.isDirty}}, isNew: {{selectedInstance.isNew}})
+          </small> -->
+          <span class="instance-state" *ngIf="isRootNew(selectedInstance)">
+            <span class="badge badge-new">New</span>
+          </span>
+          <span class="instance-state" *ngIf="isDirtyNotNew(selectedInstance)">
+            <span class="badge badge-dirty">Modified</span>
+          </span>
+          <button 
+            *ngIf="shouldShowSaveButton()"
+            class="btn btn-primary btn-sm save-btn"
+            (click)="saveSelectedInstance()"
+            [disabled]="isSaving"
+          >
+            <span class="icon" *ngIf="!isSaving">💾</span>
+            <span class="icon" *ngIf="isSaving">⏳</span> 
+            {{ isSaving ? 'Saving...' : 'Save' }}
+          </button>
         </div>
       </div>
 
@@ -477,7 +497,15 @@
           {{ instance.expanded ? "▼" : "▶" }}
         </span>
         <!-- <span class="tree-icon" *ngIf="instance.children.length === 0">•</span> -->
-        <span class="tree-label">{{ getInstanceLabel(instance.eObject) }}</span>
+        <span class="tree-label">
+          <span *ngIf="isRootNew(instance)" class="new-indicator">+</span>
+          <span *ngIf="isDirtyNotNew(instance)" class="dirty-indicator">*</span>
+          {{ getInstanceLabel(instance.eObject) }}
+          <!-- Debug info -->
+          <!-- <small style="color: #ccc; font-size: 0.7em;">
+            (D:{{instance.isDirty ? 'Y' : 'N'}}, N:{{instance.isNew ? 'Y' : 'N'}})
+          </small> -->
+        </span>
         <span class="tree-type">{{ getEClassName(instance.eObject) }}</span>
       </div>
 
