@@ -97,6 +97,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
     message: 'Checking connection...'
   };
 
+  // Saving state
+  isSaving = false;
+
   constructor(private crudService: CrudService) {}
 
   ngOnInit() {
@@ -127,6 +130,15 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   checkServerAndLoadData() {
+    // Check if there are any unsaved changes
+    const hasUnsavedChanges = this.instances.some(inst => inst.isDirty || inst.isNew);
+    
+    if (hasUnsavedChanges) {
+      if (!confirm('You have unsaved changes. Refreshing will lose these changes. Continue?')) {
+        return;
+      }
+    }
+
     this.crudService.checkConnection().subscribe(status => {
       if (status) {
         // Server is connected, load instances
@@ -151,8 +163,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
                 eObject,
                 children: [],
                 expanded: false,
-                isDirty: false,
-                isNew: false
+                isDirty: false,  // Loaded instances are not dirty
+                isNew: false     // Loaded instances are not new
               };
               this.instances.push(instance);
               rootNode.instances.push(instance);
@@ -162,6 +174,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
             });
           }
         });
+
+        console.log(`Loaded ${this.instances.length} instances from server`);
       },
       error => {
         console.error('Failed to load instances from server:', error);
@@ -235,6 +249,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   // Mark instance and all containers as dirty
   markDirty(instance: ModelInstance) {
+    console.log('Marking instance as dirty:', this.getInstanceLabel(instance.eObject));
     instance.isDirty = true;
     
     // Mark all containers up to root as dirty
@@ -260,25 +275,65 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   // Save a specific instance to the server
   saveInstance(instance: ModelInstance) {
-    if (!instance.isDirty) return;
+    if (!instance.isDirty && !instance.isNew) return;
 
+    this.isSaving = true;
+
+    // For new instances, always use create (POST)
+    // For existing dirty instances, use update (PUT)
     this.crudService.saveInstance(instance.eObject, instance.isNew).subscribe(
       savedEObject => {
-        // Update the instance with the saved object
+        // Update the instance with the saved object (this ensures we have the server-assigned ID if any)
+        const oldEObject = instance.eObject;
         instance.eObject = savedEObject;
+        
+        // Update the reference in all places where this object is referenced
+        this.updateObjectReferences(oldEObject, savedEObject);
+        
+        // Clear flags after successful save
         instance.isDirty = false;
         instance.isNew = false;
 
-        // Clear dirty flag for all children
-        this.clearDirtyFlags(instance);
+        // Clear dirty and new flags for all children (they're saved as part of the aggregate)
+        this.clearDirtyAndNewFlags(instance);
 
+        this.isSaving = false;
         console.log('Instance saved successfully');
       },
       error => {
+        this.isSaving = false;
         console.error('Failed to save instance:', error);
         alert('Failed to save instance. Check console for details.');
       }
     );
+  }
+
+  private clearDirtyAndNewFlags(instance: ModelInstance) {
+    instance.isDirty = false;
+    instance.isNew = false;
+    instance.children.forEach(child => this.clearDirtyAndNewFlags(child));
+  }
+
+  private updateObjectReferences(oldEObject: EObject, newEObject: EObject) {
+    // Update any references to this object throughout the model
+    this.instances.forEach(inst => {
+      inst.eObject.eClass().getEAllReferences().forEach(ref => {
+        if (!ref.isContainment()) {
+          if (ref.isMany()) {
+            const list = inst.eObject.eGet(ref) as EList<EObject>;
+            const index = list.indexOf(oldEObject);
+            if (index >= 0) {
+              list.set(index, newEObject);
+            }
+          } else {
+            const value = inst.eObject.eGet(ref);
+            if (value === oldEObject) {
+              inst.eObject.eSet(ref, newEObject);
+            }
+          }
+        }
+      });
+    });
   }
 
   private clearDirtyFlags(instance: ModelInstance) {
@@ -392,13 +447,25 @@ export class TMFReflectiveEditorComponent implements OnInit {
       }
     }
 
+    // Determine if this is a new root instance
+    const isNewRoot = !this.isContainmentCreation && !this.selectedContainer;
+    
     const instance: ModelInstance = {
       eObject,
       children: [],
       expanded: true,
-      isDirty: true,
-      isNew: true
+      isDirty: isNewRoot,  // Root instances start dirty
+      isNew: isNewRoot     // Only root instances that are created at the top level are "new"
     };
+
+    console.log('Created instance:', {
+      className: this.selectedEClass.getName(),
+      isNewRoot,
+      isDirty: instance.isDirty,
+      isNew: instance.isNew,
+      isContainmentCreation: this.isContainmentCreation,
+      hasSelectedContainer: !!this.selectedContainer
+    });
 
     this.instances.push(instance);
 
@@ -422,7 +489,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
         this.containmentParent.children.push(instance);
       }
 
-      // Mark parent as dirty
+      // Mark parent as dirty (this will propagate up to root)
       this.markDirty(this.containmentParent);
 
       // Make sure parent is expanded to show new child
@@ -470,6 +537,12 @@ export class TMFReflectiveEditorComponent implements OnInit {
       isDirty: true,
       isNew: true
     };
+
+    console.log('Created new root instance:', {
+      className: eClass.getName(),
+      isDirty: instance.isDirty,
+      isNew: instance.isNew
+    });
 
     this.instances.push(instance);
 
@@ -558,10 +631,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
   deleteInstance() {
     if (!this.selectedInstance) return;
 
-    // If connected to server and not a new instance, delete from server
-    if (this.connectionStatus.connected && !this.selectedInstance.isNew) {
-      const rootInstance = this.getRootContainer(this.selectedInstance);
-      
+    const rootInstance = this.getRootContainer(this.selectedInstance);
+    
+    // If connected to server and the root is not new (has been saved), delete from server
+    if (this.connectionStatus.connected && !rootInstance.isNew) {
       // For now, we'll only allow deleting root instances from server
       if (this.selectedInstance === rootInstance) {
         this.crudService.deleteInstance(this.selectedInstance.eObject).subscribe(
@@ -570,12 +643,11 @@ export class TMFReflectiveEditorComponent implements OnInit {
           },
           error => {
             console.error('Failed to delete from server:', error);
-            // Still remove locally
-            this.removeInstanceFromTree();
+            alert('Failed to delete from server. Check console for details.');
           }
         );
       } else {
-        // For contained instances, mark parent as dirty
+        // For contained instances, mark parent as dirty and remove locally
         const parent = this.findParentInstance(this.selectedInstance);
         if (parent) {
           this.markDirty(parent);
@@ -583,6 +655,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
         this.removeInstanceFromTree();
       }
     } else {
+      // Instance is new (not saved) or no server connection - just remove locally
       this.removeInstanceFromTree();
     }
   }
@@ -760,6 +833,12 @@ export class TMFReflectiveEditorComponent implements OnInit {
       value = parseFloat(value);
     }
 
+    console.log('Setting attribute value:', {
+      attribute: attr.getName(),
+      value,
+      instanceLabel: this.getInstanceLabel(this.selectedInstance.eObject)
+    });
+
     this.selectedInstance.eObject.eSet(attr, value);
     this.markDirty(this.selectedInstance);
   }
@@ -866,7 +945,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
       children: [],
       expanded: true,
       isDirty: false,  // Will be marked dirty through parent
-      isNew: false      // Contained instances inherit new status from parent
+      isNew: false     // Contained instances are not independently new - they're part of the aggregate
     };
 
     this.instances.push(instance);
@@ -884,7 +963,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
       this.selectedInstance.children.push(instance);
     }
 
-    // Mark parent as dirty
+    // Mark parent as dirty (this will propagate up to root)
     this.markDirty(this.selectedInstance);
 
     // Make sure parent is expanded to show new child
@@ -1134,5 +1213,27 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   compareInstances(a: any, b: any): boolean {
     return a === b;
+  }
+
+  // Helper method to check if should show save button
+  shouldShowSaveButton(): boolean {
+    if (!this.selectedInstance || !this.connectionStatus.connected) {
+      return false;
+    }
+    
+    const rootContainer = this.getRootContainer(this.selectedInstance);
+    return rootContainer.isDirty || rootContainer.isNew;
+  }
+
+  // Helper method to check if instance root is new
+  isRootNew(instance: ModelInstance): boolean {
+    const root = this.getRootContainer(instance);
+    return root.isNew;
+  }
+
+  // Helper method to check if instance is dirty and root is not new
+  isDirtyNotNew(instance: ModelInstance): boolean {
+    const root = this.getRootContainer(instance);
+    return instance.isDirty && !root.isNew;
   }
 }

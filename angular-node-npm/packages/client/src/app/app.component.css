@@ -50,11 +50,6 @@
       font-size: large;
     }
 
-    .package-uri {
-      font-size: 0.75rem;
-      opacity: 0.8;
-    }
-
     .editor-body {
       flex: 1;
       display: flex;
@@ -547,7 +542,7 @@
     }
 
     
-    .package-uri {
+     .package-uri {
       font-size: 0.75rem;
       opacity: 0.8;
     }
@@ -561,6 +556,22 @@
       background: rgba(255,255,255,0.1);
       border-radius: 20px;
       font-size: 0.875rem;
+    }
+
+    .refresh-btn {
+      padding: 0.25rem 0.5rem !important;
+      background: rgba(255,255,255,0.2) !important;
+      border: 1px solid rgba(255,255,255,0.3) !important;
+      color: white !important;
+      font-size: 1rem !important;
+      border-radius: 4px !important;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(255,255,255,0.3) !important;
+      transform: rotate(180deg);
     }
 
     .status-indicator {
@@ -596,6 +607,18 @@
       margin-right: 0.25rem;
     }
 
+    .new-indicator {
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 0.25rem;
+    }
+
     .save-btn {
       margin-left: auto;
+    }
+
+    .btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
     }

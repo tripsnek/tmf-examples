@@ -6,12 +6,20 @@
       <h1>Reflective Model Editor</h1>
       <div class="package-info" *ngIf="ePackage">
         <span class="package-name">EPackage: {{ ePackage.getName() }}</span>
-        <!-- <span class="package-uri">{{ ePackage.getNsURI() }}</span> -->
+        <span class="package-uri">{{ ePackage.getNsURI() }}</span>
       </div>
       <div class="connection-status" [class.connected]="connectionStatus.connected">
         <span class="status-indicator"></span>
         <span class="status-text">{{ connectionStatus.message }}</span>
-      </div>      
+        <button 
+          *ngIf="connectionStatus.connected"
+          class="btn btn-sm btn-secondary refresh-btn"
+          (click)="checkServerAndLoadData()"
+          title="Reload from server"
+        >
+          🔄
+        </button>
+      </div> 
     </div>
   </header>
 

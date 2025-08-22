@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { Observable, of, throwError, BehaviorSubject, interval, Subscription, firstValueFrom } from 'rxjs';
+import { catchError, map, tap, switchMap } from 'rxjs/operators';
 import { EObject, EClass, TJson } from '@tripsnek/tmf';
 import { TripplanningFactory } from '@tmf-example/data-model';
 
@@ -25,7 +25,7 @@ export interface ConnectionStatus {
 @Injectable({
   providedIn: 'root'
 })
-export class CrudService {
+export class CrudService implements OnDestroy {
   private factory = TripplanningFactory.eINSTANCE;
   private readonly baseUrl = 'http://localhost:3000/api';
   
@@ -36,9 +36,23 @@ export class CrudService {
   });
   
   public connectionStatus$ = this.connectionStatusSubject.asObservable();
+  
+  // Periodic connection check subscription
+  private connectionCheckSubscription?: Subscription;
 
   constructor(private http: HttpClient) {
     this.checkConnection();
+    
+    // Check connection every 5 seconds
+    this.connectionCheckSubscription = interval(5000).pipe(
+      switchMap(() => this.checkConnection())
+    ).subscribe();
+  }
+
+  ngOnDestroy() {
+    if (this.connectionCheckSubscription) {
+      this.connectionCheckSubscription.unsubscribe();
+    }
   }
 
   /**
@@ -47,18 +61,26 @@ export class CrudService {
   checkConnection(): Observable<ServerStatus | null> {
     return this.http.get<ServerStatus>(`${this.baseUrl}/status`).pipe(
       tap(status => {
-        this.connectionStatusSubject.next({
-          connected: true,
-          message: `Connected to ${status.package}`,
-          lastChecked: new Date()
-        });
+        const currentStatus = this.connectionStatusSubject.value;
+        // Only update if status changed or it's the first check
+        if (!currentStatus.connected || currentStatus.message !== `Connected to ${status.package}`) {
+          this.connectionStatusSubject.next({
+            connected: true,
+            message: `Connected to ${status.package}`,
+            lastChecked: new Date()
+          });
+        }
       }),
       catchError(error => {
-        this.connectionStatusSubject.next({
-          connected: false,
-          message: 'Server not available',
-          lastChecked: new Date()
-        });
+        const currentStatus = this.connectionStatusSubject.value;
+        // Only update if status changed
+        if (currentStatus.connected || currentStatus.message !== 'Server not available') {
+          this.connectionStatusSubject.next({
+            connected: false,
+            message: 'Server not available',
+            lastChecked: new Date()
+          });
+        }
         return of(null);
       })
     );
@@ -78,10 +100,10 @@ export class CrudService {
   /**
    * Get a single instance by ID
    */
-  getInstance(eClass: EClass, id: string): Observable<EObject | null | undefined> {
+  getInstance(eClass: EClass, id: string): Observable<EObject | null> {
     const className = eClass.getName();
     return this.http.get<any>(`${this.baseUrl}/${className}/${id}`).pipe(
-      map(json => TJson.makeEObject(json)),
+      map(json => TJson.makeEObject(json)!),
       catchError(error => {
         if (error.status === 404) {
           return of(null);
@@ -176,9 +198,12 @@ export class CrudService {
     }
 
     return new Observable(observer => {
-      Promise.all(observables.map(obs => obs.toPromise())).then(() => {
+      const promises = observables.map(obs => firstValueFrom(obs));
+      Promise.all(promises).then(() => {
         observer.next(result);
         observer.complete();
+      }).catch(error => {
+        observer.error(error);
       });
     });
   }
