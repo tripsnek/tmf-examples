@@ -6,7 +6,6 @@
       <h1>Reflective Model Editor</h1>
       <div class="package-info" *ngIf="ePackage">
         <span class="package-name">EPackage: {{ ePackage.getName() }}</span>
-        <span class="package-uri">{{ ePackage.getNsURI() }}</span>
       </div>
       <div class="connection-status" [class.connected]="connectionStatus.connected">
         <span class="status-indicator"></span>
@@ -99,12 +98,14 @@
           <span class="instance-type">{{
             getEClassName(selectedInstance.eObject)
           }}</span>
-          <span class="instance-state" *ngIf="isRootNew(selectedInstance)">
-            <span class="badge badge-new">New</span>
-          </span>
-          <span class="instance-state" *ngIf="isDirtyNotNew(selectedInstance)">
-            <span class="badge badge-dirty">Modified</span>
-          </span>
+          <div *ngIf="this.connectionStatus.connected">
+            <span class="instance-state" *ngIf="isRootNew(selectedInstance)">
+              <span class="badge badge-new">New</span>
+            </span>
+            <span class="instance-state" *ngIf="isDirtyNotNew(selectedInstance)">
+              <span class="badge badge-dirty">Modified</span>
+            </span>
+          </div>
         </div>        
           <!-- Attributes Group -->
           <div class="property-group" *ngIf="getAttributes().length > 0">
@@ -475,14 +476,14 @@
           {{ instance.expanded ? "▼" : "▶" }}
         </span>
         <span class="tree-label">
-          <span *ngIf="isRootNew(instance)" class="new-indicator">*</span>
-          <span *ngIf="isDirtyNotNew(instance)" class="dirty-indicator">*</span>
+          <span *ngIf="isRootNew(instance) && this.connectionStatus.connected" class="new-indicator">*</span>
+          <span *ngIf="isDirtyNotNew(instance) && this.connectionStatus.connected" class="dirty-indicator">*</span>
           {{ getInstanceLabel(instance.eObject) }}
         </span>
         <span class="tree-type">{{ getEClassName(instance.eObject) }}</span>
         
         <!-- Per-node action button -->
-        <span class="tree-node-actions">
+        <span class="tree-node-actions" *ngIf="this.connectionStatus.connected">
           <!-- Save button if dirty and connected -->
           <button
             *ngIf="shouldShowSaveButton(instance) && connectionStatus.connected"

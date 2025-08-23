@@ -1,5 +1,5 @@
 // app.component.ts
-import { Component, OnInit, ViewChildren, QueryList, ElementRef } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, ElementRef, HostListener } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { HttpClientModule } from '@angular/common/http';
@@ -47,10 +47,23 @@ interface ModelInstanceWrapper {
   styleUrls: ["./app.component.css"],
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
-  providers: [CrudService]
+  providers: [CrudService],
 })
 export class TMFReflectiveEditorComponent implements OnInit {
-  @ViewChildren('propertyInput') propertyInputs!: QueryList<ElementRef>;
+  @ViewChildren("propertyInput") propertyInputs!: QueryList<ElementRef>;
+
+  @HostListener("document:keydown", ["$event"])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === "s") {
+      event.preventDefault(); // Prevent the browser's default save action
+      this.saveAllDirtyInstances();
+    }
+    else if(event.key === 'Delete' || event.keyCode === 46) {
+      event.preventDefault(); // Prevent the browser's default delete action
+      if(this.selectedInstance)
+        this.deleteInstance(this.selectedInstance);
+    }
+  }
 
   ePackage: EPackage | null = null;
   eFactory: EFactory | null = null;
@@ -76,11 +89,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
   containmentReference: EReference | null = null;
   containmentParent: ModelInstanceWrapper | null = null;
 
-
   // Server connection status
   connectionStatus: ConnectionStatus = {
     connected: false,
-    message: 'Checking connection...'
+    message: "Checking connection...",
   };
 
   // Saving state
@@ -93,7 +105,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.loadMetamodel();
 
     // Subscribe to connection status
-    this.crudService.connectionStatus$.subscribe(status => {
+    this.crudService.connectionStatus$.subscribe((status) => {
       this.connectionStatus = status;
     });
 
@@ -103,13 +115,20 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   ngAfterViewChecked() {
     // Focus on the first property input when properties become visible
-    if (this.selectedInstance && this.propertyInputs && this.propertyInputs.length > 0) {
+    if (
+      this.selectedInstance &&
+      this.propertyInputs &&
+      this.propertyInputs.length > 0
+    ) {
       const firstInput = this.propertyInputs.first;
-      if (firstInput && firstInput.nativeElement && 
-          !firstInput.nativeElement.hasAttribute('data-focused')) {
+      if (
+        firstInput &&
+        firstInput.nativeElement &&
+        !firstInput.nativeElement.hasAttribute("data-focused")
+      ) {
         setTimeout(() => {
           firstInput.nativeElement.focus();
-          firstInput.nativeElement.setAttribute('data-focused', 'true');
+          firstInput.nativeElement.setAttribute("data-focused", "true");
         }, 100);
       }
     }
@@ -117,15 +136,21 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   checkServerAndLoadData() {
     // Check if there are any unsaved changes
-    const hasUnsavedChanges = this.instances.some(inst => inst.isDirty || inst.isNew);
-    
+    const hasUnsavedChanges = this.instances.some(
+      (inst) => inst.isDirty || inst.isNew
+    );
+
     if (hasUnsavedChanges) {
-      if (!confirm('You have unsaved changes. Refreshing will lose these changes. Continue?')) {
+      if (
+        !confirm(
+          "You have unsaved changes. Refreshing will lose these changes. Continue?"
+        )
+      ) {
         return;
       }
     }
 
-    this.crudService.checkConnection().subscribe(status => {
+    this.crudService.checkConnection().subscribe((status) => {
       if (status) {
         // Server is connected, load instances
         this.loadInstancesFromServer();
@@ -135,26 +160,26 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   loadInstancesFromServer() {
     this.crudService.loadAllRootInstances(this.rootClasses).subscribe(
-      instanceMap => {
+      (instanceMap) => {
         // Clear existing instances
         this.instances = [];
-        this.rootClassNodes.forEach(node => node.instances = []);
+        this.rootClassNodes.forEach((node) => (node.instances = []));
 
         // Process loaded instances
         instanceMap.forEach((eObjects, eClass) => {
           const rootNode = this.getRootClassNode(eClass);
           if (rootNode) {
-            eObjects.forEach(eObject => {
+            eObjects.forEach((eObject) => {
               const instance: ModelInstanceWrapper = {
                 eObject,
                 children: [],
                 expanded: false,
-                isDirty: false,  // Loaded instances are not dirty
-                isNew: false     // Loaded instances are not new
+                isDirty: false, // Loaded instances are not dirty
+                isNew: false, // Loaded instances are not new
               };
               this.instances.push(instance);
               rootNode.instances.push(instance);
-              
+
               // Build containment tree
               this.buildContainmentTree(instance);
             });
@@ -162,12 +187,12 @@ export class TMFReflectiveEditorComponent implements OnInit {
         });
 
         console.log(`Loaded ${this.instances.length} instances from server`);
-        
+
         // IMPORTANT: Resolve all proxy references after loading all instances
         this.resolveAllProxies();
       },
-      error => {
-        console.error('Failed to load instances from server:', error);
+      (error) => {
+        console.error("Failed to load instances from server:", error);
       }
     );
   }
@@ -177,26 +202,28 @@ export class TMFReflectiveEditorComponent implements OnInit {
    * This is called after initial load and can be called manually if needed.
    */
   private resolveAllProxies() {
-    console.log('Resolving proxy references...');
-    
+    console.log("Resolving proxy references...");
+
     // Get all root EObjects from the model instances
     const rootEObjects: EObject[] = [];
-    this.rootClassNodes.forEach(node => {
-      node.instances.forEach(instance => {
+    this.rootClassNodes.forEach((node) => {
+      node.instances.forEach((instance) => {
         rootEObjects.push(instance.eObject);
       });
     });
-    
+
     if (rootEObjects.length === 0) {
-      console.log('No objects to resolve proxies for');
+      console.log("No objects to resolve proxies for");
       return;
     }
-    
+
     const resolvedCount = ProxyResolver.resolveProxies(rootEObjects);
-    
+
     if (resolvedCount > 0) {
-      console.log(`Proxy resolution complete: ${resolvedCount} proxies resolved`);
-      
+      console.log(
+        `Proxy resolution complete: ${resolvedCount} proxies resolved`
+      );
+
       // If the selected instance was affected, refresh the UI
       if (this.selectedInstance) {
         // Trigger change detection by reselecting
@@ -212,7 +239,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
         console.warn(`${unresolvedCount} proxies remain unresolved`);
         // Optional: Get detailed report for debugging
         const report = ProxyResolver.getUnresolvedProxyReport(rootEObjects);
-        report.forEach(line => console.warn(line));
+        report.forEach((line) => console.warn(line));
       }
     }
   }
@@ -223,62 +250,67 @@ export class TMFReflectiveEditorComponent implements OnInit {
   private resolveProxiesForInstance(instance: ModelInstanceWrapper) {
     // Get all existing root EObjects
     const existingRootEObjects: EObject[] = [];
-    this.rootClassNodes.forEach(node => {
-      node.instances.forEach(inst => {
+    this.rootClassNodes.forEach((node) => {
+      node.instances.forEach((inst) => {
         if (inst !== instance) {
           existingRootEObjects.push(inst.eObject);
         }
       });
     });
-    
+
     const resolvedCount = ProxyResolver.resolveProxiesForObject(
-      instance.eObject, 
+      instance.eObject,
       existingRootEObjects
     );
-    
+
     if (resolvedCount > 0) {
-      console.log(`Resolved ${resolvedCount} proxies for instance ${this.getInstanceLabel(instance.eObject)}`);
+      console.log(
+        `Resolved ${resolvedCount} proxies for instance ${this.getInstanceLabel(instance.eObject)}`
+      );
     }
   }
 
   private buildContainmentTree(instance: ModelInstanceWrapper) {
-    instance.eObject.eClass().getEAllReferences().forEach(ref => {
-      if (ref.isContainment()) {
-        if (ref.isMany()) {
-          const list = instance.eObject.eGet(ref) as EList<EObject>;
-          if (list) {
-            list.forEach(childEObject => {
+    instance.eObject
+      .eClass()
+      .getEAllReferences()
+      .forEach((ref) => {
+        if (ref.isContainment()) {
+          if (ref.isMany()) {
+            const list = instance.eObject.eGet(ref) as EList<EObject>;
+            if (list) {
+              list.forEach((childEObject) => {
+                const childInstance: ModelInstanceWrapper = {
+                  eObject: childEObject,
+                  children: [],
+                  expanded: false,
+                  isDirty: false,
+                  isNew: false,
+                };
+                instance.children.push(childInstance);
+                this.instances.push(childInstance);
+                // Recursively build tree
+                this.buildContainmentTree(childInstance);
+              });
+            }
+          } else {
+            const childEObject = instance.eObject.eGet(ref) as EObject;
+            if (childEObject) {
               const childInstance: ModelInstanceWrapper = {
                 eObject: childEObject,
                 children: [],
                 expanded: false,
                 isDirty: false,
-                isNew: false
+                isNew: false,
               };
               instance.children.push(childInstance);
               this.instances.push(childInstance);
               // Recursively build tree
               this.buildContainmentTree(childInstance);
-            });
-          }
-        } else {
-          const childEObject = instance.eObject.eGet(ref) as EObject;
-          if (childEObject) {
-            const childInstance: ModelInstanceWrapper = {
-              eObject: childEObject,
-              children: [],
-              expanded: false,
-              isDirty: false,
-              isNew: false
-            };
-            instance.children.push(childInstance);
-            this.instances.push(childInstance);
-            // Recursively build tree
-            this.buildContainmentTree(childInstance);
+            }
           }
         }
-      }
-    });
+      });
   }
 
   loadMetamodel() {
@@ -286,7 +318,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     // For now, we'll assume it's available via injection or import
     this.ePackage = TripplanningPackage.eINSTANCE;
     this.eFactory = TripplanningFactory.eINSTANCE;
-    
+
     this.rootClasses = TUtils.getRootEClasses(this.ePackage);
 
     // Initialize root class nodes
@@ -294,22 +326,25 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   initializeRootClassNodes() {
-    this.rootClassNodes = this.rootClasses.map(eClass => ({
+    this.rootClassNodes = this.rootClasses.map((eClass) => ({
       eClass,
       instances: [],
-      expanded: true
+      expanded: true,
     }));
   }
 
   getRootClassNode(eClass: EClass): RootClassNode | undefined {
-    return this.rootClassNodes.find(node => node.eClass === eClass);
+    return this.rootClassNodes.find((node) => node.eClass === eClass);
   }
 
   // Mark instance and all containers as dirty
   markDirty(instance: ModelInstanceWrapper) {
-    console.log('Marking instance as dirty:', this.getInstanceLabel(instance.eObject));
+    console.log(
+      "Marking instance as dirty:",
+      this.getInstanceLabel(instance.eObject)
+    );
     instance.isDirty = true;
-    
+
     // Mark all containers up to root as dirty
     const parent = this.findParentInstance(instance);
     if (parent) {
@@ -340,23 +375,21 @@ export class TMFReflectiveEditorComponent implements OnInit {
     // For new instances, always use create (POST)
     // For existing dirty instances, use update (PUT)
     this.crudService.saveInstance(instance.eObject, instance.isNew).subscribe(
-      savedEObject => {
-
+      (savedEObject) => {
         //NOTE: if the server might have altered the instance, here is where you would want to synchronize
         //the object and it's contents to your existing UI objects, either by updating them in place or
         //by replacing them entirely
-        
+
         // Clear dirty and new flags for all children (they're saved as part of the aggregate)
         this.clearDirtyAndNewFlags(instance);
 
         this.isSaving = false;
-        console.log('Instance saved successfully');
-        
+        console.log("Instance saved successfully");
       },
-      error => {
+      (error) => {
         this.isSaving = false;
-        console.error('Failed to save instance:', error);
-        alert('Failed to save instance. Check console for details.');
+        console.error("Failed to save instance:", error);
+        alert("Failed to save instance. Check console for details.");
       }
     );
   }
@@ -365,8 +398,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
   saveAllDirtyInstances() {
     // Get all root instances that are dirty or new
     const dirtyRoots = new Set<ModelInstanceWrapper>();
-    
-    this.instances.forEach(instance => {
+
+    this.instances.forEach((instance) => {
       if (instance.isDirty || instance.isNew) {
         const root = this.getRootContainer(instance);
         dirtyRoots.add(root);
@@ -376,49 +409,55 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (dirtyRoots.size === 0) return;
 
     this.isSaving = true;
-    
+
     // Save all dirty roots
     let saveCount = 0;
     const totalSaves = dirtyRoots.size;
-    
-    dirtyRoots.forEach(rootInstance => {
-      this.crudService.saveInstance(rootInstance.eObject, rootInstance.isNew).subscribe(
-        savedEObject => {
-          this.clearDirtyAndNewFlags(rootInstance);
-          saveCount++;
-          
-          if (saveCount === totalSaves) {
-            this.isSaving = false;
-            console.log(`Successfully saved ${totalSaves} instances`);
+
+    dirtyRoots.forEach((rootInstance) => {
+      this.crudService
+        .saveInstance(rootInstance.eObject, rootInstance.isNew)
+        .subscribe(
+          (savedEObject) => {
+            this.clearDirtyAndNewFlags(rootInstance);
+            saveCount++;
+
+            if (saveCount === totalSaves) {
+              this.isSaving = false;
+              console.log(`Successfully saved ${totalSaves} instances`);
+            }
+          },
+          (error) => {
+            saveCount++;
+            console.error("Failed to save instance:", error);
+
+            if (saveCount === totalSaves) {
+              this.isSaving = false;
+              alert(
+                "Some instances failed to save. Check console for details."
+              );
+            }
           }
-        },
-        error => {
-          saveCount++;
-          console.error('Failed to save instance:', error);
-          
-          if (saveCount === totalSaves) {
-            this.isSaving = false;
-            alert('Some instances failed to save. Check console for details.');
-          }
-        }
-      );
+        );
     });
   }
 
   // Check if any instance in the entire tree is dirty
   hasAnyDirtyInstances(): boolean {
-    return this.instances.some(instance => instance.isDirty || instance.isNew);
+    return this.instances.some(
+      (instance) => instance.isDirty || instance.isNew
+    );
   }
 
   private clearDirtyAndNewFlags(instance: ModelInstanceWrapper) {
     instance.isDirty = false;
     instance.isNew = false;
-    instance.children.forEach(child => this.clearDirtyAndNewFlags(child));
+    instance.children.forEach((child) => this.clearDirtyAndNewFlags(child));
   }
 
   private clearDirtyFlags(instance: ModelInstanceWrapper) {
     instance.isDirty = false;
-    instance.children.forEach(child => this.clearDirtyFlags(child));
+    instance.children.forEach((child) => this.clearDirtyFlags(child));
   }
 
   // Get classes available for creation (root classes or classes for containment)
@@ -500,20 +539,19 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   private getNextIdForEClass(eClass: EClass): string {
-
     //silly and inefficient method for finding a nice ID for UI
     const allIds = new Set<string>();
-    for(const s of this.instances){
-      if(s.eObject.eClass() == eClass && eClass.getEIDAttribute()){
+    for (const s of this.instances) {
+      if (s.eObject.eClass() == eClass && eClass.getEIDAttribute()) {
         allIds.add(s.eObject.eGet(eClass.getEIDAttribute()!));
       }
     }
     let count = 1;
     const className = eClass.getName();
-    let id = '';
-    while(!id){
+    let id = "";
+    while (!id) {
       const toTest = `${className}_${count}`;
-      if(!allIds.has(toTest)) id = toTest;
+      if (!allIds.has(toTest)) id = toTest;
       count++;
     }
     return id;
@@ -541,22 +579,22 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
     // Determine if this is a new root instance
     const isNewRoot = !this.isContainmentCreation && !this.selectedContainer;
-    
+
     const instance: ModelInstanceWrapper = {
       eObject,
       children: [],
       expanded: true,
-      isDirty: isNewRoot,  // Root instances start dirty
-      isNew: isNewRoot     // Only root instances that are created at the top level are "new"
+      isDirty: isNewRoot, // Root instances start dirty
+      isNew: isNewRoot, // Only root instances that are created at the top level are "new"
     };
 
-    console.log('Created instance:', {
+    console.log("Created instance:", {
       className: this.selectedEClass.getName(),
       isNewRoot,
       isDirty: instance.isDirty,
       isNew: instance.isNew,
       isContainmentCreation: this.isContainmentCreation,
-      hasSelectedContainer: !!this.selectedContainer
+      hasSelectedContainer: !!this.selectedContainer,
     });
 
     this.instances.push(instance);
@@ -601,10 +639,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
     this.selectedInstance = instance;
     this.hideCreateDialog();
-    
+
     // Clear focus attributes when new instance is selected
     this.clearFocusAttributes();
-    
+
     // Resolve proxies for the new instance (in case it has references)
     setTimeout(() => {
       this.resolveProxiesForInstance(instance);
@@ -632,13 +670,13 @@ export class TMFReflectiveEditorComponent implements OnInit {
       children: [],
       expanded: true,
       isDirty: true,
-      isNew: true
+      isNew: true,
     };
 
-    console.log('Created new root instance:', {
+    console.log("Created new root instance:", {
       className: eClass.getName(),
       isDirty: instance.isDirty,
-      isNew: instance.isNew
+      isNew: instance.isNew,
     });
 
     this.instances.push(instance);
@@ -651,10 +689,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
 
     this.selectedInstance = instance;
-    
+
     // Clear focus attributes when new instance is selected
     this.clearFocusAttributes();
-    
+
     // Resolve proxies for the new instance
     setTimeout(() => {
       this.resolveProxiesForInstance(instance);
@@ -664,8 +702,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
   private clearFocusAttributes() {
     // Clear focus tracking attributes from all inputs
     if (this.propertyInputs) {
-      this.propertyInputs.forEach(input => {
-        input.nativeElement.removeAttribute('data-focused');
+      this.propertyInputs.forEach((input) => {
+        input.nativeElement.removeAttribute("data-focused");
       });
     }
   }
@@ -688,7 +726,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
 
     // Remove from root if it was there
-    this.rootClassNodes.forEach(node => {
+    this.rootClassNodes.forEach((node) => {
       const index = node.instances.indexOf(instance);
       if (index > -1) {
         node.instances.splice(index, 1);
@@ -702,7 +740,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (!targetInstance) return;
 
     const rootInstance = this.getRootContainer(targetInstance);
-    
+
     // If connected to server and the root is not new (has been saved), delete from server
     if (this.connectionStatus.connected && !rootInstance.isNew) {
       // only allow deleting root instances from server
@@ -711,9 +749,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
           () => {
             this.performCompleteInstanceDeletion(targetInstance);
           },
-          error => {
-            console.error('Failed to delete from server:', error);
-            alert('Failed to delete from server. Check console for details.');
+          (error) => {
+            console.error("Failed to delete from server:", error);
+            alert("Failed to delete from server. Check console for details.");
           }
         );
       } else {
@@ -730,7 +768,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
   }
 
-  private performCompleteInstanceDeletion(instanceToDelete: ModelInstanceWrapper) {
+  private performCompleteInstanceDeletion(
+    instanceToDelete: ModelInstanceWrapper
+  ) {
     // Step 1: Collect all objects that will be deleted (including children)
     const objectsToDelete: EObject[] = [];
     this.collectAllObjectsToDelete(instanceToDelete, objectsToDelete);
@@ -739,7 +779,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     this.removeInstanceAndChildrenFromTree(instanceToDelete);
 
     // Step 3: After all deletion is done, recursively invoke deleteObjectReferences
-    objectsToDelete.forEach(obj => {
+    objectsToDelete.forEach((obj) => {
       this.deleteObjectReferences(obj);
     });
 
@@ -752,18 +792,23 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
   }
 
-  private collectAllObjectsToDelete(instance: ModelInstanceWrapper, objectsToDelete: EObject[]) {
+  private collectAllObjectsToDelete(
+    instance: ModelInstanceWrapper,
+    objectsToDelete: EObject[]
+  ) {
     objectsToDelete.push(instance.eObject);
-    
+
     // Recursively collect all children
-    instance.children.forEach(child => {
+    instance.children.forEach((child) => {
       this.collectAllObjectsToDelete(child, objectsToDelete);
     });
   }
 
-  private removeInstanceAndChildrenFromTree(instanceToDelete: ModelInstanceWrapper) {
+  private removeInstanceAndChildrenFromTree(
+    instanceToDelete: ModelInstanceWrapper
+  ) {
     // First, recursively remove all children
-    [...instanceToDelete.children].forEach(child => {
+    [...instanceToDelete.children].forEach((child) => {
       this.removeInstanceAndChildrenFromTree(child);
     });
 
@@ -782,9 +827,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
             if (ref.isMany()) {
               const list = parent.eObject.eGet(ref);
               list.remove(instanceToDelete.eObject);
-            } else if (
-              parent.eObject.eGet(ref) === instanceToDelete.eObject
-            ) {
+            } else if (parent.eObject.eGet(ref) === instanceToDelete.eObject) {
               parent.eObject.eSet(ref, null);
             }
           }
@@ -842,7 +885,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
     return !root.isDirty && !root.isNew;
   }
 
-  private findParentInstance(instance: ModelInstanceWrapper): ModelInstanceWrapper | null {
+  private findParentInstance(
+    instance: ModelInstanceWrapper
+  ): ModelInstanceWrapper | null {
     for (const rootNode of this.rootClassNodes) {
       for (const rootInstance of rootNode.instances) {
         const parent = this.findParentInTree(rootInstance, instance);
@@ -923,17 +968,17 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (!this.selectedInstance) return [];
     const eClass = this.selectedInstance.eObject.eClass();
     const attributes = eClass.getEAllAttributes().elements();
-    
+
     // Sort attributes to put 'name' first, then 'id', then the rest
     return attributes.sort((a, b) => {
       const aName = a.getName();
       const bName = b.getName();
-      
-      if (aName === 'name') return -1;
-      if (bName === 'name') return 1;
-      if (aName === 'id') return -1;
-      if (bName === 'id') return 1;
-      
+
+      if (aName === "name") return -1;
+      if (bName === "name") return 1;
+      if (aName === "id") return -1;
+      if (bName === "id") return 1;
+
       return aName.localeCompare(bName);
     });
   }
@@ -974,10 +1019,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
       value = parseFloat(value);
     }
 
-    console.log('Setting attribute value:', {
+    console.log("Setting attribute value:", {
       attribute: attr.getName(),
       value,
-      instanceLabel: this.getInstanceLabel(this.selectedInstance.eObject)
+      instanceLabel: this.getInstanceLabel(this.selectedInstance.eObject),
     });
 
     this.selectedInstance.eObject.eSet(attr, value);
@@ -1027,12 +1072,14 @@ export class TMFReflectiveEditorComponent implements OnInit {
   getReferenceValue(ref: EReference): EObject | undefined {
     if (!this.selectedInstance || ref.isMany()) return undefined;
     const value = this.selectedInstance.eObject.eGet(ref);
-    
+
     // Check if it's a proxy and add visual indicator
     if (value && value.eIsProxy && value.eIsProxy()) {
-      console.debug(`Reference ${ref.getName()} contains unresolved proxy: ${value.fullId()}`);
+      console.debug(
+        `Reference ${ref.getName()} contains unresolved proxy: ${value.fullId()}`
+      );
     }
-    
+
     return value;
   }
 
@@ -1040,21 +1087,23 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (!this.selectedInstance || !ref.isMany()) return [];
     const list = this.selectedInstance.eObject.eGet(ref) as EList<EObject>;
     const values = list.elements();
-    
+
     // Check for proxies in the list
     values.forEach((value, index) => {
       if (value && value.eIsProxy && value.eIsProxy()) {
-        console.debug(`Reference ${ref.getName()}[${index}] contains unresolved proxy: ${value.fullId()}`);
+        console.debug(
+          `Reference ${ref.getName()}[${index}] contains unresolved proxy: ${value.fullId()}`
+        );
       }
     });
-    
+
     return values;
   }
 
   // Show dialog to CREATE a new instance for a containment reference
   showCreateContainmentDialog(ref: EReference) {
     const availableClasses = this.getAvailableClassesForReference(ref);
-    
+
     // If only one class is available, create it directly
     if (availableClasses.length === 1) {
       this.createContainmentDirectly(ref, availableClasses[0]);
@@ -1101,8 +1150,8 @@ export class TMFReflectiveEditorComponent implements OnInit {
       eObject,
       children: [],
       expanded: true,
-      isDirty: false,  // Will be marked dirty through parent
-      isNew: false     // Contained instances are not independently new - they're part of the aggregate
+      isDirty: false, // Will be marked dirty through parent
+      isNew: false, // Contained instances are not independently new - they're part of the aggregate
     };
 
     this.instances.push(instance);
@@ -1189,7 +1238,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (this.currentReference.isContainment()) {
       this.selectedInstance.children.push(selectedReferenceTarget);
       // Remove from root class node if it was there
-      this.rootClassNodes.forEach(node => {
+      this.rootClassNodes.forEach((node) => {
         const index = node.instances.indexOf(selectedReferenceTarget);
         if (index > -1) {
           node.instances.splice(index, 1);
@@ -1214,7 +1263,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
         if (targetInstance) {
           const index = this.selectedInstance.children.indexOf(targetInstance);
           if (index > -1) this.selectedInstance.children.splice(index, 1);
-          
+
           // Add back to appropriate root class node
           const eClass = target.eClass();
           const rootNode = this.getRootClassNode(eClass);
@@ -1240,7 +1289,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
       if (targetInstance) {
         const index = this.selectedInstance.children.indexOf(targetInstance);
         if (index > -1) this.selectedInstance.children.splice(index, 1);
-        
+
         // Add back to appropriate root class node
         const eClass = current.eClass();
         const rootNode = this.getRootClassNode(eClass);
@@ -1256,9 +1305,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
   // Get the dynamic label for an instance
   getInstanceLabel(eObject?: EObject): string {
     if (!eObject) return "Unknown";
-    
+
     // Add indicator if this is a proxy
-    const proxyIndicator = eObject.eIsProxy && eObject.eIsProxy() ? " [PROXY]" : "";
+    const proxyIndicator =
+      eObject.eIsProxy && eObject.eIsProxy() ? " [PROXY]" : "";
 
     // Try 'name' attribute first
     const nameAttr = eObject.eClass().getEStructuralFeature("name");
@@ -1381,7 +1431,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     if (!this.selectedInstance || !this.connectionStatus.connected) {
       return false;
     }
-    
+
     const rootContainer = this.getRootContainer(this.selectedInstance);
     return rootContainer.isDirty || rootContainer.isNew;
   }
@@ -1397,10 +1447,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
     const root = this.getRootContainer(instance);
     return instance.isDirty && !root.isNew;
   }
-  
+
   // Debug method to manually trigger proxy resolution
   debugResolveProxies() {
-    console.log('=== Manual Proxy Resolution Triggered ===');
+    console.log("=== Manual Proxy Resolution Triggered ===");
     this.resolveAllProxies();
   }
 }
