@@ -28,7 +28,7 @@
             (click)="saveAllDirtyInstances()"
             [disabled]="isSaving"
           >
-            <span class="icon" *ngIf="!isSaving">💾</span>
+            <!-- <span class="icon" *ngIf="!isSaving">💾</span> -->
             <span class="icon" *ngIf="isSaving">⏳</span> 
             {{ isSaving ? 'Saving...' : 'Save All' }}
           </button>
@@ -475,7 +475,7 @@
           {{ instance.expanded ? "▼" : "▶" }}
         </span>
         <span class="tree-label">
-          <span *ngIf="isRootNew(instance)" class="new-indicator">+</span>
+          <span *ngIf="isRootNew(instance)" class="new-indicator">*</span>
           <span *ngIf="isDirtyNotNew(instance)" class="dirty-indicator">*</span>
           {{ getInstanceLabel(instance.eObject) }}
         </span>
@@ -491,8 +491,7 @@
             [disabled]="isSaving"
             title="Save changes"
           >
-            <span *ngIf="!isSaving">💾</span>
-            <span *ngIf="isSaving">⏳</span>
+          Save
           </button>
           
           <!-- Delete button if not dirty -->
@@ -502,7 +501,7 @@
             (click)="deleteInstance(instance); $event.stopPropagation()"
             title="Delete instance"
           >
-            🗑
+            Delete
           </button>
         </span>
       </div>

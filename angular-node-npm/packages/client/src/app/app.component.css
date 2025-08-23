@@ -168,8 +168,10 @@
       display: flex;
       align-items: center;
       gap: 0.25rem;
-      opacity: 0;
+      opacity: 0.2;
       transition: opacity 0.2s;
+      width:60px;
+      justify-content: space-around
     }
 
     .tree-node-content:hover .tree-node-actions {
@@ -191,9 +193,7 @@
       border-radius: 3px;
     }
 
-    .tree-node-btn:hover {
-      transform: none !important; /* Override the general btn hover transform */
-    }
+
 
     .properties-panel {
       flex: 1;
@@ -650,7 +650,7 @@
     }
 
     .new-indicator {
-      color: #10b981;
+      color: #f59e0b;
       font-weight: bold;
       margin-right: 0.25rem;
     }
