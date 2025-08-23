@@ -81,17 +81,6 @@
     <main class="properties-panel">
       <div class="panel-header">
         <h2>Properties</h2>
-        <div class="instance-info" *ngIf="selectedInstance">
-          <span class="instance-type">{{
-            getEClassName(selectedInstance.eObject)
-          }}</span>
-          <span class="instance-state" *ngIf="isRootNew(selectedInstance)">
-            <span class="badge badge-new">New</span>
-          </span>
-          <span class="instance-state" *ngIf="isDirtyNotNew(selectedInstance)">
-            <span class="badge badge-dirty">Modified</span>
-          </span>
-        </div>
       </div>
 
       <div class="properties-content">
@@ -106,6 +95,17 @@
           class="property-groups"
           style="max-width: 500px"
         >
+        <div class="instance-info" *ngIf="selectedInstance">
+          <span class="instance-type">{{
+            getEClassName(selectedInstance.eObject)
+          }}</span>
+          <span class="instance-state" *ngIf="isRootNew(selectedInstance)">
+            <span class="badge badge-new">New</span>
+          </span>
+          <span class="instance-state" *ngIf="isDirtyNotNew(selectedInstance)">
+            <span class="badge badge-dirty">Modified</span>
+          </span>
+        </div>        
           <!-- Attributes Group -->
           <div class="property-group" *ngIf="getAttributes().length > 0">
             <div class="group-header">

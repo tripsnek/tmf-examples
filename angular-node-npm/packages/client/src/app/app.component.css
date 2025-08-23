@@ -70,7 +70,10 @@
       padding: 0.5rem;
       border-bottom: 1px solid #e5e7eb;
       background: #f9fafb;
-      min-height: 63px;
+      min-height: 34px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .panel-header h2 {
@@ -212,7 +215,9 @@
 
     .instance-type {
       font-weight: 600;
-      color: #21b17a;
+      color: #777;
+      font-size: larger;
+      padding-bottom: 10px;
     }
 
     .instance-id {
