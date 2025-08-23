@@ -76,8 +76,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
   containmentReference: EReference | null = null;
   containmentParent: ModelInstanceWrapper | null = null;
 
-  // Counters for auto-generating IDs for root EClasses
-  private eClassCounters = new Map<string, number>();
 
   // Server connection status
   connectionStatus: ConnectionStatus = {
@@ -502,11 +500,23 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   private getNextIdForEClass(eClass: EClass): string {
+
+    //silly and inefficient method for finding a nice ID for UI
+    const allIds = new Set<string>();
+    for(const s of this.instances){
+      if(s.eObject.eClass() == eClass && eClass.getEIDAttribute()){
+        allIds.add(s.eObject.eGet(eClass.getEIDAttribute()!));
+      }
+    }
+    let count = 1;
     const className = eClass.getName();
-    const currentCount = this.eClassCounters.get(className) || 0;
-    const nextCount = currentCount + 1;
-    this.eClassCounters.set(className, nextCount);
-    return `${className}_${nextCount}`;
+    let id = '';
+    while(!id){
+      const toTest = `${className}_${count}`;
+      if(!allIds.has(toTest)) id = toTest;
+      count++;
+    }
+    return id;
   }
 
   createInstance() {
