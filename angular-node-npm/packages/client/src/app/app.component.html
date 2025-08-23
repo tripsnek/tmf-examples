@@ -11,14 +11,6 @@
       <div class="connection-status" [class.connected]="connectionStatus.connected">
         <span class="status-indicator"></span>
         <span class="status-text">{{ connectionStatus.message }}</span>
-        <button 
-          *ngIf="connectionStatus.connected"
-          class="btn btn-sm btn-secondary refresh-btn"
-          (click)="checkServerAndLoadData()"
-          title="Reload from server"
-        >
-          🔄
-        </button>
       </div> 
     </div>
   </header>

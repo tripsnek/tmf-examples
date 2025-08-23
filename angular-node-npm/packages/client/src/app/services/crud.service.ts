@@ -63,10 +63,10 @@ export class CrudService implements OnDestroy {
       tap(status => {
         const currentStatus = this.connectionStatusSubject.value;
         // Only update if status changed or it's the first check
-        if (!currentStatus.connected || currentStatus.message !== `Connected to ${status.package}`) {
+        if (!currentStatus.connected || currentStatus.message !== `Connected to CRUD server`) {
           this.connectionStatusSubject.next({
             connected: true,
-            message: `Connected to ${status.package}`,
+            message: `Connected to CRUD server`,
             lastChecked: new Date()
           });
         }
