@@ -13,6 +13,12 @@ import { Activity } from "../api/activity";
 
 import { TripplanningPackage } from "../tripplanning-package";
 import { TripSegment } from "../api/trip-segment";
+import { TripGen } from "./trip-gen";
+import { TripImpl } from "../impl/trip-impl";
+import { LocationGen } from "./location-gen";
+import { LocationImpl } from "../impl/location-impl";
+import { ActivityGen } from "./activity-gen";
+import { ActivityImpl } from "../impl/activity-impl";
 
 /**
  * This file is source-code generated and should never be edited. It implements

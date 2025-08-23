@@ -23,18 +23,22 @@ import { Location } from "./api/location";
 import { LocationImpl } from "./impl/location-impl";
 import { Activity } from "./api/activity";
 import { ActivityImpl } from "./impl/activity-impl";
+import { TripplanningPackageInitializer } from "./tripplanning-package-initializer";
 
 export class TripplanningFactory extends EFactory {
   /* Singleton */
-  public static eINSTANCE: TripplanningFactory = TripplanningFactory.init();
+  public static _eINSTANCE: TripplanningFactory = TripplanningFactory.init();
   public static init(): TripplanningFactory {
-    if (!TripplanningFactory.eINSTANCE) {
-      TripplanningFactory.eINSTANCE = new TripplanningFactory();
+    if (!TripplanningFactory._eINSTANCE) {
+      TripplanningFactory._eINSTANCE = new TripplanningFactory();
     }
 
-    //inject the factory instance into the package, so that it can be retrieved reflectively
-    TripplanningPackage.eINSTANCE.setEFactoryInstance(this.eINSTANCE);
-    return TripplanningFactory.eINSTANCE;
+    return TripplanningFactory._eINSTANCE;
+  }
+
+  static get eINSTANCE(): TripplanningFactory {
+    TripplanningPackageInitializer.registerAll();
+    return this._eINSTANCE;
   }
 
   public override create(eClass: EClass): any {

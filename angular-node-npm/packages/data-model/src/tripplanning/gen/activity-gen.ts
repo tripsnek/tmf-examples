@@ -11,6 +11,8 @@ import { Location } from "../api/location";
 
 import { TripplanningPackage } from "../tripplanning-package";
 import { Activity } from "../api/activity";
+import { LocationGen } from "./location-gen";
+import { LocationImpl } from "../impl/location-impl";
 
 /**
  * This file is source-code generated and should never be edited. It implements

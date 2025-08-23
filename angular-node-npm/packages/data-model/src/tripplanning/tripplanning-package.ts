@@ -8,6 +8,7 @@ import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
 
+import { TripplanningPackageInitializer } from "./tripplanning-package-initializer";
 import { EPackage } from "@tripsnek/tmf";
 import { EPackageImpl } from "@tripsnek/tmf";
 import { EAttribute } from "@tripsnek/tmf";
@@ -27,27 +28,17 @@ export class TripplanningPackage extends EPackageImpl {
   public static I_DED_ENTITY_FEATURE_COUNT = 1;
   public static I_DED_ENTITY__ID = 0;
   public static LOCATION = 2;
-  public static LOCATION_FEATURE_COUNT =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 5;
-  public static LOCATION__NAME =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 0;
-  public static LOCATION__ADDRESS =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 1;
-  public static LOCATION__TYPE =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 2;
-  public static LOCATION__LATITUDE =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 3;
-  public static LOCATION__LONGITUDE =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 4;
+  public static LOCATION_FEATURE_COUNT = 6;
+  public static LOCATION__NAME = 1;
+  public static LOCATION__ADDRESS = 2;
+  public static LOCATION__TYPE = 3;
+  public static LOCATION__LATITUDE = 4;
+  public static LOCATION__LONGITUDE = 5;
   public static TRAVELER = 3;
-  public static TRAVELER_FEATURE_COUNT =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 3;
-  public static TRAVELER__NAME =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 0;
-  public static TRAVELER__EMAIL =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 1;
-  public static TRAVELER__INTERESTS =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 2;
+  public static TRAVELER_FEATURE_COUNT = 4;
+  public static TRAVELER__NAME = 1;
+  public static TRAVELER__EMAIL = 2;
+  public static TRAVELER__INTERESTS = 3;
   public static TRIP_SEGMENT = 4;
   public static TRIP_SEGMENT_FEATURE_COUNT = 6;
   public static TRIP_SEGMENT__DESTINATION_NIGHTS = 0;
@@ -57,28 +48,20 @@ export class TripplanningPackage extends EPackageImpl {
   public static TRIP_SEGMENT__ACTIVITIES = 4;
   public static TRIP_SEGMENT__NAME = 5;
   public static TRIP = 5;
-  public static TRIP_FEATURE_COUNT =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 8;
-  public static TRIP__SEGMENTS =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 0;
-  public static TRIP__NAME = TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 1;
-  public static TRIP__START_DATE =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 2;
-  public static TRIP__END_DATE =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 3;
-  public static TRIP__PARTICIPANTS =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 4;
-  public static TRIP__DESCRIPTION =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 5;
-  public static TRIP__BUDGET_DOLLARS =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 6;
-  public static TRIP__TENTATIVE =
-    TripplanningPackage.I_DED_ENTITY_FEATURE_COUNT + 7;
+  public static TRIP_FEATURE_COUNT = 9;
+  public static TRIP__SEGMENTS = 1;
+  public static TRIP__NAME = 2;
+  public static TRIP__START_DATE = 3;
+  public static TRIP__END_DATE = 4;
+  public static TRIP__PARTICIPANTS = 5;
+  public static TRIP__DESCRIPTION = 6;
+  public static TRIP__BUDGET_DOLLARS = 7;
+  public static TRIP__TENTATIVE = 8;
   public static LOCATION_TYPE = 6;
   public static PERSONAL_INTEREST = 7;
 
   /** Singleton */
-  public static eINSTANCE: TripplanningPackage = TripplanningPackage.init();
+  public static _eINSTANCE: TripplanningPackage = TripplanningPackage.init();
 
   //if the singleton is initialized
   private static isInited = false;
@@ -89,69 +72,70 @@ export class TripplanningPackage extends EPackageImpl {
 
   /** Provides static access to EClass and EStructuralFeature instances */
   public static Literals = class {
-    static ACTIVITY: EClass = TripplanningPackage.eINSTANCE.getActivity();
+    static ACTIVITY: EClass = TripplanningPackage._eINSTANCE.getActivity();
     static ACTIVITY__LOCATION: EReference =
-      TripplanningPackage.eINSTANCE.getActivity_Location();
+      TripplanningPackage._eINSTANCE.getActivity_Location();
     static ACTIVITY__DURATION_HRS: EAttribute =
-      TripplanningPackage.eINSTANCE.getActivity_DurationHrs();
+      TripplanningPackage._eINSTANCE.getActivity_DurationHrs();
     static ACTIVITY__NAME: EAttribute =
-      TripplanningPackage.eINSTANCE.getActivity_Name();
-    static I_DED_ENTITY: EClass = TripplanningPackage.eINSTANCE.getIDedEntity();
+      TripplanningPackage._eINSTANCE.getActivity_Name();
+    static I_DED_ENTITY: EClass =
+      TripplanningPackage._eINSTANCE.getIDedEntity();
     static I_DED_ENTITY__ID: EAttribute =
-      TripplanningPackage.eINSTANCE.getIDedEntity_Id();
-    static LOCATION: EClass = TripplanningPackage.eINSTANCE.getLocation();
+      TripplanningPackage._eINSTANCE.getIDedEntity_Id();
+    static LOCATION: EClass = TripplanningPackage._eINSTANCE.getLocation();
     static LOCATION__NAME: EAttribute =
-      TripplanningPackage.eINSTANCE.getLocation_Name();
+      TripplanningPackage._eINSTANCE.getLocation_Name();
     static LOCATION__ADDRESS: EAttribute =
-      TripplanningPackage.eINSTANCE.getLocation_Address();
+      TripplanningPackage._eINSTANCE.getLocation_Address();
     static LOCATION__TYPE: EAttribute =
-      TripplanningPackage.eINSTANCE.getLocation_Type();
+      TripplanningPackage._eINSTANCE.getLocation_Type();
     static LOCATION__LATITUDE: EAttribute =
-      TripplanningPackage.eINSTANCE.getLocation_Latitude();
+      TripplanningPackage._eINSTANCE.getLocation_Latitude();
     static LOCATION__LONGITUDE: EAttribute =
-      TripplanningPackage.eINSTANCE.getLocation_Longitude();
-    static TRAVELER: EClass = TripplanningPackage.eINSTANCE.getTraveler();
+      TripplanningPackage._eINSTANCE.getLocation_Longitude();
+    static TRAVELER: EClass = TripplanningPackage._eINSTANCE.getTraveler();
     static TRAVELER__NAME: EAttribute =
-      TripplanningPackage.eINSTANCE.getTraveler_Name();
+      TripplanningPackage._eINSTANCE.getTraveler_Name();
     static TRAVELER__EMAIL: EAttribute =
-      TripplanningPackage.eINSTANCE.getTraveler_Email();
+      TripplanningPackage._eINSTANCE.getTraveler_Email();
     static TRAVELER__INTERESTS: EAttribute =
-      TripplanningPackage.eINSTANCE.getTraveler_Interests();
+      TripplanningPackage._eINSTANCE.getTraveler_Interests();
     static TRIP_SEGMENT: EClass =
-      TripplanningPackage.eINSTANCE.getTripSegment();
+      TripplanningPackage._eINSTANCE.getTripSegment();
     static TRIP_SEGMENT__DESTINATION_NIGHTS: EAttribute =
-      TripplanningPackage.eINSTANCE.getTripSegment_DestinationNights();
+      TripplanningPackage._eINSTANCE.getTripSegment_DestinationNights();
     static TRIP_SEGMENT__TRIP: EReference =
-      TripplanningPackage.eINSTANCE.getTripSegment_Trip();
+      TripplanningPackage._eINSTANCE.getTripSegment_Trip();
     static TRIP_SEGMENT__ORIGIN: EReference =
-      TripplanningPackage.eINSTANCE.getTripSegment_Origin();
+      TripplanningPackage._eINSTANCE.getTripSegment_Origin();
     static TRIP_SEGMENT__DESTINATION: EReference =
-      TripplanningPackage.eINSTANCE.getTripSegment_Destination();
+      TripplanningPackage._eINSTANCE.getTripSegment_Destination();
     static TRIP_SEGMENT__ACTIVITIES: EReference =
-      TripplanningPackage.eINSTANCE.getTripSegment_Activities();
+      TripplanningPackage._eINSTANCE.getTripSegment_Activities();
     static TRIP_SEGMENT__NAME: EAttribute =
-      TripplanningPackage.eINSTANCE.getTripSegment_Name();
-    static TRIP: EClass = TripplanningPackage.eINSTANCE.getTrip();
+      TripplanningPackage._eINSTANCE.getTripSegment_Name();
+    static TRIP: EClass = TripplanningPackage._eINSTANCE.getTrip();
     static TRIP__SEGMENTS: EReference =
-      TripplanningPackage.eINSTANCE.getTrip_Segments();
+      TripplanningPackage._eINSTANCE.getTrip_Segments();
     static TRIP__NAME: EAttribute =
-      TripplanningPackage.eINSTANCE.getTrip_Name();
+      TripplanningPackage._eINSTANCE.getTrip_Name();
     static TRIP__START_DATE: EAttribute =
-      TripplanningPackage.eINSTANCE.getTrip_StartDate();
+      TripplanningPackage._eINSTANCE.getTrip_StartDate();
     static TRIP__END_DATE: EAttribute =
-      TripplanningPackage.eINSTANCE.getTrip_EndDate();
+      TripplanningPackage._eINSTANCE.getTrip_EndDate();
     static TRIP__PARTICIPANTS: EReference =
-      TripplanningPackage.eINSTANCE.getTrip_Participants();
+      TripplanningPackage._eINSTANCE.getTrip_Participants();
     static TRIP__DESCRIPTION: EAttribute =
-      TripplanningPackage.eINSTANCE.getTrip_Description();
+      TripplanningPackage._eINSTANCE.getTrip_Description();
     static TRIP__BUDGET_DOLLARS: EAttribute =
-      TripplanningPackage.eINSTANCE.getTrip_BudgetDollars();
+      TripplanningPackage._eINSTANCE.getTrip_BudgetDollars();
     static TRIP__TENTATIVE: EAttribute =
-      TripplanningPackage.eINSTANCE.getTrip_Tentative();
+      TripplanningPackage._eINSTANCE.getTrip_Tentative();
     static LOCATION_TYPE: EEnum =
-      TripplanningPackage.eINSTANCE.getLocationType();
+      TripplanningPackage._eINSTANCE.getLocationType();
     static PERSONAL_INTEREST: EEnum =
-      TripplanningPackage.eINSTANCE.getPersonalInterest();
+      TripplanningPackage._eINSTANCE.getPersonalInterest();
   };
 
   //flags that keep track of whether package is initialized
@@ -180,19 +164,24 @@ export class TripplanningPackage extends EPackageImpl {
    * other packages from the same model to register interdependencies, and freezes the package meta-data.
    */
   private static init(): TripplanningPackage {
-    if (TripplanningPackage.isInited) return this.eINSTANCE;
+    if (TripplanningPackage.isInited) return this._eINSTANCE;
     // Obtain or create and register package
     const theTripplanningPackage = new TripplanningPackage();
     //this is necessary specifically for EcorePackage generation, which needs to refer to itself
-    this.eINSTANCE = theTripplanningPackage;
+    this._eINSTANCE = theTripplanningPackage;
     TripplanningPackage.isInited = true;
 
     // Create package meta-data objects
     theTripplanningPackage.createPackageContents();
 
     // Initialize created meta-data
-    theTripplanningPackage.initializePackageContents();
-    return theTripplanningPackage;
+    // theTripplanningPackage.initializePackageContents();
+    return this._eINSTANCE;
+  }
+
+  static get eINSTANCE(): TripplanningPackage {
+    TripplanningPackageInitializer.registerAll();
+    return this._eINSTANCE;
   }
 
   //this used to be direct lazy retrieval of the

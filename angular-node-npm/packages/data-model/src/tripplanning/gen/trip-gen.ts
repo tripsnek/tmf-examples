@@ -15,6 +15,10 @@ import { TripplanningPackage } from "../tripplanning-package";
 import { Trip } from "../api/trip";
 import { IDedEntityGen } from "./i-ded-entity-gen";
 import { IDedEntityImpl } from "../impl/i-ded-entity-impl";
+import { TripSegmentGen } from "./trip-segment-gen";
+import { TripSegmentImpl } from "../impl/trip-segment-impl";
+import { TravelerGen } from "./traveler-gen";
+import { TravelerImpl } from "../impl/traveler-impl";
 
 /**
  * This file is source-code generated and should never be edited. It implements
