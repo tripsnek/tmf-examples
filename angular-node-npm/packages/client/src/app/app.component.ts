@@ -22,6 +22,7 @@ import {
   TripplanningPackage,
 } from "@tmf-example/data-model";
 import { CrudService, ConnectionStatus } from './services/crud.service';
+import { ProxyResolver } from './services/proxy-resolver';
 
 interface ModelInstance {
   eObject: EObject;
@@ -176,11 +177,83 @@ export class TMFReflectiveEditorComponent implements OnInit {
         });
 
         console.log(`Loaded ${this.instances.length} instances from server`);
+        
+        // IMPORTANT: Resolve all proxy references after loading all instances
+        this.resolveAllProxies();
       },
       error => {
         console.error('Failed to load instances from server:', error);
       }
     );
+  }
+
+  /**
+   * Resolves all proxy references in the loaded model.
+   * This is called after initial load and can be called manually if needed.
+   */
+  private resolveAllProxies() {
+    console.log('Resolving proxy references...');
+    
+    // Get all root EObjects from the model instances
+    const rootEObjects: EObject[] = [];
+    this.rootClassNodes.forEach(node => {
+      node.instances.forEach(instance => {
+        rootEObjects.push(instance.eObject);
+      });
+    });
+    
+    if (rootEObjects.length === 0) {
+      console.log('No objects to resolve proxies for');
+      return;
+    }
+    
+    const resolvedCount = ProxyResolver.resolveProxies(rootEObjects);
+    
+    if (resolvedCount > 0) {
+      console.log(`Proxy resolution complete: ${resolvedCount} proxies resolved`);
+      
+      // If the selected instance was affected, refresh the UI
+      if (this.selectedInstance) {
+        // Trigger change detection by reselecting
+        const current = this.selectedInstance;
+        this.selectedInstance = null;
+        setTimeout(() => {
+          this.selectedInstance = current;
+        }, 0);
+      }
+    } else {
+      const unresolvedCount = ProxyResolver.countProxies(rootEObjects);
+      if (unresolvedCount > 0) {
+        console.warn(`${unresolvedCount} proxies remain unresolved`);
+        // Optional: Get detailed report for debugging
+        const report = ProxyResolver.getUnresolvedProxyReport(rootEObjects);
+        report.forEach(line => console.warn(line));
+      }
+    }
+  }
+
+  /**
+   * Resolves proxies for a newly created or loaded instance
+   */
+  private resolveProxiesForInstance(instance: ModelInstance) {
+    // Get all existing root EObjects
+    const existingRootEObjects: EObject[] = [];
+    this.rootClassNodes.forEach(node => {
+      node.instances.forEach(inst => {
+        if (inst !== instance) {
+          existingRootEObjects.push(inst.eObject);
+        }
+      });
+    });
+    
+    const resolvedCount = ProxyResolver.resolveProxiesForObject(
+      instance.eObject, 
+      existingRootEObjects
+    );
+    
+    if (resolvedCount > 0) {
+      console.log(`Resolved ${resolvedCount} proxies for instance ${this.getInstanceLabel(instance.eObject)}`);
+    }
   }
 
   private buildContainmentTree(instance: ModelInstance) {
@@ -299,6 +372,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
         this.isSaving = false;
         console.log('Instance saved successfully');
+        
+        // After saving, resolve any proxies that might have been created
+        this.resolveProxiesForInstance(instance);
       },
       error => {
         this.isSaving = false;
@@ -512,6 +588,11 @@ export class TMFReflectiveEditorComponent implements OnInit {
     
     // Clear focus attributes when new instance is selected
     this.clearFocusAttributes();
+    
+    // Resolve proxies for the new instance (in case it has references)
+    setTimeout(() => {
+      this.resolveProxiesForInstance(instance);
+    }, 0);
   }
 
   createInstanceForRootClass(eClass: EClass) {
@@ -557,6 +638,11 @@ export class TMFReflectiveEditorComponent implements OnInit {
     
     // Clear focus attributes when new instance is selected
     this.clearFocusAttributes();
+    
+    // Resolve proxies for the new instance
+    setTimeout(() => {
+      this.resolveProxiesForInstance(instance);
+    }, 0);
   }
 
   private clearFocusAttributes() {
@@ -851,13 +937,29 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   getReferenceValue(ref: EReference): EObject | undefined {
     if (!this.selectedInstance || ref.isMany()) return undefined;
-    return this.selectedInstance.eObject.eGet(ref);
+    const value = this.selectedInstance.eObject.eGet(ref);
+    
+    // Check if it's a proxy and add visual indicator
+    if (value && value.eIsProxy && value.eIsProxy()) {
+      console.debug(`Reference ${ref.getName()} contains unresolved proxy: ${value.fullId()}`);
+    }
+    
+    return value;
   }
 
   getReferenceValues(ref: EReference): EObject[] {
     if (!this.selectedInstance || !ref.isMany()) return [];
     const list = this.selectedInstance.eObject.eGet(ref) as EList<EObject>;
-    return list.elements();
+    const values = list.elements();
+    
+    // Check for proxies in the list
+    values.forEach((value, index) => {
+      if (value && value.eIsProxy && value.eIsProxy()) {
+        console.debug(`Reference ${ref.getName()}[${index}] contains unresolved proxy: ${value.fullId()}`);
+      }
+    });
+    
+    return values;
   }
 
   // Show dialog to CREATE a new instance for a containment reference
@@ -965,6 +1067,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     return this.instances.filter(
       (instance) =>
         instance !== this.selectedInstance &&
+        !instance.eObject.eIsProxy() && // Filter out proxies as reference targets
         (instance.eObject.eClass() === targetType ||
           instance.eObject.eClass().getESuperTypes().contains(targetType)) &&
         (!this.currentReference!.isContainment() ||
@@ -1064,12 +1167,15 @@ export class TMFReflectiveEditorComponent implements OnInit {
   // Get the dynamic label for an instance
   getInstanceLabel(eObject?: EObject): string {
     if (!eObject) return "Unknown";
+    
+    // Add indicator if this is a proxy
+    const proxyIndicator = eObject.eIsProxy && eObject.eIsProxy() ? " [PROXY]" : "";
 
     // Try 'name' attribute first
     const nameAttr = eObject.eClass().getEStructuralFeature("name");
     if (nameAttr && nameAttr instanceof EAttributeImpl) {
       const value = eObject.eGet(nameAttr);
-      if (value) return String(value);
+      if (value) return String(value) + proxyIndicator;
     }
 
     const container = eObject.eContainer();
@@ -1083,14 +1189,14 @@ export class TMFReflectiveEditorComponent implements OnInit {
         // Get the index in the containing list
         const list = container.eGet(containingFeature) as EList<EObject>;
         const index = list.indexOf(eObject);
-        return `${containingFeature.getName()}.${index}`;
+        return `${containingFeature.getName()}.${index}${proxyIndicator}`;
       } else if (containingFeature) {
-        return `${containingFeature.getName()}`;
+        return `${containingFeature.getName()}${proxyIndicator}`;
       }
     }
 
     // Object has no container - use intrinsic label
-    return this.generateIntrinsicLabel(eObject);
+    return this.generateIntrinsicLabel(eObject) + proxyIndicator;
   }
 
   private generateIntrinsicLabel(eObject: EObject): string {
@@ -1201,5 +1307,11 @@ export class TMFReflectiveEditorComponent implements OnInit {
   isDirtyNotNew(instance: ModelInstance): boolean {
     const root = this.getRootContainer(instance);
     return instance.isDirty && !root.isNew;
+  }
+  
+  // Debug method to manually trigger proxy resolution
+  debugResolveProxies() {
+    console.log('=== Manual Proxy Resolution Triggered ===');
+    this.resolveAllProxies();
   }
 }
