@@ -29,15 +29,16 @@
       <div class="panel-header">
         <h2>Model Instances</h2>
         <div class="panel-actions">
-          <button class="btn btn-primary" (click)="showCreateDialog()">
-            <span class="icon">+</span> Create
-          </button>
-          <button
-            class="btn btn-danger"
-            [disabled]="!selectedInstance"
-            (click)="deleteInstance()"
+          <!-- Save All button - only show when any instance is dirty -->
+          <button 
+            *ngIf="hasAnyDirtyInstances() && connectionStatus.connected"
+            class="btn btn-primary"
+            (click)="saveAllDirtyInstances()"
+            [disabled]="isSaving"
           >
-            <span class="icon">🗑</span> Delete
+            <span class="icon" *ngIf="!isSaving">💾</span>
+            <span class="icon" *ngIf="isSaving">⏳</span> 
+            {{ isSaving ? 'Saving...' : 'Save All' }}
           </button>
         </div>
       </div>
@@ -60,7 +61,6 @@
               >
                 {{ rootNode.expanded ? "▼" : "▶" }}
               </span>
-              <!-- <span class="tree-icon" *ngIf="rootNode.instances.length === 0">•</span> -->
               <span class="root-class-label">{{ rootNode.eClass.getName() }}s</span>
               <button
                 class="btn btn-sm btn-primary root-create-btn"
@@ -93,32 +93,18 @@
           <span class="instance-type">{{
             getEClassName(selectedInstance.eObject)
           }}</span>
-          <!-- Debug info -->
-          <!-- <small style="margin-left: 10px; color: #999;">
-            (isDirty: {{selectedInstance.isDirty}}, isNew: {{selectedInstance.isNew}})
-          </small> -->
           <span class="instance-state" *ngIf="isRootNew(selectedInstance)">
             <span class="badge badge-new">New</span>
           </span>
           <span class="instance-state" *ngIf="isDirtyNotNew(selectedInstance)">
             <span class="badge badge-dirty">Modified</span>
           </span>
-          <button 
-            *ngIf="shouldShowSaveButton()"
-            class="btn btn-primary btn-sm save-btn"
-            (click)="saveSelectedInstance()"
-            [disabled]="isSaving"
-          >
-            <span class="icon" *ngIf="!isSaving">💾</span>
-            <span class="icon" *ngIf="isSaving">⏳</span> 
-            {{ isSaving ? 'Saving...' : 'Save' }}
-          </button>
         </div>
       </div>
 
       <div class="properties-content">
         <div *ngIf="!selectedInstance" class="empty-state">
-          <div class="empty-icon">🔍</div>
+          <div class="empty-icon">📄</div>
           <p>Select an instance</p>
           <small>Choose an instance from the tree to view its properties</small>
         </div>
@@ -496,17 +482,37 @@
         >
           {{ instance.expanded ? "▼" : "▶" }}
         </span>
-        <!-- <span class="tree-icon" *ngIf="instance.children.length === 0">•</span> -->
         <span class="tree-label">
           <span *ngIf="isRootNew(instance)" class="new-indicator">+</span>
           <span *ngIf="isDirtyNotNew(instance)" class="dirty-indicator">*</span>
           {{ getInstanceLabel(instance.eObject) }}
-          <!-- Debug info -->
-          <!-- <small style="color: #ccc; font-size: 0.7em;">
-            (D:{{instance.isDirty ? 'Y' : 'N'}}, N:{{instance.isNew ? 'Y' : 'N'}})
-          </small> -->
         </span>
         <span class="tree-type">{{ getEClassName(instance.eObject) }}</span>
+        
+        <!-- Per-node action button -->
+        <span class="tree-node-actions">
+          <!-- Save button if dirty and connected -->
+          <button
+            *ngIf="shouldShowSaveButton(instance) && connectionStatus.connected"
+            class="btn btn-sm btn-primary tree-node-btn"
+            (click)="saveInstance(getRootContainer(instance)); $event.stopPropagation()"
+            [disabled]="isSaving"
+            title="Save changes"
+          >
+            <span *ngIf="!isSaving">💾</span>
+            <span *ngIf="isSaving">⏳</span>
+          </button>
+          
+          <!-- Delete button if not dirty -->
+          <button
+            *ngIf="shouldShowDeleteButton(instance)"
+            class="btn btn-sm btn-danger tree-node-btn"
+            (click)="deleteInstance(instance); $event.stopPropagation()"
+            title="Delete instance"
+          >
+            🗑
+          </button>
+        </span>
       </div>
 
       <div class="tree-children" *ngIf="instance.expanded">

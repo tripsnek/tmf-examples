@@ -363,6 +363,55 @@ export class TMFReflectiveEditorComponent implements OnInit {
     );
   }
 
+  // New method: Save all dirty instances
+  saveAllDirtyInstances() {
+    // Get all root instances that are dirty or new
+    const dirtyRoots = new Set<ModelInstanceWrapper>();
+    
+    this.instances.forEach(instance => {
+      if (instance.isDirty || instance.isNew) {
+        const root = this.getRootContainer(instance);
+        dirtyRoots.add(root);
+      }
+    });
+
+    if (dirtyRoots.size === 0) return;
+
+    this.isSaving = true;
+    
+    // Save all dirty roots
+    let saveCount = 0;
+    const totalSaves = dirtyRoots.size;
+    
+    dirtyRoots.forEach(rootInstance => {
+      this.crudService.saveInstance(rootInstance.eObject, rootInstance.isNew).subscribe(
+        savedEObject => {
+          this.clearDirtyAndNewFlags(rootInstance);
+          saveCount++;
+          
+          if (saveCount === totalSaves) {
+            this.isSaving = false;
+            console.log(`Successfully saved ${totalSaves} instances`);
+          }
+        },
+        error => {
+          saveCount++;
+          console.error('Failed to save instance:', error);
+          
+          if (saveCount === totalSaves) {
+            this.isSaving = false;
+            alert('Some instances failed to save. Check console for details.');
+          }
+        }
+      );
+    });
+  }
+
+  // Check if any instance in the entire tree is dirty
+  hasAnyDirtyInstances(): boolean {
+    return this.instances.some(instance => instance.isDirty || instance.isNew);
+  }
+
   private clearDirtyAndNewFlags(instance: ModelInstanceWrapper) {
     instance.isDirty = false;
     instance.isNew = false;
@@ -637,18 +686,20 @@ export class TMFReflectiveEditorComponent implements OnInit {
     });
   }
 
-  deleteInstance() {
-    if (!this.selectedInstance) return;
+  // Enhanced deleteInstance method with recursive deletion and reference cleanup
+  deleteInstance(instanceToDelete?: ModelInstanceWrapper) {
+    const targetInstance = instanceToDelete || this.selectedInstance;
+    if (!targetInstance) return;
 
-    const rootInstance = this.getRootContainer(this.selectedInstance);
+    const rootInstance = this.getRootContainer(targetInstance);
     
     // If connected to server and the root is not new (has been saved), delete from server
     if (this.connectionStatus.connected && !rootInstance.isNew) {
       // only allow deleting root instances from server
-      if (this.selectedInstance === rootInstance) {
-        this.crudService.deleteInstance(this.selectedInstance.eObject).subscribe(
+      if (targetInstance === rootInstance) {
+        this.crudService.deleteInstance(targetInstance.eObject).subscribe(
           () => {
-            this.removeInstanceFromTree();
+            this.performCompleteInstanceDeletion(targetInstance);
           },
           error => {
             console.error('Failed to delete from server:', error);
@@ -657,52 +708,59 @@ export class TMFReflectiveEditorComponent implements OnInit {
         );
       } else {
         // For contained instances, mark parent as dirty and remove locally
-        const parent = this.findParentInstance(this.selectedInstance);
+        const parent = this.findParentInstance(targetInstance);
         if (parent) {
           this.markDirty(parent);
         }
-        this.removeInstanceFromTree();
+        this.performCompleteInstanceDeletion(targetInstance);
       }
     } else {
       // Instance is new (not saved) or no server connection - just remove locally
-      this.removeInstanceFromTree();
+      this.performCompleteInstanceDeletion(targetInstance);
     }
   }
 
-  private deleteObjectReferences(theObject : EObject) {
-    this.instances.forEach((inst) => {
-      // if (inst !== ignore) {
-        inst.eObject
-          .eClass()
-          .getEAllReferences()
-          .forEach((ref) => {
-            if (!ref.isContainment()) {
-              if (ref.isMany()) {
-                const list = inst.eObject.eGet(ref) as EList<EObject>;
-                const index = list.indexOf(theObject);
-                if (index >= 0) {
-                  list.remove(theObject);
-                }
-              } else {
-                const value = inst.eObject.eGet(ref);
-                if (value === theObject) {
-                  inst.eObject.eUnset(ref);
-                }
-              }
-            }
-          });
-      // }
+  private performCompleteInstanceDeletion(instanceToDelete: ModelInstanceWrapper) {
+    // Step 1: Collect all objects that will be deleted (including children)
+    const objectsToDelete: EObject[] = [];
+    this.collectAllObjectsToDelete(instanceToDelete, objectsToDelete);
+
+    // Step 2: Remove all instances from the instances list and tree structure
+    this.removeInstanceAndChildrenFromTree(instanceToDelete);
+
+    // Step 3: After all deletion is done, recursively invoke deleteObjectReferences
+    objectsToDelete.forEach(obj => {
+      this.deleteObjectReferences(obj);
+    });
+
+    // Step 4: save all dirty objects, since they could have been made dirty by deletion
+    this.saveAllDirtyInstances();
+
+    // Clear selection if the deleted instance was selected
+    if (this.selectedInstance === instanceToDelete) {
+      this.selectedInstance = null;
+    }
+  }
+
+  private collectAllObjectsToDelete(instance: ModelInstanceWrapper, objectsToDelete: EObject[]) {
+    objectsToDelete.push(instance.eObject);
+    
+    // Recursively collect all children
+    instance.children.forEach(child => {
+      this.collectAllObjectsToDelete(child, objectsToDelete);
     });
   }
 
-
-  private removeInstanceFromTree() {
-    if (!this.selectedInstance) return;
+  private removeInstanceAndChildrenFromTree(instanceToDelete: ModelInstanceWrapper) {
+    // First, recursively remove all children
+    [...instanceToDelete.children].forEach(child => {
+      this.removeInstanceAndChildrenFromTree(child);
+    });
 
     // Remove from parent if contained
-    const parent = this.findParentInstance(this.selectedInstance);
+    const parent = this.findParentInstance(instanceToDelete);
     if (parent) {
-      const index = parent.children.indexOf(this.selectedInstance);
+      const index = parent.children.indexOf(instanceToDelete);
       if (index > -1) parent.children.splice(index, 1);
 
       // Remove from model
@@ -713,9 +771,9 @@ export class TMFReflectiveEditorComponent implements OnInit {
           if (ref.isContainment()) {
             if (ref.isMany()) {
               const list = parent.eObject.eGet(ref);
-              list.remove(this.selectedInstance!.eObject);
+              list.remove(instanceToDelete.eObject);
             } else if (
-              parent.eObject.eGet(ref) === this.selectedInstance!.eObject
+              parent.eObject.eGet(ref) === instanceToDelete.eObject
             ) {
               parent.eObject.eSet(ref, null);
             }
@@ -723,18 +781,55 @@ export class TMFReflectiveEditorComponent implements OnInit {
         });
     } else {
       // Remove from root class node
-      const eClass = this.selectedInstance.eObject.eClass();
+      const eClass = instanceToDelete.eObject.eClass();
       const rootNode = this.getRootClassNode(eClass);
       if (rootNode) {
-        const index = rootNode.instances.indexOf(this.selectedInstance);
+        const index = rootNode.instances.indexOf(instanceToDelete);
         if (index > -1) rootNode.instances.splice(index, 1);
       }
     }
 
-    const index = this.instances.indexOf(this.selectedInstance);
+    // Remove from main instances list
+    const index = this.instances.indexOf(instanceToDelete);
     if (index > -1) this.instances.splice(index, 1);
+  }
 
-    this.selectedInstance = null;
+  private deleteObjectReferences(theObject: EObject) {
+    this.instances.forEach((inst) => {
+      inst.eObject
+        .eClass()
+        .getEAllReferences()
+        .forEach((ref) => {
+          if (!ref.isContainment()) {
+            if (ref.isMany()) {
+              const list = inst.eObject.eGet(ref) as EList<EObject>;
+              const index = list.indexOf(theObject);
+              if (index >= 0) {
+                list.remove(theObject);
+                this.markDirty(inst);
+              }
+            } else {
+              const value = inst.eObject.eGet(ref);
+              if (value === theObject) {
+                inst.eObject.eUnset(ref);
+                this.markDirty(inst);
+              }
+            }
+          }
+        });
+    });
+  }
+
+  // Helper methods for button display logic
+  shouldShowSaveButton(instance: ModelInstanceWrapper): boolean {
+    if (!this.connectionStatus.connected) return false;
+    const root = this.getRootContainer(instance);
+    return root.isDirty || root.isNew;
+  }
+
+  shouldShowDeleteButton(instance: ModelInstanceWrapper): boolean {
+    const root = this.getRootContainer(instance);
+    return !root.isDirty && !root.isNew;
   }
 
   private findParentInstance(instance: ModelInstanceWrapper): ModelInstanceWrapper | null {
@@ -1272,7 +1367,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
   }
 
   // Helper method to check if should show save button
-  shouldShowSaveButton(): boolean {
+  shouldShowSaveButtonForSelected(): boolean {
     if (!this.selectedInstance || !this.connectionStatus.connected) {
       return false;
     }
