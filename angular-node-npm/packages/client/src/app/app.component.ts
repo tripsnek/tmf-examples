@@ -594,40 +594,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
     });
   }
 
-  // Update the tree structure based on containment references
-  private updateInstanceTree(parent: ModelInstance) {
-    parent.children = [];
-
-    parent.eObject
-      .eClass()
-      .getEAllReferences()
-      .forEach((ref) => {
-        if (ref.isContainment()) {
-          if (ref.isMany()) {
-            const list = parent.eObject.eGet(ref);
-            list.forEach((childEObject: EObject) => {
-              const childInstance = this.instances.find(
-                (i) => i.eObject === childEObject
-              );
-              if (childInstance && !parent.children.includes(childInstance)) {
-                parent.children.push(childInstance);
-              }
-            });
-          } else {
-            const childEObject = parent.eObject.eGet(ref);
-            if (childEObject) {
-              const childInstance = this.instances.find(
-                (i) => i.eObject === childEObject
-              );
-              if (childInstance && !parent.children.includes(childInstance)) {
-                parent.children.push(childInstance);
-              }
-            }
-          }
-        }
-      });
-  }
-
   deleteInstance() {
     if (!this.selectedInstance) return;
 
