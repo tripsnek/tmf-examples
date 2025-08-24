@@ -8,7 +8,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "dev:server": "npm run dev -w @tmf-example/server",
-    "dev:client": "npm run start -w @tmf-example/client",
+    "dev:client": "npm run dev -w @tmf-example/client",
     "build:data-model": "npm run build -w @tmf-example/data-model",
     "build:server": "npm run build -w @tmf-example/server",
     "build:client": "npm run build -w @tmf-example/client",
