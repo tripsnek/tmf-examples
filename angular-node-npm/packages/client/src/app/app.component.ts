@@ -80,7 +80,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   currentReference: EReference | null = null;
   selectedReferenceTarget: ModelInstanceWrapper | null = null;
-  selectedReferenceTargetIndex: number = -1;
+  selectedReferenceTargetIndex = -1;
   validReferenceTargets: ModelInstanceWrapper[] = [];
   referenceDialogTitle = "";
 
@@ -998,7 +998,12 @@ export class TMFReflectiveEditorComponent implements OnInit {
       return null; // Handled by getAttributeValues
     }
 
+    //silly date processing to play nice with HTML5 date input
     const value = this.selectedInstance.eObject.eGet(attr);
+    if(value instanceof Date){
+      const dateString = value.toISOString().slice(0,10);
+      return dateString;
+    }
     return value || "";
   }
 
@@ -1017,6 +1022,10 @@ export class TMFReflectiveEditorComponent implements OnInit {
       value = event.target.checked;
     } else if (event.target.type === "number") {
       value = parseFloat(value);
+    }
+    else if(event.target.type == "date"){
+      value = new Date(value);
+      console.log('here');
     }
 
     console.log("Setting attribute value:", {

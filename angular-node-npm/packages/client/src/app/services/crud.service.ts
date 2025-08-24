@@ -164,7 +164,7 @@ export class CrudService implements OnDestroy {
   /**
    * Save an instance (create or update based on whether it exists on server)
    */
-  saveInstance(eObject: EObject, isNew: boolean = false): Observable<EObject> {
+  saveInstance(eObject: EObject, isNew = false): Observable<EObject> {
     if (isNew) {
       return this.createInstance(eObject);
     } else {
