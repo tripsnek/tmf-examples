@@ -1,0 +1,29 @@
+{
+  "name": "@tmf-example/data-model",
+  "version": "1.0.0",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run postbuild",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "postbuild": "node -e \"require('fs').writeFileSync('dist/esm/package.json', '{\\\"type\\\": \\\"module\\\"}')\"",
+    "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\""
+  },
+  "devDependencies": {
+    "typescript": "~5.6.0"
+  }
+}
