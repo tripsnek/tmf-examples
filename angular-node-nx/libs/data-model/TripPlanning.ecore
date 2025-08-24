@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="tripplanning" nsURI="http://example.org/tripplanning" nsPrefix="tripplanning">
+  <eClassifiers xsi:type="ecore:EClass" name="Trip" eSuperTypes="#//IDedEntity">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="segments" eType="#//TripSegment" upperBound="-1" containment="true" eOpposite="#//TripSegment/trip"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="startDate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="endDate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="participants" eType="#//Traveler" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="budgetDollars" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tentative" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TripSegment">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="destinationNights" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="trip" eType="#//Trip" eOpposite="#//Trip/segments"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="origin" eType="#//Location"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="destination" eType="#//Location"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="activities" eType="#//Activity" upperBound="-1" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Traveler" eSuperTypes="#//IDedEntity">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="email" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="interests" eType="#//PersonalInterest" upperBound="-1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IDedEntity" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" iD="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Location" eSuperTypes="#//IDedEntity">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="address" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//LocationType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="latitude" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="longitude" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="LocationType">
+    <eLiterals name="City" value="0" literal="LITERAL_1"/>
+    <eLiterals name="Attraction" value="1" literal="LITERAL_2"/>
+    <eLiterals name="Hotel" value="2" literal="LITERAL_10"/>
+    <eLiterals name="Restaurant" value="3" literal="LITERAL_11"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="PersonalInterest">
+    <eLiterals name="NaturalBeauty" value="0" literal="LITERAL_3"/>
+    <eLiterals name="MajorCities" value="1" literal="LITERAL_4"/>
+    <eLiterals name="Cuisine" value="2" literal="LITERAL_5"/>
+    <eLiterals name="Wine" value="3" literal="LITERAL_6"/>
+    <eLiterals name="Ocean" value="4" literal="LITERAL_7"/>
+    <eLiterals name="Nightlife" value="5" literal="LITERAL_8"/>
+    <eLiterals name="Museums" value="6" literal="LITERAL_9"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Activity">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="location" eType="#//Location"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="durationHrs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EFloat"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+</ecore:EPackage>
