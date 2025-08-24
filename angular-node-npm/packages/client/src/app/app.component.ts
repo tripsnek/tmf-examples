@@ -1025,7 +1025,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
     else if(event.target.type == "date"){
       value = new Date(value);
-      console.log('here');
     }
 
     console.log("Setting attribute value:", {

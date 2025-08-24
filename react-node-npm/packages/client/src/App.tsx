@@ -692,7 +692,12 @@ const App: React.FC = () => {
       return null;
     }
 
+    //silly date processing to play nice with HTML5 date input
     const value = selectedInstance.eObject.eGet(attr);
+    if(value instanceof Date){
+      const dateString = value.toISOString().slice(0,10);
+      return dateString;
+    }
     return value || "";
   };
 
@@ -715,6 +720,9 @@ const App: React.FC = () => {
     } else if (event.target.type === "number") {
       value = parseFloat(value);
     }
+    else if(event.target.type == "date"){
+      value = new Date(value);
+    }    
 
     console.log("Setting attribute value:", {
       attribute: attr.getName(),
@@ -1329,7 +1337,7 @@ const App: React.FC = () => {
     instance: ModelInstanceWrapper;
     level: number;
   }> = ({ instance, level }) => (
-    <div className="tree-node" style={{ marginLeft: `${level * 20}px` }}>
+    <div className="tree-node" style={{ marginLeft: `${level * 10}px` }}>
       <div
         className={clsx("tree-node-content", {
           selected: selectedInstance === instance,

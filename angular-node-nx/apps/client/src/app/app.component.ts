@@ -1025,14 +1025,7 @@ export class TMFReflectiveEditorComponent implements OnInit {
     }
     else if(event.target.type == "date"){
       value = new Date(value);
-      console.log('here');
     }
-
-    console.log("Setting attribute value:", {
-      attribute: attr.getName(),
-      value,
-      instanceLabel: this.getInstanceLabel(this.selectedInstance.eObject),
-    });
 
     this.selectedInstance.eObject.eSet(attr, value);
     this.markDirty(this.selectedInstance);
@@ -1459,7 +1452,6 @@ export class TMFReflectiveEditorComponent implements OnInit {
 
   // Debug method to manually trigger proxy resolution
   debugResolveProxies() {
-    console.log("=== Manual Proxy Resolution Triggered ===");
     this.resolveAllProxies();
   }
 }
