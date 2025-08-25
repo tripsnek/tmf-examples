@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
 import {
   TripplanningPackage,
 } from "@tmf-example/data-model";
@@ -12,6 +14,10 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Data directory and file path
+const DATA_DIR = path.join(process.cwd(), 'data');
+const INSTANCES_FILE = path.join(DATA_DIR, 'instances.json');
 
 // In-memory storage for instances, keyed by EClass name
 const instanceStore = new Map<string, Map<string, EObject>>();
@@ -42,18 +48,132 @@ function setObjectId(eObject: EObject, id: string): void {
   }
 }
 
+// Ensure data directory exists
+function ensureDataDirectory(): void {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    console.log(`Created data directory: ${DATA_DIR}`);
+  }
+}
+
+// Save all instances to JSON file
+function saveInstancesToFile(): void {
+  try {
+    ensureDataDirectory();
+    
+    const dataToSave: Record<string, any[]> = {};
+    
+    // Convert all instances to JSON format
+    rootEClasses.forEach((eClass) => {
+      const className = eClass.getName();
+      const classStore = instanceStore.get(className)!;
+      const instances = Array.from(classStore.values());
+      dataToSave[className] = TJson.makeJsonArray(instances);
+    });
+    
+    // Write to file
+    fs.writeFileSync(INSTANCES_FILE, JSON.stringify(dataToSave, null, 2));
+    console.log(`Saved ${Object.keys(dataToSave).reduce((sum, key) => sum + dataToSave[key].length, 0)} instances to ${INSTANCES_FILE}`);
+  } catch (error) {
+    console.error("Error saving instances to file:", error);
+    throw error;
+  }
+}
+
+// Load instances from JSON file
+function loadInstancesFromFile(): void {
+  try {
+    if (!fs.existsSync(INSTANCES_FILE)) {
+      console.log(`No instances file found at ${INSTANCES_FILE}, starting with empty storage`);
+      return;
+    }
+    
+    const fileContent = fs.readFileSync(INSTANCES_FILE, 'utf8');
+    const savedData: Record<string, any[]> = JSON.parse(fileContent);
+    
+    let totalLoaded = 0;
+    
+    // Load instances for each EClass
+    rootEClasses.forEach((eClass) => {
+      const className = eClass.getName();
+      const classStore = instanceStore.get(className)!;
+      const savedInstances = savedData[className] || [];
+      
+      savedInstances.forEach((instanceJson: any) => {
+        try {
+          const eObject = TJson.makeEObject(instanceJson);
+          if (eObject) {
+            const id = getObjectId(eObject);
+            if (id) {
+              classStore.set(id, eObject);
+              totalLoaded++;
+            } else {
+              console.warn(`Skipping instance without ID in class ${className}`);
+            }
+          }
+        } catch (error) {
+          console.error(`Error deserializing instance in class ${className}:`, error);
+        }
+      });
+    });
+    
+    console.log(`Loaded ${totalLoaded} instances from ${INSTANCES_FILE}`);
+  } catch (error) {
+    console.error("Error loading instances from file:", error);
+    // Don't throw here - we want the server to start even if loading fails
+  }
+}
+
+// Load instances on startup
+loadInstancesFromFile();
+
 // Status endpoint
 app.get("/api/status", (req, res) => {
+  const totalInstances = rootEClasses.reduce((sum, eClass) => {
+    return sum + (instanceStore.get(eClass.getName())?.size || 0);
+  }, 0);
+  
   res.json({
     status: "connected",
     package: pkg.getName(),
     nsURI: pkg.getNsURI(),
+    totalInstances,
+    dataFile: INSTANCES_FILE,
     rootClasses: rootEClasses.map((ec) => ({
       name: ec.getName(),
       abstract: ec.isAbstract(),
       instanceCount: instanceStore.get(ec.getName())?.size || 0,
     })),
   });
+});
+
+// Export/Save endpoint
+app.get("/api/export", (req, res) => {
+  try {
+    saveInstancesToFile();
+    
+    const totalInstances = rootEClasses.reduce((sum, eClass) => {
+      return sum + (instanceStore.get(eClass.getName())?.size || 0);
+    }, 0);
+    
+    res.json({
+      success: true,
+      message: `Successfully saved ${totalInstances} instances to file`,
+      file: INSTANCES_FILE,
+      timestamp: new Date().toISOString(),
+      classes: rootEClasses.map((ec) => ({
+        name: ec.getName(),
+        instanceCount: instanceStore.get(ec.getName())?.size || 0,
+      })),
+    });
+  } catch (error) {
+    console.error("Export failed:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to export instances",
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
 });
 
 // Generate reflective endpoints for each root EClass
@@ -86,6 +206,9 @@ rootEClasses.forEach((eClass) => {
 
         // Store the instance
         classStore.set(id, eObject);
+
+        // Auto-save after create (optional - remove if you prefer manual saves)
+        saveInstancesToFile();
 
         // Return the created instance as JSON
         res.status(201).json(TJson.makeJson(eObject));
@@ -123,6 +246,9 @@ rootEClasses.forEach((eClass) => {
         // Replace in store
         classStore.set(id, updatedObject);
 
+        // Auto-save after update (optional - remove if you prefer manual saves)
+        saveInstancesToFile();
+
         res.json(TJson.makeJson(updatedObject));
       }
     } catch (error) {
@@ -138,6 +264,10 @@ rootEClasses.forEach((eClass) => {
     const id = req.params.id;
     if (classStore.has(id)) {
       classStore.delete(id);
+      
+      // Auto-save after delete (optional - remove if you prefer manual saves)
+      saveInstancesToFile();
+      
       res.status(204).send();
     } else {
       res.status(404).json({ error: "Instance not found" });
@@ -154,16 +284,28 @@ rootEClasses.forEach((eClass) => {
 
 // List all available endpoints
 app.get("/api", (req, res) => {
-  const endpoints = rootEClasses.map((eClass) => ({
-    className: eClass.getName(),
-    endpoints: [
-      `GET /api/${eClass.getName()}`,
-      `POST /api/${eClass.getName()}`,
-      `GET /api/${eClass.getName()}/:id`,
-      `PUT /api/${eClass.getName()}/:id`,
-      `DELETE /api/${eClass.getName()}/:id`,
-    ],
-  }));
+  const endpoints = [
+    {
+      path: "/api/status",
+      method: "GET",
+      description: "Get server status and instance counts"
+    },
+    {
+      path: "/api/export",
+      method: "GET", 
+      description: "Save all instances to file system"
+    },
+    ...rootEClasses.map((eClass) => ({
+      className: eClass.getName(),
+      endpoints: [
+        `GET /api/${eClass.getName()}`,
+        `POST /api/${eClass.getName()}`,
+        `GET /api/${eClass.getName()}/:id`,
+        `PUT /api/${eClass.getName()}/:id`,
+        `DELETE /api/${eClass.getName()}/:id`,
+      ],
+    }))
+  ];
   res.json({ endpoints });
 });
 
@@ -178,4 +320,6 @@ app.listen(port, () => {
   );
   console.log(`\nAPI endpoint: http://localhost:${port}/api`);
   console.log(`Status endpoint: http://localhost:${port}/api/status`);
+  console.log(`Export endpoint: http://localhost:${port}/api/export`);
+  console.log(`\nData will be saved to: ${INSTANCES_FILE}`);
 });
