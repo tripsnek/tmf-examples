@@ -9,7 +9,6 @@ import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 import { Trip } from '../api/trip';
 import { Location } from '../api/location';
-import { Activity } from '../api/activity';
 
 import { TripSegmentGen } from '../gen/trip-segment-gen';
 import { TripSegment } from '../api/trip-segment';

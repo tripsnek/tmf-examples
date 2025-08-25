@@ -19,35 +19,29 @@ import { EcorePackage } from '@tripsnek/tmf';
 import { LocationType } from './api/location-type';
 import { PersonalInterest } from './api/personal-interest';
 export class TripplanningPackage extends EPackageImpl {
-  public static ACTIVITY = 0;
-  public static ACTIVITY_FEATURE_COUNT = 3;
-  public static ACTIVITY__LOCATION = 0;
-  public static ACTIVITY__DURATION_HRS = 1;
-  public static ACTIVITY__NAME = 2;
-  public static I_DED_ENTITY = 1;
+  public static I_DED_ENTITY = 0;
   public static I_DED_ENTITY_FEATURE_COUNT = 1;
   public static I_DED_ENTITY__ID = 0;
-  public static LOCATION = 2;
+  public static LOCATION = 1;
   public static LOCATION_FEATURE_COUNT = 6;
   public static LOCATION__NAME = 1;
   public static LOCATION__ADDRESS = 2;
   public static LOCATION__TYPE = 3;
   public static LOCATION__LATITUDE = 4;
   public static LOCATION__LONGITUDE = 5;
-  public static TRAVELER = 3;
+  public static TRAVELER = 2;
   public static TRAVELER_FEATURE_COUNT = 4;
   public static TRAVELER__NAME = 1;
   public static TRAVELER__EMAIL = 2;
   public static TRAVELER__INTERESTS = 3;
-  public static TRIP_SEGMENT = 4;
-  public static TRIP_SEGMENT_FEATURE_COUNT = 6;
+  public static TRIP_SEGMENT = 3;
+  public static TRIP_SEGMENT_FEATURE_COUNT = 5;
   public static TRIP_SEGMENT__DESTINATION_NIGHTS = 0;
   public static TRIP_SEGMENT__TRIP = 1;
   public static TRIP_SEGMENT__ORIGIN = 2;
   public static TRIP_SEGMENT__DESTINATION = 3;
-  public static TRIP_SEGMENT__ACTIVITIES = 4;
-  public static TRIP_SEGMENT__NAME = 5;
-  public static TRIP = 5;
+  public static TRIP_SEGMENT__NAME = 4;
+  public static TRIP = 4;
   public static TRIP_FEATURE_COUNT = 9;
   public static TRIP__SEGMENTS = 1;
   public static TRIP__NAME = 2;
@@ -57,8 +51,8 @@ export class TripplanningPackage extends EPackageImpl {
   public static TRIP__DESCRIPTION = 6;
   public static TRIP__BUDGET_DOLLARS = 7;
   public static TRIP__TENTATIVE = 8;
-  public static LOCATION_TYPE = 6;
-  public static PERSONAL_INTEREST = 7;
+  public static LOCATION_TYPE = 5;
+  public static PERSONAL_INTEREST = 6;
 
   /** Singleton */
   public static _eINSTANCE: TripplanningPackage = TripplanningPackage.init();
@@ -72,13 +66,6 @@ export class TripplanningPackage extends EPackageImpl {
 
   /** Provides static access to EClass and EStructuralFeature instances */
   public static Literals = class {
-    static ACTIVITY: EClass = TripplanningPackage._eINSTANCE.getActivity();
-    static ACTIVITY__LOCATION: EReference =
-      TripplanningPackage._eINSTANCE.getActivity_Location();
-    static ACTIVITY__DURATION_HRS: EAttribute =
-      TripplanningPackage._eINSTANCE.getActivity_DurationHrs();
-    static ACTIVITY__NAME: EAttribute =
-      TripplanningPackage._eINSTANCE.getActivity_Name();
     static I_DED_ENTITY: EClass =
       TripplanningPackage._eINSTANCE.getIDedEntity();
     static I_DED_ENTITY__ID: EAttribute =
@@ -111,8 +98,6 @@ export class TripplanningPackage extends EPackageImpl {
       TripplanningPackage._eINSTANCE.getTripSegment_Origin();
     static TRIP_SEGMENT__DESTINATION: EReference =
       TripplanningPackage._eINSTANCE.getTripSegment_Destination();
-    static TRIP_SEGMENT__ACTIVITIES: EReference =
-      TripplanningPackage._eINSTANCE.getTripSegment_Activities();
     static TRIP_SEGMENT__NAME: EAttribute =
       TripplanningPackage._eINSTANCE.getTripSegment_Name();
     static TRIP: EClass = TripplanningPackage._eINSTANCE.getTrip();
@@ -142,7 +127,6 @@ export class TripplanningPackage extends EPackageImpl {
   private isCreated = false;
   private isInitialized = false;
 
-  private activityEClass!: EClass;
   private iDedEntityEClass!: EClass;
   private locationEClass!: EClass;
   private travelerEClass!: EClass;
@@ -199,18 +183,6 @@ export class TripplanningPackage extends EPackageImpl {
     if (!this._eFactoryInstance) this._eFactoryInstance = factoryInst;
   }
 
-  public getActivity(): EClass {
-    return this.activityEClass;
-  }
-  public getActivity_Location(): EReference {
-    return <EReference>this.activityEClass.getEStructuralFeatures().get(0);
-  }
-  public getActivity_DurationHrs(): EAttribute {
-    return <EAttribute>this.activityEClass.getEStructuralFeatures().get(1);
-  }
-  public getActivity_Name(): EAttribute {
-    return <EAttribute>this.activityEClass.getEStructuralFeatures().get(2);
-  }
   public getIDedEntity(): EClass {
     return this.iDedEntityEClass;
   }
@@ -262,11 +234,8 @@ export class TripplanningPackage extends EPackageImpl {
   public getTripSegment_Destination(): EReference {
     return <EReference>this.tripSegmentEClass.getEStructuralFeatures().get(3);
   }
-  public getTripSegment_Activities(): EReference {
-    return <EReference>this.tripSegmentEClass.getEStructuralFeatures().get(4);
-  }
   public getTripSegment_Name(): EAttribute {
-    return <EAttribute>this.tripSegmentEClass.getEStructuralFeatures().get(5);
+    return <EAttribute>this.tripSegmentEClass.getEStructuralFeatures().get(4);
   }
   public getTrip(): EClass {
     return this.tripEClass;
@@ -305,19 +274,6 @@ export class TripplanningPackage extends EPackageImpl {
   public createPackageContents(): void {
     if (this.isCreated) return;
     this.isCreated = true;
-    this.activityEClass = this.createEClass(TripplanningPackage.ACTIVITY);
-    this.createEReference(
-      this.activityEClass,
-      TripplanningPackage.ACTIVITY__LOCATION,
-    );
-    this.createEAttribute(
-      this.activityEClass,
-      TripplanningPackage.ACTIVITY__DURATION_HRS,
-    );
-    this.createEAttribute(
-      this.activityEClass,
-      TripplanningPackage.ACTIVITY__NAME,
-    );
     this.iDedEntityEClass = this.createEClass(TripplanningPackage.I_DED_ENTITY);
     this.createEAttribute(
       this.iDedEntityEClass,
@@ -376,10 +332,6 @@ export class TripplanningPackage extends EPackageImpl {
       this.tripSegmentEClass,
       TripplanningPackage.TRIP_SEGMENT__DESTINATION,
     );
-    this.createEReference(
-      this.tripSegmentEClass,
-      TripplanningPackage.TRIP_SEGMENT__ACTIVITIES,
-    );
     this.createEAttribute(
       this.tripSegmentEClass,
       TripplanningPackage.TRIP_SEGMENT__NAME,
@@ -419,60 +371,6 @@ export class TripplanningPackage extends EPackageImpl {
 
     //reusable handle for eoperations, used for adding parameters
     let op: EOperation;
-    this.initEClass(this.activityEClass, 'Activity', false, false, true);
-    this.initEReference(
-      this.getActivity_Location(),
-      this.getLocation(),
-      undefined,
-      'location',
-      '',
-      0,
-      1,
-      '', //TODO: Container Class
-      false,
-      false,
-      true,
-      false,
-      false,
-      true, //TODO: isUnsettable
-      false,
-      false, //TODO: isDerived
-      false, //TODO: isOrdered
-    );
-    this.initEAttribute(
-      this.getActivity_DurationHrs(),
-      this.getEcorePackage().getEFloat(),
-      'durationHrs',
-      '',
-      0,
-      1,
-      '',
-      false,
-      false,
-      true,
-      true, //TODO: isUnsettable,
-      false,
-      false,
-      false, //TODO: isDerived
-      false, //TODO: isOrdered;
-    );
-    this.initEAttribute(
-      this.getActivity_Name(),
-      this.getEcorePackage().getEString(),
-      'name',
-      '',
-      0,
-      1,
-      '',
-      false,
-      false,
-      true,
-      true, //TODO: isUnsettable,
-      false,
-      false,
-      false, //TODO: isDerived
-      false, //TODO: isOrdered;
-    );
     this.initEClass(this.iDedEntityEClass, 'IDedEntity', true, false, true);
     this.initEAttribute(
       this.getIDedEntity_Id(),
@@ -700,25 +598,6 @@ export class TripplanningPackage extends EPackageImpl {
       false,
       true,
       false,
-      false,
-      true, //TODO: isUnsettable
-      false,
-      false, //TODO: isDerived
-      false, //TODO: isOrdered
-    );
-    this.initEReference(
-      this.getTripSegment_Activities(),
-      this.getActivity(),
-      undefined,
-      'activities',
-      '',
-      0,
-      -1,
-      '', //TODO: Container Class
-      false,
-      false,
-      true,
-      true,
       false,
       true, //TODO: isUnsettable
       false,

@@ -10,7 +10,6 @@ import { EObjectImpl } from '@tripsnek/tmf';
 
 import { Trip } from './trip';
 import { Location } from './location';
-import { Activity } from './activity';
 import { TripplanningPackage } from '../tripplanning-package';
 
 /**
@@ -25,7 +24,6 @@ export interface TripSegment extends EObject {
   setOrigin(newOrigin: Location): void;
   getDestination(): Location;
   setDestination(newDestination: Location): void;
-  getActivities(): EList<Activity>;
   getName(): string;
   setName(newName: string): void;
 }

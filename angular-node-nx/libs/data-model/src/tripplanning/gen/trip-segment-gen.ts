@@ -9,7 +9,6 @@ import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 import { Trip } from '../api/trip';
 import { Location } from '../api/location';
-import { Activity } from '../api/activity';
 
 import { TripplanningPackage } from '../tripplanning-package';
 import { TripSegment } from '../api/trip-segment';
@@ -17,8 +16,6 @@ import { TripGen } from './trip-gen';
 import { TripImpl } from '../impl/trip-impl';
 import { LocationGen } from './location-gen';
 import { LocationImpl } from '../impl/location-impl';
-import { ActivityGen } from './activity-gen';
-import { ActivityImpl } from '../impl/activity-impl';
 
 /**
  * This file is source-code generated and should never be edited. It implements
@@ -33,12 +30,6 @@ export abstract class TripSegmentGen
   protected trip!: Trip;
   protected origin!: Location;
   protected destination!: Location;
-  protected activities: EList<Activity> = new BasicEList<Activity>(
-    undefined,
-    this,
-    TripplanningPackage.TRIP_SEGMENT__ACTIVITIES,
-    undefined,
-  );
   protected name!: string;
 
   //======================================================================
@@ -84,10 +75,6 @@ export abstract class TripSegmentGen
     this.basicSetDestination(newDestination);
   }
 
-  public getActivities(): EList<Activity> {
-    return this.activities;
-  }
-
   public getName(): string {
     return this.name;
   }
@@ -119,8 +106,6 @@ export abstract class TripSegmentGen
         return this.getOrigin();
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
         return this.getDestination();
-      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
-        return this.getActivities();
       case TripplanningPackage.TRIP_SEGMENT__NAME:
         return this.getName();
     }
@@ -151,10 +136,6 @@ export abstract class TripSegmentGen
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
         this.setDestination(newValue);
         return;
-      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
-        this.getActivities().clear();
-        this.getActivities().addAll(newValue);
-        return;
       case TripplanningPackage.TRIP_SEGMENT__NAME:
         this.setName(newValue);
         return;
@@ -179,8 +160,6 @@ export abstract class TripSegmentGen
         return this.getOrigin() != null;
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
         return this.getDestination() != null;
-      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
-        return !this.getActivities().isEmpty();
       case TripplanningPackage.TRIP_SEGMENT__NAME:
         return this.getName() != null;
     }
@@ -207,9 +186,6 @@ export abstract class TripSegmentGen
         return;
       case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
         this.setDestination(undefined!);
-        return;
-      case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
-        this.getActivities().clear();
         return;
       case TripplanningPackage.TRIP_SEGMENT__NAME:
         this.setName(undefined!);
