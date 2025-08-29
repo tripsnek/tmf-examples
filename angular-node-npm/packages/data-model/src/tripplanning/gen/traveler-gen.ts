@@ -7,13 +7,13 @@ import { EList } from "@tripsnek/tmf";
 import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
-import { IDedEntity } from "../api/i-ded-entity";
-import { PersonalInterest } from "../api/personal-interest";
+import { IDedEntity } from "../api/i-ded-entity.js";
+import { PersonalInterest } from "../api/personal-interest.js";
 
-import { TripplanningPackage } from "../tripplanning-package";
-import { Traveler } from "../api/traveler";
-import { IDedEntityGen } from "./i-ded-entity-gen";
-import { IDedEntityImpl } from "../impl/i-ded-entity-impl";
+import { TripplanningPackage } from "../tripplanning-package.js";
+import { Traveler } from "../api/traveler.js";
+import { IDedEntityGen } from "./i-ded-entity-gen.js";
+import { IDedEntityImpl } from "../impl/i-ded-entity-impl.js";
 
 /**
  * This file is source-code generated and should never be edited. It implements

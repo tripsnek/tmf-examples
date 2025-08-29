@@ -8,10 +8,10 @@ import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
 
-import { Trip } from "./trip";
-import { Location } from "./location";
-import { Activity } from "./activity";
-import { TripplanningPackage } from "../tripplanning-package";
+import { Trip } from "./trip.js";
+import { Location } from "./location.js";
+import { Activity } from "./activity.js";
+import { TripplanningPackage } from "../tripplanning-package.js";
 
 /**
  * Source-gen API for TripSegment.

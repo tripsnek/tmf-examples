@@ -8,8 +8,8 @@ import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
 
-import { Location } from "./location";
-import { TripplanningPackage } from "../tripplanning-package";
+import { Location } from "./location.js";
+import { TripplanningPackage } from "../tripplanning-package.js";
 
 /**
  * Source-gen API for Activity.

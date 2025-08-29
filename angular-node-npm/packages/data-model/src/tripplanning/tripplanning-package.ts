@@ -8,7 +8,7 @@ import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
 
-import { TripplanningPackageInitializer } from "./tripplanning-package-initializer";
+import { TripplanningPackageInitializer } from "./tripplanning-package-initializer.js";
 import { EPackage } from "@tripsnek/tmf";
 import { EPackageImpl } from "@tripsnek/tmf";
 import { EAttribute } from "@tripsnek/tmf";
@@ -16,8 +16,8 @@ import { EFactory } from "@tripsnek/tmf";
 import { EReference } from "@tripsnek/tmf";
 import { EOperation } from "@tripsnek/tmf";
 import { EcorePackage } from "@tripsnek/tmf";
-import { LocationType } from "./api/location-type";
-import { PersonalInterest } from "./api/personal-interest";
+import { LocationType } from "./api/location-type.js";
+import { PersonalInterest } from "./api/personal-interest.js";
 export class TripplanningPackage extends EPackageImpl {
   public static ACTIVITY = 0;
   public static ACTIVITY_FEATURE_COUNT = 3;
@@ -435,7 +435,7 @@ export class TripplanningPackage extends EPackageImpl {
       false,
       false,
       true, //TODO: isUnsettable
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
@@ -452,7 +452,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -469,7 +469,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -487,7 +487,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       true,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -506,7 +506,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -523,7 +523,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -540,7 +540,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -557,7 +557,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -574,7 +574,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -593,7 +593,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -610,7 +610,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -627,7 +627,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -645,7 +645,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -664,7 +664,7 @@ export class TripplanningPackage extends EPackageImpl {
       false,
       false,
       true, //TODO: isUnsettable
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
@@ -683,7 +683,7 @@ export class TripplanningPackage extends EPackageImpl {
       false,
       false,
       true, //TODO: isUnsettable
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
@@ -702,7 +702,7 @@ export class TripplanningPackage extends EPackageImpl {
       false,
       false,
       true, //TODO: isUnsettable
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
@@ -721,7 +721,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       false,
       true, //TODO: isUnsettable
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
@@ -738,7 +738,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -759,7 +759,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       false,
       true, //TODO: isUnsettable
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
@@ -776,7 +776,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -793,7 +793,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -810,7 +810,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -829,7 +829,7 @@ export class TripplanningPackage extends EPackageImpl {
       false,
       false,
       true, //TODO: isUnsettable
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
@@ -846,7 +846,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -863,7 +863,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
@@ -880,7 +880,7 @@ export class TripplanningPackage extends EPackageImpl {
       true,
       true, //TODO: isUnsettable,
       false,
-      false,
+      false, //TODO: isUnique
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );

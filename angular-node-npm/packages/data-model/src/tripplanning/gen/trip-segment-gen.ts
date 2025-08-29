@@ -7,18 +7,18 @@ import { EList } from "@tripsnek/tmf";
 import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
-import { Trip } from "../api/trip";
-import { Location } from "../api/location";
-import { Activity } from "../api/activity";
+import { Trip } from "../api/trip.js";
+import { Location } from "../api/location.js";
+import { Activity } from "../api/activity.js";
 
-import { TripplanningPackage } from "../tripplanning-package";
-import { TripSegment } from "../api/trip-segment";
-import { TripGen } from "./trip-gen";
-import { TripImpl } from "../impl/trip-impl";
-import { LocationGen } from "./location-gen";
-import { LocationImpl } from "../impl/location-impl";
-import { ActivityGen } from "./activity-gen";
-import { ActivityImpl } from "../impl/activity-impl";
+import { TripplanningPackage } from "../tripplanning-package.js";
+import { TripSegment } from "../api/trip-segment.js";
+import { TripGen } from "./trip-gen.js";
+import { TripImpl } from "../impl/trip-impl.js";
+import { LocationGen } from "./location-gen.js";
+import { LocationImpl } from "../impl/location-impl.js";
+import { ActivityGen } from "./activity-gen.js";
+import { ActivityImpl } from "../impl/activity-impl.js";
 
 /**
  * This file is source-code generated and should never be edited. It implements
