@@ -24,7 +24,7 @@ Alternative structure using Nx workspace tooling.
 
 ## Key TMF Features
 
-- **Code Generation** from Ecore metamodel (`generate.mjs`) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
+- **Code Generation** from Ecore metamodel (`node generate.mjs` in each project) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
 - **Factory Pattern** for creating model instances
 - **Containment & Inverse References** with automatic bidirectional updates
 - **Reflective Backend and Frontend** that adapts to any metamodel - edit the .ecore file as much as you want, or replace with your own! It requires updating only a couple of code references to your generated package 'eINSTANCE'
@@ -35,11 +35,7 @@ Alternative structure using Nx workspace tooling.
 
 Choose an example and follow its README for detailed setup instructions. 
 
-Each example can run independently with its own development servers:
-- **Server**: http://localhost:3000 (Express.js API)
-- **Client**: http://localhost:4200 (Angular/React UI)
-
-## Userful Links
+## Useful Links
 
 - [TMF GitHub Repository](https://github.com/tripsnek/tmf)
 - [TMF npm Package](https://www.npmjs.com/package/@tripsnek/tmf)
