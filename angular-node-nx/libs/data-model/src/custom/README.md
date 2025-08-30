@@ -4,7 +4,7 @@ This directory is automatically created by the TMF code generator to store your 
 
 ## Purpose
 
-Files placed in this directory (and its subdirectories) are automatically exported in the barrel file (index.ts) 
+Files placed in this directory (and its subdirectories) are automatically exported in the barrel file (index.ts)
 alongside the generated model code. This allows you to:
 
 - Add custom utility functions related to your model
@@ -26,13 +26,14 @@ export function customModelHelper() {
   // Your custom code here
 }
 
-// custom/types/custom-types.ts  
+// custom/types/custom-types.ts
 export interface CustomModelExtension {
   // Your custom types here
 }
 ```
 
 These will automatically be exported as:
+
 ```typescript
 export * from './custom/utilities';
 export * from './custom/types/custom-types';

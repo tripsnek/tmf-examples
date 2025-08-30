@@ -8,9 +8,9 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { IDedEntity } from './i-ded-entity';
-import { PersonalInterest } from './personal-interest';
-import { TripplanningPackage } from '../tripplanning-package';
+import { IDedEntity } from './i-ded-entity.js';
+import { PersonalInterest } from './personal-interest.js';
+import { TripplanningPackage } from '../tripplanning-package.js';
 
 /**
  * Source-gen API for Traveler.

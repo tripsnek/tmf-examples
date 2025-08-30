@@ -8,10 +8,10 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { IDedEntity } from './i-ded-entity';
-import { TripSegment } from './trip-segment';
-import { Traveler } from './traveler';
-import { TripplanningPackage } from '../tripplanning-package';
+import { IDedEntity } from './i-ded-entity.js';
+import { TripSegment } from './trip-segment.js';
+import { Traveler } from './traveler.js';
+import { TripplanningPackage } from '../tripplanning-package.js';
 
 /**
  * Source-gen API for Trip.

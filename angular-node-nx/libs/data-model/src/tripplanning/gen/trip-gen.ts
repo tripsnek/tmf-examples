@@ -7,18 +7,18 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
-import { IDedEntity } from '../api/i-ded-entity';
-import { TripSegment } from '../api/trip-segment';
-import { Traveler } from '../api/traveler';
+import { IDedEntity } from '../api/i-ded-entity.js';
+import { TripSegment } from '../api/trip-segment.js';
+import { Traveler } from '../api/traveler.js';
 
-import { TripplanningPackage } from '../tripplanning-package';
-import { Trip } from '../api/trip';
-import { IDedEntityGen } from './i-ded-entity-gen';
-import { IDedEntityImpl } from '../impl/i-ded-entity-impl';
-import { TripSegmentGen } from './trip-segment-gen';
-import { TripSegmentImpl } from '../impl/trip-segment-impl';
-import { TravelerGen } from './traveler-gen';
-import { TravelerImpl } from '../impl/traveler-impl';
+import { TripplanningPackage } from '../tripplanning-package.js';
+import { Trip } from '../api/trip.js';
+import { IDedEntityGen } from './i-ded-entity-gen.js';
+import { IDedEntityImpl } from '../impl/i-ded-entity-impl.js';
+import { TripSegmentGen } from './trip-segment-gen.js';
+import { TripSegmentImpl } from '../impl/trip-segment-impl.js';
+import { TravelerGen } from './traveler-gen.js';
+import { TravelerImpl } from '../impl/traveler-impl.js';
 
 /**
  * This file is source-code generated and should never be edited. It implements
@@ -30,7 +30,7 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
     undefined,
     this,
     TripplanningPackage.TRIP__SEGMENTS,
-    TripplanningPackage.TRIP_SEGMENT__TRIP,
+    TripplanningPackage.TRIP_SEGMENT__TRIP
   );
   protected name!: string;
   protected startDate!: Date;
@@ -39,7 +39,7 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
     undefined,
     this,
     TripplanningPackage.TRIP__PARTICIPANTS,
-    undefined,
+    undefined
   );
   protected description!: string;
   protected budgetDollars!: number;
@@ -144,7 +144,7 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
    */
   public override eSet(
     feature: number | EStructuralFeature,
-    newValue: any,
+    newValue: any
   ): void {
     const featureID: number =
       typeof feature === 'number'

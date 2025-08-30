@@ -11,19 +11,19 @@ import { EObjectImpl } from '@tripsnek/tmf';
 import { EReference } from '@tripsnek/tmf';
 import { EAttribute } from '@tripsnek/tmf';
 import { EFactory } from '@tripsnek/tmf';
-import { TripplanningPackage } from './tripplanning-package';
+import { TripplanningPackage } from './tripplanning-package.js';
 
-import { Trip } from './api/trip';
-import { TripImpl } from './impl/trip-impl';
-import { TripSegment } from './api/trip-segment';
-import { TripSegmentImpl } from './impl/trip-segment-impl';
-import { Traveler } from './api/traveler';
-import { TravelerImpl } from './impl/traveler-impl';
-import { Location } from './api/location';
-import { LocationImpl } from './impl/location-impl';
-import { TripplanningPackageInitializer } from './tripplanning-package-initializer';
+import { Trip } from './api/trip.js';
+import { TripImpl } from './impl/trip-impl.js';
+import { TripSegment } from './api/trip-segment.js';
+import { TripSegmentImpl } from './impl/trip-segment-impl.js';
+import { Traveler } from './api/traveler.js';
+import { TravelerImpl } from './impl/traveler-impl.js';
+import { Location } from './api/location.js';
+import { LocationImpl } from './impl/location-impl.js';
+import { TripplanningPackageInitializer } from './tripplanning-package-initializer.js';
 
-export class TripplanningFactory extends EFactory {
+export class TripplanningFactory implements EFactory {
   /* Singleton */
   public static _eINSTANCE: TripplanningFactory = TripplanningFactory.init();
   public static init(): TripplanningFactory {
@@ -39,7 +39,7 @@ export class TripplanningFactory extends EFactory {
     return this._eINSTANCE;
   }
 
-  public override create(eClass: EClass): any {
+  public create(eClass: EClass): EObject {
     switch (eClass.getClassifierId()) {
       case TripplanningPackage.TRIP:
         return this.createTrip();
@@ -51,7 +51,7 @@ export class TripplanningFactory extends EFactory {
         return this.createLocation();
       default:
         throw new Error(
-          "The class '" + eClass.getName() + "' is not a valid classifier",
+          "The class '" + eClass.getName() + "' is not a valid classifier"
         );
     }
   }

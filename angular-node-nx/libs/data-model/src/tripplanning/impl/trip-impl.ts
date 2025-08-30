@@ -7,12 +7,12 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
-import { IDedEntity } from '../api/i-ded-entity';
-import { TripSegment } from '../api/trip-segment';
-import { Traveler } from '../api/traveler';
+import { IDedEntity } from '../api/i-ded-entity.js';
+import { TripSegment } from '../api/trip-segment.js';
+import { Traveler } from '../api/traveler.js';
 
-import { TripGen } from '../gen/trip-gen';
-import { Trip } from '../api/trip';
+import { TripGen } from '../gen/trip-gen.js';
+import { Trip } from '../api/trip.js';
 
 /**
  * Editable Impl class.

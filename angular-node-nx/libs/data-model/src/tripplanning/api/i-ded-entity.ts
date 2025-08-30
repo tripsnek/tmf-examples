@@ -8,7 +8,7 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { TripplanningPackage } from '../tripplanning-package';
+import { TripplanningPackage } from '../tripplanning-package.js';
 
 /**
  * Source-gen API for IDedEntity.

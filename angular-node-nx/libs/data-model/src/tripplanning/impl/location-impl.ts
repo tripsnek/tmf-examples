@@ -7,11 +7,11 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
-import { IDedEntity } from '../api/i-ded-entity';
-import { LocationType } from '../api/location-type';
+import { IDedEntity } from '../api/i-ded-entity.js';
+import { LocationType } from '../api/location-type.js';
 
-import { LocationGen } from '../gen/location-gen';
-import { Location } from '../api/location';
+import { LocationGen } from '../gen/location-gen.js';
+import { Location } from '../api/location.js';
 
 /**
  * Editable Impl class.

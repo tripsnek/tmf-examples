@@ -8,8 +8,8 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { TripplanningPackage } from '../tripplanning-package';
-import { IDedEntity } from '../api/i-ded-entity';
+import { TripplanningPackage } from '../tripplanning-package.js';
+import { IDedEntity } from '../api/i-ded-entity.js';
 
 /**
  * This file is source-code generated and should never be edited. It implements
@@ -56,7 +56,7 @@ export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
    */
   public override eSet(
     feature: number | EStructuralFeature,
-    newValue: any,
+    newValue: any
   ): void {
     const featureID: number =
       typeof feature === 'number'
