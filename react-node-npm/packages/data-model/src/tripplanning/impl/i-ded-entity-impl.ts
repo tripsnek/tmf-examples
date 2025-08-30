@@ -8,8 +8,8 @@ import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
 
-import { IDedEntityGen } from "../gen/i-ded-entity-gen";
-import { IDedEntity } from "../api/i-ded-entity";
+import { IDedEntityGen } from "../gen/i-ded-entity-gen.js";
+import { IDedEntity } from "../api/i-ded-entity.js";
 
 /**
  * Editable Impl class.

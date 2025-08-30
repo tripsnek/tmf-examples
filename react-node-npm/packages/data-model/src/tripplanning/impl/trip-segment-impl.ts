@@ -7,11 +7,12 @@ import { EList } from "@tripsnek/tmf";
 import { EEnum } from "@tripsnek/tmf";
 import { EDataType } from "@tripsnek/tmf";
 import { EObjectImpl } from "@tripsnek/tmf";
-import { Trip } from "../api/trip";
-import { Location } from "../api/location";
+import { Trip } from "../api/trip.js";
+import { Location } from "../api/location.js";
+import { Activity } from "../api/activity.js";
 
-import { TripSegmentGen } from "../gen/trip-segment-gen";
-import { TripSegment } from "../api/trip-segment";
+import { TripSegmentGen } from "../gen/trip-segment-gen.js";
+import { TripSegment } from "../api/trip-segment.js";
 
 /**
  * Editable Impl class.

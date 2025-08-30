@@ -1,5 +1,5 @@
-import { TripplanningPackage } from "./tripplanning-package";
-import { TripplanningFactory } from "./tripplanning-factory";
+import { TripplanningPackage } from "./tripplanning-package.js";
+import { TripplanningFactory } from "./tripplanning-factory.js";
 import { TJson, EClassImpl } from "@tripsnek/tmf";
 
 /**
