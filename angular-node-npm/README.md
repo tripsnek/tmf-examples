@@ -1,6 +1,6 @@
 # TMF Angular Node Example
 
-A full-stack TypeScript application demonstrating the **@tripsnek/tmf** library - a lightweight port of the Eclipse Modeling Framework for TypeScript.
+A full-stack TypeScript application demonstrating the **@tripsnek/tmf** library - a lightweight port of the Eclipse Modeling Framework for TypeScript - as an npm monorepo.
 
 ## What This Demonstrates
 
@@ -9,9 +9,9 @@ A full-stack TypeScript application demonstrating the **@tripsnek/tmf** library 
 
 ## Architecture
 
-- **Data Model** (`@tmf-example/data-model`) - Generated from `TripPlanning.ecore` metamodel
-- **Server** (`@tmf-example/server`) - Express.js with auto-generated reflective REST API
-- **Client** (`@tmf-example/client`) - Angular app with TMF reflective editor
+- **Data Model** (`packages/data-model`) - Generated from `TripPlanning.ecore` metamodel
+- **Server** (`packages/server`) - Express.js with auto-generated reflective REST API
+- **Client** (`packages/client`) - Angular app with TMF reflective editor
 
 ## Quick Start
 
