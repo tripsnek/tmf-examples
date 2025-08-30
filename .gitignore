@@ -5,3 +5,4 @@ angular-node-npm/.claude/settings.local.json
 CLAUDE.md
 .claude
 react-node-npm/packages/server/data/instances.json
+angular-node-npm/packages/server/data/instances.json
