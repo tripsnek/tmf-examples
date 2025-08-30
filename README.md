@@ -4,26 +4,23 @@ Example applications demonstrating the **@tripsnek/tmf** library - a lightweight
 
 ## Examples
 
-### [angular-node-npm/](./angular-node-npm/) - **Main Example** ⭐
+### [angular-node-npm/](./angular-node-npm/)
 Full-stack npm workspaces monorepo with Angular frontend and Express.js backend.
 - **Architecture**: npm workspaces
 - **Frontend**: Angular 19 with TMF reflective editor
 - **Backend**: Express.js with auto-generated REST API
-- **Features**: Complete CRUD operations, file persistence, keyboard shortcuts
 
 ### [react-node-npm/](./react-node-npm/)
 React-based implementation using the same architecture as the Angular example.
 - **Architecture**: npm workspaces  
 - **Frontend**: React with TMF reflective editor
 - **Backend**: Express.js with auto-generated REST API
-- **Features**: Same model-driven approach with React UI
 
 ### [angular-node-nx/](./angular-node-nx/)
 Alternative structure using Nx workspace tooling.
 - **Architecture**: Nx monorepo
 - **Frontend**: Angular 19 with TMF reflective editor
 - **Backend**: Express.js with auto-generated REST API
-- **Features**: Nx build system with incremental builds and dependency graph
 
 ## Key TMF Features
 
