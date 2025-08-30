@@ -43,11 +43,11 @@ The example models a trip planning domain with:
 - **Code Generation** from Ecore metamodel (`generate.mjs`) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
 - **Factory Pattern** for creating model instances
 - **Containment & Inverse References** with automatic bidirectional updates
-- **Reflective UI** that adapts to any metamodel - edit the .ecore file as much as you want, or replace with your own! It requires updating only a couple of code references to your generated package 'eINSTANCE'
+- **Reflective Backend and Frontend** that adapts to any metamodel - edit the .ecore file as much as you want, or replace with your own! It requires updating only a couple of code references to your generated package 'eINSTANCE'
 - **JSON Serialization** with TJson, and reflective cross-container reference resolution demonstrated with proxy-resolver.ts
 - **Type Safety** across the entire stack
-
-## References
+- 
+## Useful Links
 
   1. [TMF Github Repository](https://github.com/tripsnek/tmf)
   2. [TMF npm package](https://www.npmjs.com/package/@tripsnek/tmf)
