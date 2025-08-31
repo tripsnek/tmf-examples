@@ -2,6 +2,12 @@
 
 Example applications demonstrating the **@tripsnek/tmf** library - a lightweight TypeScript port of the Eclipse Modeling Framework (EMF). These examples show how to build full-stack applications using model-driven development principles.
 
+## A Quick Demo video
+
+https://github.com/user-attachments/assets/ee35ca1a-24d5-4a43-8926-96dffecd8d0e
+
+Quick demonstration of adding types/features to an ecore model and generating code (courtest of the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor)) in a full stack reflective application, specifically the [NX Angular/Node example](./angular-node-nx/).
+
 ## Examples
 
 ### [angular-node-npm/](./angular-node-npm/)
