@@ -1,6 +1,6 @@
 # TMF Examples
 
-Example applications demonstrating the **@tripsnek/tmf** library - a lightweight TypeScript port of the Eclipse Modeling Framework (EMF). These examples show how to build full-stack applications using model-driven development principles.
+Example applications demonstrating the **@tripsnek/tmf** library ([github](https://github.com/tripsnek/tmf) • [npm](https://www.npmjs.com/package/@tripsnek/tmf)) - a lightweight TypeScript port of the Eclipse Modeling Framework (EMF). These examples show how to build full-stack applications using model-driven development principles.
 
 ## A Quick Demo video
 
