@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/libs/datamodel-java/src" modelPluginID="model"
+    modelName="TripPlanning" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="21.0" copyrightFields="false"
+    operationReflection="true" importOrganizing="true">
+  <foreignModel>TripPlanning.ecore</foreignModel>
+  <genPackages prefix="Tripplanning" disposableProviderFactory="true" ecorePackage="TripPlanning.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TripPlanning.ecore#//LocationType">
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//LocationType/City"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//LocationType/Attraction"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//LocationType/Hotel"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//LocationType/Restaurant"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TripPlanning.ecore#//PersonalInterest">
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//PersonalInterest/NaturalBeauty"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//PersonalInterest/MajorCities"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//PersonalInterest/Cuisine"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//PersonalInterest/Wine"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//PersonalInterest/Ocean"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//PersonalInterest/Nightlife"/>
+      <genEnumLiterals ecoreEnumLiteral="TripPlanning.ecore#//PersonalInterest/Museums"/>
+    </genEnums>
+    <genClasses ecoreClass="TripPlanning.ecore#//Trip">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//Trip/segments"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Trip/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Trip/startDate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Trip/endDate"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//Trip/participants"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Trip/description"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Trip/budgetDollars"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Trip/tentative"/>
+    </genClasses>
+    <genClasses ecoreClass="TripPlanning.ecore#//TripSegment">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//TripSegment/destinationNights"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference TripPlanning.ecore#//TripSegment/trip"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//TripSegment/origin"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//TripSegment/destination"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//TripSegment/name"/>
+    </genClasses>
+    <genClasses ecoreClass="TripPlanning.ecore#//Traveler">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Traveler/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Traveler/email"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Traveler/interests"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="TripPlanning.ecore#//IDedEntity">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//IDedEntity/id"/>
+    </genClasses>
+    <genClasses ecoreClass="TripPlanning.ecore#//Location">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/address"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/latitude"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/longitude"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
