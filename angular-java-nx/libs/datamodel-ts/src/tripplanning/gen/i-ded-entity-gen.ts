@@ -7,51 +7,30 @@ import { EList } from '@tripsnek/tmf';
 import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
-import { IDedEntity } from '../api/i-ded-entity.js';
-import { PersonalInterest } from '../api/personal-interest.js';
 
 import { TripplanningPackage } from '../tripplanning-package.js';
-import { Traveler } from '../api/traveler.js';
-import { IDedEntityGen } from './i-ded-entity-gen.js';
-import { IDedEntityImpl } from '../impl/i-ded-entity-impl.js';
+import { IDedEntity } from '../api/i-ded-entity.js';
 
 /**
  * This file is source-code generated and should never be edited. It implements
- * the core TMF functionality for Traveler.
+ * the core TMF functionality for IDedEntity.
  */
-export abstract class TravelerGen extends IDedEntityImpl implements Traveler {
+export abstract class IDedEntityGen extends EObjectImpl implements IDedEntity {
   /** feature declarations */
-  protected name!: string;
-  protected email!: string;
-  protected interests: EList<PersonalInterest> =
-    new BasicEList<PersonalInterest>(
-      undefined,
-      this,
-      TripplanningPackage.TRAVELER__INTERESTS,
-      undefined
-    );
+  protected id!: string;
+
+
 
   //======================================================================
   // Getters and Setters
 
-  public getName(): string {
-    return this.name;
+
+  public getId(): string {
+    return this.id;
   }
 
-  public setName(newName: string): void {
-    this.basicSetName(newName);
-  }
-
-  public getEmail(): string {
-    return this.email;
-  }
-
-  public setEmail(newEmail: string): void {
-    this.basicSetEmail(newEmail);
-  }
-
-  public getInterests(): EList<PersonalInterest> {
-    return this.interests;
+  public setId(newId: string): void {
+    this.basicSetId(newId);
   }
 
   //======================================================================
@@ -69,41 +48,29 @@ export abstract class TravelerGen extends IDedEntityImpl implements Traveler {
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRAVELER__NAME:
-        return this.getName();
-      case TripplanningPackage.TRAVELER__EMAIL:
-        return this.getEmail();
-      case TripplanningPackage.TRAVELER__INTERESTS:
-        return this.getInterests();
+      case TripplanningPackage.I_DED_ENTITY__ID:
+        return this.getId();
     }
     return super.eGet(featureID);
   }
 
+
   /**
    * eSet() - provides ability to reflectively set all features.
    */
-  public override eSet(
-    feature: number | EStructuralFeature,
-    newValue: any
-  ): void {
+  public override eSet(feature: number | EStructuralFeature, newValue: any): void {
     const featureID: number =
       typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRAVELER__NAME:
-        this.setName(newValue);
-        return;
-      case TripplanningPackage.TRAVELER__EMAIL:
-        this.setEmail(newValue);
-        return;
-      case TripplanningPackage.TRAVELER__INTERESTS:
-        this.getInterests().clear();
-        this.getInterests().addAll(newValue);
+      case TripplanningPackage.I_DED_ENTITY__ID:
+        this.setId(newValue);
         return;
     }
     return super.eSet(featureID, newValue);
   }
+
 
   /**
    * eIsSet() - provides ability to reflectively check if any feature is set.
@@ -114,15 +81,12 @@ export abstract class TravelerGen extends IDedEntityImpl implements Traveler {
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRAVELER__NAME:
-        return this.getName() != null;
-      case TripplanningPackage.TRAVELER__EMAIL:
-        return this.getEmail() != null;
-      case TripplanningPackage.TRAVELER__INTERESTS:
-        return !this.getInterests().isEmpty();
+      case TripplanningPackage.I_DED_ENTITY__ID:
+        return this.getId() != null;
     }
     return super.eIsSet(featureID);
   }
+
 
   /**
    * eUnset() - provides ability to reflectively unset any feature.
@@ -133,14 +97,8 @@ export abstract class TravelerGen extends IDedEntityImpl implements Traveler {
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
-      case TripplanningPackage.TRAVELER__NAME:
-        this.setName(undefined!);
-        return;
-      case TripplanningPackage.TRAVELER__EMAIL:
-        this.setEmail(undefined!);
-        return;
-      case TripplanningPackage.TRAVELER__INTERESTS:
-        this.getInterests().clear();
+      case TripplanningPackage.I_DED_ENTITY__ID:
+        this.setId(undefined!);
         return;
     }
     return super.eUnset(featureID);
@@ -149,16 +107,14 @@ export abstract class TravelerGen extends IDedEntityImpl implements Traveler {
   //======================================================================
   // Basic setters (allow EOpposite enforcement without triggering infinite cycles)
 
-  public basicSetName(newName: string): void {
-    this.name = newName;
-  }
 
-  public basicSetEmail(newEmail: string): void {
-    this.email = newEmail;
+  public basicSetId(newId: string): void {
+    this.id = newId;
   }
 
   //======================================================================
   // Inverse Adders (if needed)
+
 
   //======================================================================
   // Inverse Removers (if needed)
@@ -167,6 +123,6 @@ export abstract class TravelerGen extends IDedEntityImpl implements Traveler {
   // eClass()
 
   public override eClass(): EClass {
-    return TripplanningPackage.Literals.TRAVELER;
+    return TripplanningPackage.Literals.I_DED_ENTITY;
   }
 }

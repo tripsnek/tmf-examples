@@ -61,6 +61,7 @@ public class TripplanningFactoryImpl extends EFactoryImpl implements Tripplannin
 			case TripplanningPackage.TRIP_SEGMENT: return createTripSegment();
 			case TripplanningPackage.TRAVELER: return createTraveler();
 			case TripplanningPackage.LOCATION: return createLocation();
+			case TripplanningPackage.ACTIVITY: return createActivity();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -142,6 +143,17 @@ public class TripplanningFactoryImpl extends EFactoryImpl implements Tripplannin
 	public Location createLocation() {
 		LocationImpl location = new LocationImpl();
 		return location;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Activity createActivity() {
+		ActivityImpl activity = new ActivityImpl();
+		return activity;
 	}
 
 	/**

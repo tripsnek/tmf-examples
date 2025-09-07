@@ -1,3 +1,4 @@
+
 import { EObject } from '@tripsnek/tmf';
 import { TUtils } from '@tripsnek/tmf';
 import { EStructuralFeature } from '@tripsnek/tmf';
@@ -8,7 +9,7 @@ import { EEnum } from '@tripsnek/tmf';
 import { EDataType } from '@tripsnek/tmf';
 import { EObjectImpl } from '@tripsnek/tmf';
 
-import { TripplanningPackageInitializer } from './tripplanning-package-initializer.js';
+import { TripplanningPackageInitializer} from './tripplanning-package-initializer.js';
 import { EPackage } from '@tripsnek/tmf';
 import { EPackageImpl } from '@tripsnek/tmf';
 import { EAttribute } from '@tripsnek/tmf';
@@ -19,29 +20,35 @@ import { EcorePackage } from '@tripsnek/tmf';
 import { LocationType } from './api/location-type.js';
 import { PersonalInterest } from './api/personal-interest.js';
 export class TripplanningPackage extends EPackageImpl {
-  public static I_DED_ENTITY = 0;
+  public static ACTIVITY = 0;
+  public static ACTIVITY_FEATURE_COUNT = 3;
+  public static ACTIVITY__LOCATION = 0;
+  public static ACTIVITY__DURATION_HRS = 1;
+  public static ACTIVITY__NAME = 2;
+  public static I_DED_ENTITY = 1;
   public static I_DED_ENTITY_FEATURE_COUNT = 1;
   public static I_DED_ENTITY__ID = 0;
-  public static LOCATION = 1;
+  public static LOCATION = 2;
   public static LOCATION_FEATURE_COUNT = 6;
   public static LOCATION__NAME = 1;
   public static LOCATION__ADDRESS = 2;
   public static LOCATION__TYPE = 3;
   public static LOCATION__LATITUDE = 4;
   public static LOCATION__LONGITUDE = 5;
-  public static TRAVELER = 2;
+  public static TRAVELER = 3;
   public static TRAVELER_FEATURE_COUNT = 4;
   public static TRAVELER__NAME = 1;
   public static TRAVELER__EMAIL = 2;
   public static TRAVELER__INTERESTS = 3;
-  public static TRIP_SEGMENT = 3;
-  public static TRIP_SEGMENT_FEATURE_COUNT = 5;
+  public static TRIP_SEGMENT = 4;
+  public static TRIP_SEGMENT_FEATURE_COUNT = 6;
   public static TRIP_SEGMENT__DESTINATION_NIGHTS = 0;
   public static TRIP_SEGMENT__TRIP = 1;
   public static TRIP_SEGMENT__ORIGIN = 2;
   public static TRIP_SEGMENT__DESTINATION = 3;
-  public static TRIP_SEGMENT__NAME = 4;
-  public static TRIP = 4;
+  public static TRIP_SEGMENT__ACTIVITIES = 4;
+  public static TRIP_SEGMENT__NAME = 5;
+  public static TRIP = 5;
   public static TRIP_FEATURE_COUNT = 9;
   public static TRIP__SEGMENTS = 1;
   public static TRIP__NAME = 2;
@@ -51,8 +58,8 @@ export class TripplanningPackage extends EPackageImpl {
   public static TRIP__DESCRIPTION = 6;
   public static TRIP__BUDGET_DOLLARS = 7;
   public static TRIP__TENTATIVE = 8;
-  public static LOCATION_TYPE = 5;
-  public static PERSONAL_INTEREST = 6;
+  public static LOCATION_TYPE = 6;
+  public static PERSONAL_INTEREST = 7;
 
   /** Singleton */
   public static _eINSTANCE: TripplanningPackage = TripplanningPackage.init();
@@ -60,14 +67,21 @@ export class TripplanningPackage extends EPackageImpl {
   //if the singleton is initialized
   private static isInited = false;
 
-  static eNS_URI = 'http://example.org/tripplanning';
+  static eNS_URI =
+    'http://example.org/tripplanning';
   static eNAME = 'tripplanning';
   static eNS_PREFIX = 'tripplanning';
 
   /** Provides static access to EClass and EStructuralFeature instances */
   public static Literals = class {
-    static I_DED_ENTITY: EClass =
-      TripplanningPackage._eINSTANCE.getIDedEntity();
+    static ACTIVITY: EClass = TripplanningPackage._eINSTANCE.getActivity();
+    static ACTIVITY__LOCATION: EReference =
+      TripplanningPackage._eINSTANCE.getActivity_Location();
+    static ACTIVITY__DURATION_HRS: EAttribute =
+      TripplanningPackage._eINSTANCE.getActivity_DurationHrs();
+    static ACTIVITY__NAME: EAttribute =
+      TripplanningPackage._eINSTANCE.getActivity_Name();
+    static I_DED_ENTITY: EClass = TripplanningPackage._eINSTANCE.getIDedEntity();
     static I_DED_ENTITY__ID: EAttribute =
       TripplanningPackage._eINSTANCE.getIDedEntity_Id();
     static LOCATION: EClass = TripplanningPackage._eINSTANCE.getLocation();
@@ -88,8 +102,7 @@ export class TripplanningPackage extends EPackageImpl {
       TripplanningPackage._eINSTANCE.getTraveler_Email();
     static TRAVELER__INTERESTS: EAttribute =
       TripplanningPackage._eINSTANCE.getTraveler_Interests();
-    static TRIP_SEGMENT: EClass =
-      TripplanningPackage._eINSTANCE.getTripSegment();
+    static TRIP_SEGMENT: EClass = TripplanningPackage._eINSTANCE.getTripSegment();
     static TRIP_SEGMENT__DESTINATION_NIGHTS: EAttribute =
       TripplanningPackage._eINSTANCE.getTripSegment_DestinationNights();
     static TRIP_SEGMENT__TRIP: EReference =
@@ -98,6 +111,8 @@ export class TripplanningPackage extends EPackageImpl {
       TripplanningPackage._eINSTANCE.getTripSegment_Origin();
     static TRIP_SEGMENT__DESTINATION: EReference =
       TripplanningPackage._eINSTANCE.getTripSegment_Destination();
+    static TRIP_SEGMENT__ACTIVITIES: EReference =
+      TripplanningPackage._eINSTANCE.getTripSegment_Activities();
     static TRIP_SEGMENT__NAME: EAttribute =
       TripplanningPackage._eINSTANCE.getTripSegment_Name();
     static TRIP: EClass = TripplanningPackage._eINSTANCE.getTrip();
@@ -117,16 +132,15 @@ export class TripplanningPackage extends EPackageImpl {
       TripplanningPackage._eINSTANCE.getTrip_BudgetDollars();
     static TRIP__TENTATIVE: EAttribute =
       TripplanningPackage._eINSTANCE.getTrip_Tentative();
-    static LOCATION_TYPE: EEnum =
-      TripplanningPackage._eINSTANCE.getLocationType();
-    static PERSONAL_INTEREST: EEnum =
-      TripplanningPackage._eINSTANCE.getPersonalInterest();
+    static LOCATION_TYPE: EEnum = TripplanningPackage._eINSTANCE.getLocationType();
+    static PERSONAL_INTEREST: EEnum = TripplanningPackage._eINSTANCE.getPersonalInterest();
   };
 
   //flags that keep track of whether package is initialized
   private isCreated = false;
   private isInitialized = false;
 
+  private activityEClass!: EClass;
   private iDedEntityEClass!: EClass;
   private locationEClass!: EClass;
   private travelerEClass!: EClass;
@@ -138,7 +152,11 @@ export class TripplanningPackage extends EPackageImpl {
   //causes EPackage.Registry registration event
   //hard-coded URI, since referring to the static eNS_URI field in constructor can cause issues
   constructor() {
-    super('tripplanning', 'http://example.org/tripplanning', 'tripplanning');
+    super(
+      'tripplanning',
+      'http://example.org/tripplanning',
+      'tripplanning'
+    );
   }
 
   /**
@@ -154,6 +172,7 @@ export class TripplanningPackage extends EPackageImpl {
     //this is necessary specifically for EcorePackage generation, which needs to refer to itself
     this._eINSTANCE = theTripplanningPackage;
     TripplanningPackage.isInited = true;
+    
 
     // Create package meta-data objects
     theTripplanningPackage.createPackageContents();
@@ -163,10 +182,10 @@ export class TripplanningPackage extends EPackageImpl {
     return this._eINSTANCE;
   }
 
-  static get eINSTANCE(): TripplanningPackage {
+  static get eINSTANCE(): TripplanningPackage{
     TripplanningPackageInitializer.registerAll();
     return this._eINSTANCE;
-  }
+  }  
 
   //this used to be direct lazy retrieval of the
   //factory instance from the corresponding .ts factory file, but
@@ -183,6 +202,18 @@ export class TripplanningPackage extends EPackageImpl {
     if (!this._eFactoryInstance) this._eFactoryInstance = factoryInst;
   }
 
+  public getActivity(): EClass {
+    return this.activityEClass;
+  }
+  public getActivity_Location(): EReference {
+    return <EReference>this.activityEClass.getEStructuralFeatures().get(0);
+  }
+  public getActivity_DurationHrs(): EAttribute {
+    return <EAttribute>this.activityEClass.getEStructuralFeatures().get(1);
+  }
+  public getActivity_Name(): EAttribute {
+    return <EAttribute>this.activityEClass.getEStructuralFeatures().get(2);
+  }
   public getIDedEntity(): EClass {
     return this.iDedEntityEClass;
   }
@@ -234,8 +265,11 @@ export class TripplanningPackage extends EPackageImpl {
   public getTripSegment_Destination(): EReference {
     return <EReference>this.tripSegmentEClass.getEStructuralFeatures().get(3);
   }
+  public getTripSegment_Activities(): EReference {
+    return <EReference>this.tripSegmentEClass.getEStructuralFeatures().get(4);
+  }
   public getTripSegment_Name(): EAttribute {
-    return <EAttribute>this.tripSegmentEClass.getEStructuralFeatures().get(4);
+    return <EAttribute>this.tripSegmentEClass.getEStructuralFeatures().get(5);
   }
   public getTrip(): EClass {
     return this.tripEClass;
@@ -274,6 +308,19 @@ export class TripplanningPackage extends EPackageImpl {
   public createPackageContents(): void {
     if (this.isCreated) return;
     this.isCreated = true;
+    this.activityEClass = this.createEClass(TripplanningPackage.ACTIVITY);
+    this.createEReference(
+      this.activityEClass,
+      TripplanningPackage.ACTIVITY__LOCATION
+    );
+    this.createEAttribute(
+      this.activityEClass,
+      TripplanningPackage.ACTIVITY__DURATION_HRS
+    );
+    this.createEAttribute(
+      this.activityEClass,
+      TripplanningPackage.ACTIVITY__NAME
+    );
     this.iDedEntityEClass = this.createEClass(TripplanningPackage.I_DED_ENTITY);
     this.createEAttribute(
       this.iDedEntityEClass,
@@ -313,9 +360,7 @@ export class TripplanningPackage extends EPackageImpl {
       this.travelerEClass,
       TripplanningPackage.TRAVELER__INTERESTS
     );
-    this.tripSegmentEClass = this.createEClass(
-      TripplanningPackage.TRIP_SEGMENT
-    );
+    this.tripSegmentEClass = this.createEClass(TripplanningPackage.TRIP_SEGMENT);
     this.createEAttribute(
       this.tripSegmentEClass,
       TripplanningPackage.TRIP_SEGMENT__DESTINATION_NIGHTS
@@ -332,18 +377,31 @@ export class TripplanningPackage extends EPackageImpl {
       this.tripSegmentEClass,
       TripplanningPackage.TRIP_SEGMENT__DESTINATION
     );
+    this.createEReference(
+      this.tripSegmentEClass,
+      TripplanningPackage.TRIP_SEGMENT__ACTIVITIES
+    );
     this.createEAttribute(
       this.tripSegmentEClass,
       TripplanningPackage.TRIP_SEGMENT__NAME
     );
     this.tripEClass = this.createEClass(TripplanningPackage.TRIP);
-    this.createEReference(this.tripEClass, TripplanningPackage.TRIP__SEGMENTS);
-    this.createEAttribute(this.tripEClass, TripplanningPackage.TRIP__NAME);
+    this.createEReference(
+      this.tripEClass,
+      TripplanningPackage.TRIP__SEGMENTS
+    );
+    this.createEAttribute(
+      this.tripEClass,
+      TripplanningPackage.TRIP__NAME
+    );
     this.createEAttribute(
       this.tripEClass,
       TripplanningPackage.TRIP__START_DATE
     );
-    this.createEAttribute(this.tripEClass, TripplanningPackage.TRIP__END_DATE);
+    this.createEAttribute(
+      this.tripEClass,
+      TripplanningPackage.TRIP__END_DATE
+    );
     this.createEReference(
       this.tripEClass,
       TripplanningPackage.TRIP__PARTICIPANTS
@@ -356,13 +414,12 @@ export class TripplanningPackage extends EPackageImpl {
       this.tripEClass,
       TripplanningPackage.TRIP__BUDGET_DOLLARS
     );
-    this.createEAttribute(this.tripEClass, TripplanningPackage.TRIP__TENTATIVE);
-    this.locationTypeEEnum = this.createEEnum(
-      TripplanningPackage.LOCATION_TYPE
+    this.createEAttribute(
+      this.tripEClass,
+      TripplanningPackage.TRIP__TENTATIVE
     );
-    this.personalInterestEEnum = this.createEEnum(
-      TripplanningPackage.PERSONAL_INTEREST
-    );
+    this.locationTypeEEnum = this.createEEnum(TripplanningPackage.LOCATION_TYPE);
+    this.personalInterestEEnum = this.createEEnum(TripplanningPackage.PERSONAL_INTEREST);
   }
 
   public initializePackageContents(): void {
@@ -371,7 +428,73 @@ export class TripplanningPackage extends EPackageImpl {
 
     //reusable handle for eoperations, used for adding parameters
     let op: EOperation;
-    this.initEClass(this.iDedEntityEClass, 'IDedEntity', true, false, true);
+    this.initEClass(
+      this.activityEClass,
+      'Activity',
+      false,
+      false,
+      true
+    );
+    this.initEReference(
+      this.getActivity_Location(),
+      this.getLocation(),
+      undefined,
+      'location',
+      '',
+      0,
+      1,
+      '', //TODO: Container Class
+      false,
+      false,
+      true,
+      false,
+      false,
+      true, //TODO: isUnsettable
+      false, //TODO: isUnique
+      false, //TODO: isDerived
+      false //TODO: isOrdered
+    );
+    this.initEAttribute(
+      this.getActivity_DurationHrs(),
+      this.getEcorePackage().getEFloat(),
+      'durationHrs',
+      '',
+      0,
+      1,
+      '',
+      false,
+      false,
+      true,
+      true, //TODO: isUnsettable,
+      false,
+      false, //TODO: isUnique
+      false, //TODO: isDerived
+      false //TODO: isOrdered;
+    );
+    this.initEAttribute(
+      this.getActivity_Name(),
+      this.getEcorePackage().getEString(),
+      'name',
+      '',
+      0,
+      1,
+      '',
+      false,
+      false,
+      true,
+      true, //TODO: isUnsettable,
+      false,
+      false, //TODO: isUnique
+      false, //TODO: isDerived
+      false //TODO: isOrdered;
+    );
+    this.initEClass(
+      this.iDedEntityEClass,
+      'IDedEntity',
+      true,
+      false,
+      true
+    );
     this.initEAttribute(
       this.getIDedEntity_Id(),
       this.getEcorePackage().getEString(),
@@ -390,7 +513,13 @@ export class TripplanningPackage extends EPackageImpl {
       false //TODO: isOrdered;
     );
     this.locationEClass.getESuperTypes().add(this.getIDedEntity());
-    this.initEClass(this.locationEClass, 'Location', false, false, true);
+    this.initEClass(
+      this.locationEClass,
+      'Location',
+      false,
+      false,
+      true
+    );
     this.initEAttribute(
       this.getLocation_Name(),
       this.getEcorePackage().getEString(),
@@ -477,7 +606,13 @@ export class TripplanningPackage extends EPackageImpl {
       false //TODO: isOrdered;
     );
     this.travelerEClass.getESuperTypes().add(this.getIDedEntity());
-    this.initEClass(this.travelerEClass, 'Traveler', false, false, true);
+    this.initEClass(
+      this.travelerEClass,
+      'Traveler',
+      false,
+      false,
+      true
+    );
     this.initEAttribute(
       this.getTraveler_Name(),
       this.getEcorePackage().getEString(),
@@ -529,7 +664,13 @@ export class TripplanningPackage extends EPackageImpl {
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
-    this.initEClass(this.tripSegmentEClass, 'TripSegment', false, false, true);
+    this.initEClass(
+      this.tripSegmentEClass,
+      'TripSegment',
+      false,
+      false,
+      true
+    );
     this.initEAttribute(
       this.getTripSegment_DestinationNights(),
       this.getEcorePackage().getEInt(),
@@ -604,6 +745,25 @@ export class TripplanningPackage extends EPackageImpl {
       false, //TODO: isDerived
       false //TODO: isOrdered
     );
+    this.initEReference(
+      this.getTripSegment_Activities(),
+      this.getActivity(),
+      undefined,
+      'activities',
+      '',
+      0,
+      -1,
+      '', //TODO: Container Class
+      false,
+      false,
+      true,
+      true,
+      false,
+      true, //TODO: isUnsettable
+      false, //TODO: isUnique
+      false, //TODO: isDerived
+      false //TODO: isOrdered
+    );
     this.initEAttribute(
       this.getTripSegment_Name(),
       this.getEcorePackage().getEString(),
@@ -622,7 +782,13 @@ export class TripplanningPackage extends EPackageImpl {
       false //TODO: isOrdered;
     );
     this.tripEClass.getESuperTypes().add(this.getIDedEntity());
-    this.initEClass(this.tripEClass, 'Trip', false, false, true);
+    this.initEClass(
+      this.tripEClass,
+      'Trip',
+      false,
+      false,
+      true
+    );
     this.initEReference(
       this.getTrip_Segments(),
       this.getTripSegment(),
@@ -763,12 +929,14 @@ export class TripplanningPackage extends EPackageImpl {
       false, //TODO: isDerived
       false //TODO: isOrdered;
     );
-    this.initEEnum(this.locationTypeEEnum, 'LocationType');
+    this.initEEnum(
+      this.locationTypeEEnum, 'LocationType');
     this.addEEnumLiteral(this.locationTypeEEnum, 'City', 0);
     this.addEEnumLiteral(this.locationTypeEEnum, 'Attraction', 1);
     this.addEEnumLiteral(this.locationTypeEEnum, 'Hotel', 2);
     this.addEEnumLiteral(this.locationTypeEEnum, 'Restaurant', 3);
-    this.initEEnum(this.personalInterestEEnum, 'PersonalInterest');
+    this.initEEnum(
+      this.personalInterestEEnum, 'PersonalInterest');
     this.addEEnumLiteral(this.personalInterestEEnum, 'NaturalBeauty', 0);
     this.addEEnumLiteral(this.personalInterestEEnum, 'MajorCities', 1);
     this.addEEnumLiteral(this.personalInterestEEnum, 'Cuisine', 2);

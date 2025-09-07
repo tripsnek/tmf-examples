@@ -2,17 +2,22 @@
  */
 package tripplanning.impl;
 
+import java.util.Collection;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+import org.eclipse.emf.ecore.util.InternalEList;
+import tripplanning.Activity;
 import tripplanning.Location;
 import tripplanning.Trip;
 import tripplanning.TripSegment;
@@ -30,6 +35,7 @@ import tripplanning.TripplanningPackage;
  *   <li>{@link tripplanning.impl.TripSegmentImpl#getTrip <em>Trip</em>}</li>
  *   <li>{@link tripplanning.impl.TripSegmentImpl#getOrigin <em>Origin</em>}</li>
  *   <li>{@link tripplanning.impl.TripSegmentImpl#getDestination <em>Destination</em>}</li>
+ *   <li>{@link tripplanning.impl.TripSegmentImpl#getActivities <em>Activities</em>}</li>
  *   <li>{@link tripplanning.impl.TripSegmentImpl#getName <em>Name</em>}</li>
  * </ul>
  *
@@ -75,6 +81,16 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 	 * @ordered
 	 */
 	protected Location destination;
+
+	/**
+	 * The cached value of the '{@link #getActivities() <em>Activities</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getActivities()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<Activity> activities;
 
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -267,6 +283,19 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 	 * @generated
 	 */
 	@Override
+	public EList<Activity> getActivities() {
+		if (activities == null) {
+			activities = new EObjectContainmentEList<Activity>(Activity.class, this, TripplanningPackage.TRIP_SEGMENT__ACTIVITIES);
+		}
+		return activities;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -310,6 +339,8 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 		switch (featureID) {
 			case TripplanningPackage.TRIP_SEGMENT__TRIP:
 				return basicSetTrip(null, msgs);
+			case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+				return ((InternalEList<?>)getActivities()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -346,6 +377,8 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 			case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
 				if (resolve) return getDestination();
 				return basicGetDestination();
+			case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+				return getActivities();
 			case TripplanningPackage.TRIP_SEGMENT__NAME:
 				return getName();
 		}
@@ -357,6 +390,7 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
@@ -371,6 +405,10 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 				return;
 			case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
 				setDestination((Location)newValue);
+				return;
+			case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+				getActivities().clear();
+				getActivities().addAll((Collection<? extends Activity>)newValue);
 				return;
 			case TripplanningPackage.TRIP_SEGMENT__NAME:
 				setName((String)newValue);
@@ -399,6 +437,9 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 			case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
 				setDestination((Location)null);
 				return;
+			case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+				getActivities().clear();
+				return;
 			case TripplanningPackage.TRIP_SEGMENT__NAME:
 				setName(NAME_EDEFAULT);
 				return;
@@ -422,6 +463,8 @@ public class TripSegmentImpl extends MinimalEObjectImpl.Container implements Tri
 				return origin != null;
 			case TripplanningPackage.TRIP_SEGMENT__DESTINATION:
 				return destination != null;
+			case TripplanningPackage.TRIP_SEGMENT__ACTIVITIES:
+				return activities != null && !activities.isEmpty();
 			case TripplanningPackage.TRIP_SEGMENT__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 		}

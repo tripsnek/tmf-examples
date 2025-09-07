@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@tmf-example/data-model": ["libs/data-model/src/index.ts"]
+      "@tmf-example/data-model": ["libs/datamodel-ts/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

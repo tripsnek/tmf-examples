@@ -2,7 +2,9 @@
   "name": "@angular-node-nx/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "gen:datamodel-ts": "npx @tripsnek/tmf model/TripPlanning.ecore -o libs/datamodel-ts"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.2.14",

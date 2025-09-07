@@ -21,7 +21,9 @@ import { Traveler } from './api/traveler.js';
 import { TravelerImpl } from './impl/traveler-impl.js';
 import { Location } from './api/location.js';
 import { LocationImpl } from './impl/location-impl.js';
-import { TripplanningPackageInitializer } from './tripplanning-package-initializer.js';
+import { Activity } from './api/activity.js';
+import { ActivityImpl } from './impl/activity-impl.js';
+import { TripplanningPackageInitializer} from './tripplanning-package-initializer.js';
 
 export class TripplanningFactory implements EFactory {
   /* Singleton */
@@ -33,11 +35,12 @@ export class TripplanningFactory implements EFactory {
 
     return TripplanningFactory._eINSTANCE;
   }
-
+  
   static get eINSTANCE(): TripplanningFactory {
     TripplanningPackageInitializer.registerAll();
     return this._eINSTANCE;
   }
+  
 
   public create(eClass: EClass): EObject {
     switch (eClass.getClassifierId()) {
@@ -49,6 +52,8 @@ export class TripplanningFactory implements EFactory {
         return this.createTraveler();
       case TripplanningPackage.LOCATION:
         return this.createLocation();
+      case TripplanningPackage.ACTIVITY:
+        return this.createActivity();
       default:
         throw new Error(
           "The class '" + eClass.getName() + "' is not a valid classifier"
@@ -67,5 +72,8 @@ export class TripplanningFactory implements EFactory {
   }
   public createLocation(): Location {
     return new LocationImpl();
+  }
+  public createActivity(): Activity {
+    return new ActivityImpl();
   }
 }

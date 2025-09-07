@@ -36,6 +36,7 @@
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference TripPlanning.ecore#//TripSegment/trip"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//TripSegment/origin"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//TripSegment/destination"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//TripSegment/activities"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//TripSegment/name"/>
     </genClasses>
     <genClasses ecoreClass="TripPlanning.ecore#//Traveler">
@@ -52,6 +53,11 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/type"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/latitude"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Location/longitude"/>
+    </genClasses>
+    <genClasses ecoreClass="TripPlanning.ecore#//Activity">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TripPlanning.ecore#//Activity/location"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Activity/durationHrs"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TripPlanning.ecore#//Activity/name"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

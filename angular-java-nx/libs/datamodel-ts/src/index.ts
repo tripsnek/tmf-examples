@@ -18,3 +18,6 @@ export * from './tripplanning/impl/location-impl.js';
 export * from './tripplanning/gen/location-gen.js';
 export * from './tripplanning/api/location-type.js';
 export * from './tripplanning/api/personal-interest.js';
+export * from './tripplanning/api/activity.js';
+export * from './tripplanning/impl/activity-impl.js';
+export * from './tripplanning/gen/activity-gen.js';

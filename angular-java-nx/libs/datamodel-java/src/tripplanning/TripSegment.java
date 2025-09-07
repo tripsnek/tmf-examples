@@ -2,6 +2,7 @@
  */
 package tripplanning;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -17,6 +18,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link tripplanning.TripSegment#getTrip <em>Trip</em>}</li>
  *   <li>{@link tripplanning.TripSegment#getOrigin <em>Origin</em>}</li>
  *   <li>{@link tripplanning.TripSegment#getDestination <em>Destination</em>}</li>
+ *   <li>{@link tripplanning.TripSegment#getActivities <em>Activities</em>}</li>
  *   <li>{@link tripplanning.TripSegment#getName <em>Name</em>}</li>
  * </ul>
  *
@@ -114,6 +116,18 @@ public interface TripSegment extends EObject {
 	 * @generated
 	 */
 	void setDestination(Location value);
+
+	/**
+	 * Returns the value of the '<em><b>Activities</b></em>' containment reference list.
+	 * The list contents are of type {@link tripplanning.Activity}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Activities</em>' containment reference list.
+	 * @see tripplanning.TripplanningPackage#getTripSegment_Activities()
+	 * @model containment="true"
+	 * @generated
+	 */
+	EList<Activity> getActivities();
 
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.

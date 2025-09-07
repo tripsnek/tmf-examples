@@ -250,13 +250,22 @@ public interface TripplanningPackage extends EPackage {
 	int TRIP_SEGMENT__DESTINATION = 3;
 
 	/**
+	 * The feature id for the '<em><b>Activities</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TRIP_SEGMENT__ACTIVITIES = 4;
+
+	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int TRIP_SEGMENT__NAME = 4;
+	int TRIP_SEGMENT__NAME = 5;
 
 	/**
 	 * The number of structural features of the '<em>Trip Segment</em>' class.
@@ -265,7 +274,7 @@ public interface TripplanningPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TRIP_SEGMENT_FEATURE_COUNT = 5;
+	int TRIP_SEGMENT_FEATURE_COUNT = 6;
 
 	/**
 	 * The number of operations of the '<em>Trip Segment</em>' class.
@@ -423,6 +432,61 @@ public interface TripplanningPackage extends EPackage {
 	int LOCATION_OPERATION_COUNT = IDED_ENTITY_OPERATION_COUNT + 0;
 
 	/**
+	 * The meta object id for the '{@link tripplanning.impl.ActivityImpl <em>Activity</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see tripplanning.impl.ActivityImpl
+	 * @see tripplanning.impl.TripplanningPackageImpl#getActivity()
+	 * @generated
+	 */
+	int ACTIVITY = 5;
+
+	/**
+	 * The feature id for the '<em><b>Location</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACTIVITY__LOCATION = 0;
+
+	/**
+	 * The feature id for the '<em><b>Duration Hrs</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACTIVITY__DURATION_HRS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACTIVITY__NAME = 2;
+
+	/**
+	 * The number of structural features of the '<em>Activity</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACTIVITY_FEATURE_COUNT = 3;
+
+	/**
+	 * The number of operations of the '<em>Activity</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACTIVITY_OPERATION_COUNT = 0;
+
+	/**
 	 * The meta object id for the '{@link tripplanning.LocationType <em>Location Type</em>}' enum.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -430,7 +494,7 @@ public interface TripplanningPackage extends EPackage {
 	 * @see tripplanning.impl.TripplanningPackageImpl#getLocationType()
 	 * @generated
 	 */
-	int LOCATION_TYPE = 5;
+	int LOCATION_TYPE = 6;
 
 	/**
 	 * The meta object id for the '{@link tripplanning.PersonalInterest <em>Personal Interest</em>}' enum.
@@ -440,7 +504,7 @@ public interface TripplanningPackage extends EPackage {
 	 * @see tripplanning.impl.TripplanningPackageImpl#getPersonalInterest()
 	 * @generated
 	 */
-	int PERSONAL_INTEREST = 6;
+	int PERSONAL_INTEREST = 7;
 
 
 	/**
@@ -596,6 +660,17 @@ public interface TripplanningPackage extends EPackage {
 	EReference getTripSegment_Destination();
 
 	/**
+	 * Returns the meta object for the containment reference list '{@link tripplanning.TripSegment#getActivities <em>Activities</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Activities</em>'.
+	 * @see tripplanning.TripSegment#getActivities()
+	 * @see #getTripSegment()
+	 * @generated
+	 */
+	EReference getTripSegment_Activities();
+
+	/**
 	 * Returns the meta object for the attribute '{@link tripplanning.TripSegment#getName <em>Name</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -734,6 +809,49 @@ public interface TripplanningPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getLocation_Longitude();
+
+	/**
+	 * Returns the meta object for class '{@link tripplanning.Activity <em>Activity</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Activity</em>'.
+	 * @see tripplanning.Activity
+	 * @generated
+	 */
+	EClass getActivity();
+
+	/**
+	 * Returns the meta object for the reference '{@link tripplanning.Activity#getLocation <em>Location</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Location</em>'.
+	 * @see tripplanning.Activity#getLocation()
+	 * @see #getActivity()
+	 * @generated
+	 */
+	EReference getActivity_Location();
+
+	/**
+	 * Returns the meta object for the attribute '{@link tripplanning.Activity#getDurationHrs <em>Duration Hrs</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Duration Hrs</em>'.
+	 * @see tripplanning.Activity#getDurationHrs()
+	 * @see #getActivity()
+	 * @generated
+	 */
+	EAttribute getActivity_DurationHrs();
+
+	/**
+	 * Returns the meta object for the attribute '{@link tripplanning.Activity#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see tripplanning.Activity#getName()
+	 * @see #getActivity()
+	 * @generated
+	 */
+	EAttribute getActivity_Name();
 
 	/**
 	 * Returns the meta object for enum '{@link tripplanning.LocationType <em>Location Type</em>}'.
@@ -895,6 +1013,14 @@ public interface TripplanningPackage extends EPackage {
 		EReference TRIP_SEGMENT__DESTINATION = eINSTANCE.getTripSegment_Destination();
 
 		/**
+		 * The meta object literal for the '<em><b>Activities</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference TRIP_SEGMENT__ACTIVITIES = eINSTANCE.getTripSegment_Activities();
+
+		/**
 		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1003,6 +1129,40 @@ public interface TripplanningPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute LOCATION__LONGITUDE = eINSTANCE.getLocation_Longitude();
+
+		/**
+		 * The meta object literal for the '{@link tripplanning.impl.ActivityImpl <em>Activity</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see tripplanning.impl.ActivityImpl
+		 * @see tripplanning.impl.TripplanningPackageImpl#getActivity()
+		 * @generated
+		 */
+		EClass ACTIVITY = eINSTANCE.getActivity();
+
+		/**
+		 * The meta object literal for the '<em><b>Location</b></em>' reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ACTIVITY__LOCATION = eINSTANCE.getActivity_Location();
+
+		/**
+		 * The meta object literal for the '<em><b>Duration Hrs</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ACTIVITY__DURATION_HRS = eINSTANCE.getActivity_DurationHrs();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ACTIVITY__NAME = eINSTANCE.getActivity_Name();
 
 		/**
 		 * The meta object literal for the '{@link tripplanning.LocationType <em>Location Type</em>}' enum.

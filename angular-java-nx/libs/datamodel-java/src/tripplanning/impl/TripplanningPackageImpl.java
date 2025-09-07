@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EReference;
 
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
+import tripplanning.Activity;
 import tripplanning.IDedEntity;
 import tripplanning.Location;
 import tripplanning.LocationType;
@@ -61,6 +62,13 @@ public class TripplanningPackageImpl extends EPackageImpl implements Tripplannin
 	 * @generated
 	 */
 	private EClass locationEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass activityEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -282,8 +290,18 @@ public class TripplanningPackageImpl extends EPackageImpl implements Tripplannin
 	 * @generated
 	 */
 	@Override
+	public EReference getTripSegment_Activities() {
+		return (EReference)tripSegmentEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public EAttribute getTripSegment_Name() {
-		return (EAttribute)tripSegmentEClass.getEStructuralFeatures().get(4);
+		return (EAttribute)tripSegmentEClass.getEStructuralFeatures().get(5);
 	}
 
 	/**
@@ -412,6 +430,46 @@ public class TripplanningPackageImpl extends EPackageImpl implements Tripplannin
 	 * @generated
 	 */
 	@Override
+	public EClass getActivity() {
+		return activityEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EReference getActivity_Location() {
+		return (EReference)activityEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getActivity_DurationHrs() {
+		return (EAttribute)activityEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getActivity_Name() {
+		return (EAttribute)activityEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public EEnum getLocationType() {
 		return locationTypeEEnum;
 	}
@@ -470,6 +528,7 @@ public class TripplanningPackageImpl extends EPackageImpl implements Tripplannin
 		createEReference(tripSegmentEClass, TRIP_SEGMENT__TRIP);
 		createEReference(tripSegmentEClass, TRIP_SEGMENT__ORIGIN);
 		createEReference(tripSegmentEClass, TRIP_SEGMENT__DESTINATION);
+		createEReference(tripSegmentEClass, TRIP_SEGMENT__ACTIVITIES);
 		createEAttribute(tripSegmentEClass, TRIP_SEGMENT__NAME);
 
 		travelerEClass = createEClass(TRAVELER);
@@ -486,6 +545,11 @@ public class TripplanningPackageImpl extends EPackageImpl implements Tripplannin
 		createEAttribute(locationEClass, LOCATION__TYPE);
 		createEAttribute(locationEClass, LOCATION__LATITUDE);
 		createEAttribute(locationEClass, LOCATION__LONGITUDE);
+
+		activityEClass = createEClass(ACTIVITY);
+		createEReference(activityEClass, ACTIVITY__LOCATION);
+		createEAttribute(activityEClass, ACTIVITY__DURATION_HRS);
+		createEAttribute(activityEClass, ACTIVITY__NAME);
 
 		// Create enums
 		locationTypeEEnum = createEEnum(LOCATION_TYPE);
@@ -540,6 +604,7 @@ public class TripplanningPackageImpl extends EPackageImpl implements Tripplannin
 		initEReference(getTripSegment_Trip(), this.getTrip(), this.getTrip_Segments(), "trip", null, 0, 1, TripSegment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTripSegment_Origin(), this.getLocation(), null, "origin", null, 0, 1, TripSegment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTripSegment_Destination(), this.getLocation(), null, "destination", null, 0, 1, TripSegment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getTripSegment_Activities(), this.getActivity(), null, "activities", null, 0, -1, TripSegment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getTripSegment_Name(), ecorePackage.getEString(), "name", null, 0, 1, TripSegment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(travelerEClass, Traveler.class, "Traveler", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -556,6 +621,11 @@ public class TripplanningPackageImpl extends EPackageImpl implements Tripplannin
 		initEAttribute(getLocation_Type(), this.getLocationType(), "type", null, 0, 1, Location.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getLocation_Latitude(), ecorePackage.getEDouble(), "latitude", null, 0, 1, Location.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getLocation_Longitude(), ecorePackage.getEDouble(), "longitude", null, 0, 1, Location.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(activityEClass, Activity.class, "Activity", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getActivity_Location(), this.getLocation(), null, "location", null, 0, 1, Activity.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getActivity_DurationHrs(), ecorePackage.getEFloat(), "durationHrs", null, 0, 1, Activity.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getActivity_Name(), ecorePackage.getEString(), "name", null, 0, 1, Activity.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
 		initEEnum(locationTypeEEnum, LocationType.class, "LocationType");
