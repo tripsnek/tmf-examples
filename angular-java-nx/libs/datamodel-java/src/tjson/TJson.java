@@ -75,7 +75,8 @@ public class TJson {
      */
     public static JsonNode makeJson(EObject obj) {
         throwErrorIfNotInitialized();
-        return eObjectToJsonAux(obj, new HashMap<>(), false);
+        SerializationContext context = new SerializationContext(obj);
+        return eObjectToJsonAux(obj, new HashMap<>(), false, context);
     }
 
     /**
@@ -95,32 +96,20 @@ public class TJson {
         EObject eobj = jsonToEObject(jsonObj, serializedReferences);
         if (eobj == null) return null;
 
-        // Build index of all contained objects
-        Map<String, EObject> idsToObjs = new HashMap<>();
-        TreeIterator<EObject> iter = eobj.eAllContents();
-        while(iter.hasNext()){
-            EObject elem = iter.next();
-            String fullId = TUtils.getFullId(elem);
-            if (fullId != null) {
-                idsToObjs.put(fullId, elem);
-            }
-        }
-        String rootFullId = TUtils.getFullId(eobj);
-        if (rootFullId != null) {
-            idsToObjs.put(rootFullId, eobj);
-        }
+        // Create deserialization context
+        DeserializationContext context = new DeserializationContext(eobj);
 
         // Deserialize references, collecting unresolved ones
         List<SerializedReference> unresolvedRefs = new ArrayList<>();
         for (SerializedReference ref : serializedReferences) {
-            if (!ref.deserialize(idsToObjs)) {
+            if (!ref.deserialize(context)) {
                 unresolvedRefs.add(ref);
             }
         }
 
         // Create proxies for unresolved references
         for (SerializedReference ref : unresolvedRefs) {
-            createAndSetProxy(ref, idsToObjs);
+            createAndSetProxy(ref, context);
         }
 
         return (T) eobj;
@@ -130,22 +119,37 @@ public class TJson {
      * Creates a proxy object for an unresolved reference and sets it on the source object.
      * 
      * @param ref The unresolved serialized reference
-     * @param idsToObjs Map of all resolved objects
+     * @param context The deserialization context
      */
-    private static void createAndSetProxy(SerializedReference ref, Map<String, EObject> idsToObjs) {
-        EObject fromObj = idsToObjs.get(ref.fromId);
-        if (fromObj == null) return;
+    private static void createAndSetProxy(SerializedReference ref, DeserializationContext context) {
+        // Handle SerializedReferenceWithObject specially
+        EObject fromObj = null;
+        
+        if (ref instanceof SerializedReferenceWithObject) {
+            fromObj = ((SerializedReferenceWithObject) ref).getFromObj();
+            if (fromObj == null || ref.toId == null) return;
+        } else {
+            if (ref.fromId == null || ref.toId == null) return;
+            fromObj = context.resolveId(ref.fromId);
+            if (fromObj == null) return;
+        }
+
+        // Path-based IDs that couldn't be resolved are internal inconsistencies
+        if (ref.toId.startsWith("@path:")) {
+            System.err.println("Cannot create proxy for unresolved path-based reference: " + ref.toId);
+            return;
+        }
 
         EStructuralFeature feature = fromObj.eClass().getEStructuralFeature(ref.refName);
         if (feature == null || !(feature instanceof EReferenceImpl)) return;
 
         // Check if proxy already exists for this target
-        EObject proxy = idsToObjs.get(ref.toId);
+        EObject proxy = context.resolveId(ref.toId);
         if (proxy == null) {
             proxy = createProxy(ref.toId, (EReference) feature);
             if (proxy != null) {
                 // Add proxy to the index so future references to it can be resolved
-                idsToObjs.put(ref.toId, proxy);
+                context.getIndex().put(ref.toId, proxy);
             }
         }
 
@@ -169,6 +173,12 @@ public class TJson {
      * @returns A proxy EObject or null if creation failed
      */
     private static EObject createProxy(String fullId, EReference reference) {
+        // Path-based IDs cannot be proxied (they're internal references that should have been resolved)
+        if (fullId.startsWith("@path:")) {
+            System.err.println("Cannot create proxy for path-based ID: " + fullId);
+            return null;
+        }
+        
         // Parse the fullId to extract class name and actual ID
         int underscoreIndex = fullId.indexOf('_');
         if (underscoreIndex == -1) {
@@ -324,7 +334,8 @@ public class TJson {
                 EObject referencedEmfObj = jsonToEObject(containeTJsonObj, serializedRefs);
                 tObj.eSet(ref, referencedEmfObj);
             } else {
-                serializedRefs.add(SerializedReference.create(TUtils.getFullId(tObj), referencedObj.asText(), ref.getName()));
+                // Store the object itself, not its ID - we'll resolve IDs later
+                serializedRefs.add(new SerializedReferenceWithObject(tObj, referencedObj.asText(), ref.getName()));
             }
         }
     }
@@ -342,13 +353,14 @@ public class TJson {
                     EList<EObject> list = (EList<EObject>) tObj.eGet(ref);
                     list.add(containedDObj);
                 } else {
-                    serializedRefs.add(SerializedReference.create(TUtils.getFullId(tObj), containedTJsonObj.asText(), ref.getName()));
+                    // Store the object itself, not its ID - we'll resolve IDs later
+                    serializedRefs.add(new SerializedReferenceWithObject(tObj, containedTJsonObj.asText(), ref.getName()));
                 }
             }
         }
     }
 
-    protected static JsonNode eObjectToJsonAux(EObject obj, Map<EObject, JsonNode> serializedSoFar, boolean attributesOnly) {
+    protected static JsonNode eObjectToJsonAux(EObject obj, Map<EObject, JsonNode> serializedSoFar, boolean attributesOnly, SerializationContext context) {
         // Make sure there is really an object to convert
         if (obj == null) {
             return objectMapper.nullNode();
@@ -369,44 +381,47 @@ public class TJson {
         
         // Handle all references
         if (!attributesOnly) {
-            referencesToJson(obj, serializedSoFar, jsonObj);
+            referencesToJson(obj, serializedSoFar, jsonObj, context);
         }
         return jsonObj;
     }
 
-    private static void referencesToJson(EObject obj, Map<EObject, JsonNode> serializedSoFar, ObjectNode jsonObj) {
+    // Overloaded version for backward compatibility
+    protected static JsonNode eObjectToJsonAux(EObject obj, Map<EObject, JsonNode> serializedSoFar, boolean attributesOnly) {
+        return eObjectToJsonAux(obj, serializedSoFar, attributesOnly, new SerializationContext(obj));
+    }
+
+    private static void referencesToJson(EObject obj, Map<EObject, JsonNode> serializedSoFar, ObjectNode jsonObj, SerializationContext context) {
         for (EReference ref : obj.eClass().getEAllReferences()) {
             if (!ref.isVolatile() && !ref.isTransient()) {
                 // Multi-valued references
                 if (ref.isMany()) {
-                    manyValuedReferenceToJson(obj, ref, serializedSoFar, jsonObj);
+                    manyValuedReferenceToJson(obj, ref, serializedSoFar, jsonObj, context);
                 }
                 // Single-valued references
                 else {
-                    singleValuedRefToJson(obj, ref, serializedSoFar, jsonObj);
+                    singleValuedRefToJson(obj, ref, serializedSoFar, jsonObj, context);
                 }
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static void manyValuedReferenceToJson(EObject obj, EReference ref, Map<EObject, JsonNode> serializedSoFar, ObjectNode jsonObj) {
+    private static void manyValuedReferenceToJson(EObject obj, EReference ref, Map<EObject, JsonNode> serializedSoFar, ObjectNode jsonObj, SerializationContext context) {
         String jsonFieldName = getJsonFieldName(ref);
         ArrayNode jsonArray = objectMapper.createArrayNode();
         EList<EObject> referencedObjects = (EList<EObject>) obj.eGet(ref);
         for (EObject referencedObj : referencedObjects) {
             if (referencedObj != null) {
                 if (ref.isContainment()) {
-                    JsonNode referenceTJsonObj = eObjectToJsonAux(referencedObj, serializedSoFar, false);
+                    JsonNode referenceTJsonObj = eObjectToJsonAux(referencedObj, serializedSoFar, false, context);
                     if (referenceTJsonObj != null && !referenceTJsonObj.isNull()) {
                         jsonArray.add(referenceTJsonObj);
                     }
                 } else {
-                    String serializedRef = new SerializedReference(
-                        TUtils.getOrCreateIdForObject(obj),
-                        TUtils.getOrCreateIdForObject(referencedObj),
-                        jsonFieldName
-                    ).serialize();
+                    String fromId = context.getStableId(obj);
+                    String toId = context.getStableId(referencedObj);
+                    String serializedRef = new SerializedReference(fromId, toId, jsonFieldName).serialize();
                     jsonArray.add(serializedRef);
                 }
             }
@@ -414,25 +429,21 @@ public class TJson {
         jsonObj.set(jsonFieldName, jsonArray);
     }
 
-    private static void singleValuedRefToJson(EObject obj, EReference ref, Map<EObject, JsonNode> serializedSoFar, ObjectNode jsonObj) {
+    private static void singleValuedRefToJson(EObject obj, EReference ref, Map<EObject, JsonNode> serializedSoFar, ObjectNode jsonObj, SerializationContext context) {
         String jsonFieldName = getJsonFieldName(ref);
         EObject referencedObj = (EObject) obj.eGet(ref);
         if (referencedObj != null) {
             JsonNode referenceTJsonObj = null;
             // If the object is 'contained', we generate its full representation
             if (ref.isContainment()) {
-                referenceTJsonObj = eObjectToJsonAux(referencedObj, serializedSoFar, false);
+                referenceTJsonObj = eObjectToJsonAux(referencedObj, serializedSoFar, false, context);
             }
             // Otherwise, we generate a serialized pointer to the referenced object
             else {
-                if (referencedObj.eClass().getEIDAttribute() != null) {
-                    String serializedRef = new SerializedReference(
-                        TUtils.getOrCreateIdForObject(obj),
-                        TUtils.getOrCreateIdForObject(referencedObj),
-                        jsonFieldName
-                    ).serialize();
-                    referenceTJsonObj = objectMapper.valueToTree(serializedRef);
-                }
+                String fromId = context.getStableId(obj);
+                String toId = context.getStableId(referencedObj);
+                String serializedRef = new SerializedReference(fromId, toId, jsonFieldName).serialize();
+                referenceTJsonObj = objectMapper.valueToTree(serializedRef);
             }
             if (referenceTJsonObj != null && !referenceTJsonObj.isNull()) {
                 jsonObj.set(jsonFieldName, referenceTJsonObj);
@@ -570,14 +581,14 @@ class SerializedReference {
     /**
      * Restores the swizzled reference.
      *
-     * @param allObjs
+     * @param context The deserialization context
      * @returns true if the reference was successfully resolved, false if target object not found
      */
     @SuppressWarnings("unchecked")
-    public boolean deserialize(Map<String, EObject> allObjs) {
-        // Gather the objects and feature
-        EObject fromObj = allObjs.get(this.fromId);
-        EObject toObj = allObjs.get(this.toId);
+    public boolean deserialize(DeserializationContext context) {
+        EObject fromObj = context.resolveId(this.fromId);
+        EObject toObj = context.resolveId(this.toId);
+        
         if (fromObj != null && toObj != null) {
             EStructuralFeature feature = fromObj.eClass().getEStructuralFeature(this.refName);
 
@@ -595,3 +606,308 @@ class SerializedReference {
         return false;
     }
 }
+
+
+/**
+ * Context object for managing state during serialization
+ */
+class SerializationContext {
+    private int tempIdCounter = 0;
+    private Map<EObject, String> objectToTempId = new HashMap<>();
+    private final EObject root;
+
+    public SerializationContext(EObject root) {
+        this.root = root;
+    }
+
+    /**
+     * Gets or creates a stable identifier for an object.
+     * Uses the object's ID if available, otherwise creates a path-based identifier.
+     */
+    public String getStableId(EObject obj) {
+        // First try to get the actual ID
+        String actualId = TUtils.getOrCreateIdForObject(obj);
+        if (actualId != null) {
+            return actualId;
+        }
+
+        // Check if we already created a temp ID for this object
+        String existingTempId = objectToTempId.get(obj);
+        if (existingTempId != null) {
+            return existingTempId;
+        }
+
+        // Create and cache a path-based identifier
+        String pathId = createPathBasedId(obj);
+        objectToTempId.put(obj, pathId);
+        return pathId;
+    }
+
+    /**
+     * Creates a path-based identifier for an object based on its containment path.
+     * Format: "@path:ClassName:/feature1[index]/feature2[index]/..."
+     */
+    private String createPathBasedId(EObject obj) {
+        if (obj == root) {
+            return "@path:" + obj.eClass().getName() + ":@root";
+        }
+
+        List<String> path = new ArrayList<>();
+        EObject current = obj;
+        
+        while (current != null && current != root) {
+            EObject container = current.eContainer();
+            if (container == null) break;
+            
+            // Find which containment feature holds this object
+            for (EReference ref : container.eClass().getEAllReferences()) {
+                if (ref.isContainment()) {
+                    Object value = container.eGet(ref);
+                    if (ref.isMany()) {
+                        @SuppressWarnings("unchecked")
+                        EList<EObject> list = (EList<EObject>) value;
+                        int index = list.indexOf(current);
+                        if (index >= 0) {
+                            path.add(0, ref.getName() + "[" + index + "]");
+                            break;
+                        }
+                    } else if (value == current) {
+                        path.add(0, ref.getName());
+                        break;
+                    }
+                }
+            }
+            current = container;
+        }
+        
+        return "@path:" + obj.eClass().getName() + ":/" + String.join("/", path);
+    }
+}
+
+/**
+ * Context object for managing state during deserialization
+ */
+class DeserializationContext {
+    private Map<String, EObject> pathToObject = new HashMap<>();
+    private final EObject root;
+    private Map<String, EObject> idsToObjs = new HashMap<>();
+
+    public DeserializationContext(EObject root) {
+        this.root = root;
+        buildIndex();
+    }
+
+    /**
+     * Builds an index of all contained objects using both real IDs and path-based IDs
+     */
+    private void buildIndex() {
+        // Add root
+        String rootId = getStableId(root);
+        if (rootId != null) {
+            idsToObjs.put(rootId, root);
+        }
+        
+        // Add all contained objects
+        TreeIterator<EObject> iter = root.eAllContents();
+        while (iter.hasNext()) {
+            EObject elem = iter.next();
+            String id = getStableId(elem);
+            if (id != null) {
+                idsToObjs.put(id, elem);
+            }
+        }
+    }
+
+    /**
+     * Gets the stable ID for an object (for indexing purposes during deserialization)
+     */
+    public String getStableId(EObject obj) {
+        String actualId = TUtils.getFullId(obj);
+        if (actualId != null) {
+            return actualId;
+        }
+        return createPathBasedId(obj);
+    }
+
+    /**
+     * Creates a path-based identifier (same logic as SerializationContext)
+     */
+    private String createPathBasedId(EObject obj) {
+        if (obj == root) {
+            return "@path:" + obj.eClass().getName() + ":@root";
+        }
+
+        List<String> path = new ArrayList<>();
+        EObject current = obj;
+        
+        while (current != null && current != root) {
+            EObject container = current.eContainer();
+            if (container == null) break;
+            
+            for (EReference ref : container.eClass().getEAllReferences()) {
+                if (ref.isContainment()) {
+                    Object value = container.eGet(ref);
+                    if (ref.isMany()) {
+                        @SuppressWarnings("unchecked")
+                        EList<EObject> list = (EList<EObject>) value;
+                        int index = list.indexOf(current);
+                        if (index >= 0) {
+                            path.add(0, ref.getName() + "[" + index + "]");
+                            break;
+                        }
+                    } else if (value == current) {
+                        path.add(0, ref.getName());
+                        break;
+                    }
+                }
+            }
+            current = container;
+        }
+        
+        return "@path:" + obj.eClass().getName() + ":/" + String.join("/", path);
+    }
+
+    /**
+     * Resolves a path-based identifier to an object within the containment hierarchy.
+     */
+    public EObject resolvePathBasedId(String pathId) {
+        // Check cache first
+        EObject cached = pathToObject.get(pathId);
+        if (cached != null) return cached;
+
+        if (!pathId.startsWith("@path:")) {
+            return null;
+        }
+        
+        String[] parts = pathId.substring(6).split(":", 2);
+        if (parts.length != 2) return null;
+        
+        String className = parts[0];
+        String pathStr = parts[1];
+        
+        if (pathStr.equals("@root")) {
+            EObject result = root.eClass().getName().equals(className) ? root : null;
+            if (result != null) pathToObject.put(pathId, result);
+            return result;
+        }
+        
+        // Parse the path
+        String[] pathSegments = pathStr.substring(1).split("/");
+        EObject current = root;
+        
+        for (String segment : pathSegments) {
+            if (segment.isEmpty()) continue;
+            
+            int bracketIndex = segment.indexOf('[');
+            String featureName;
+            Integer index = null;
+            
+            if (bracketIndex >= 0) {
+                featureName = segment.substring(0, bracketIndex);
+                String indexStr = segment.substring(bracketIndex + 1, segment.length() - 1);
+                index = Integer.parseInt(indexStr);
+            } else {
+                featureName = segment;
+            }
+            
+            EStructuralFeature feature = current.eClass().getEStructuralFeature(featureName);
+            if (feature == null || !(feature instanceof EReferenceImpl) || !((EReference)feature).isContainment()) {
+                return null;
+            }
+            
+            Object value = current.eGet(feature);
+            if (feature.isMany()) {
+                if (index == null) return null;
+                @SuppressWarnings("unchecked")
+                EList<EObject> list = (EList<EObject>) value;
+                if (index >= list.size()) return null;
+                current = list.get(index);
+            } else {
+                if (value == null) return null;
+                current = (EObject) value;
+            }
+        }
+        
+        // Verify the class name matches
+        EObject result = current.eClass().getName().equals(className) ? current : null;
+        if (result != null) pathToObject.put(pathId, result);
+        return result;
+    }
+
+    /**
+     * Gets the index map for looking up objects by ID
+     */
+    public Map<String, EObject> getIndex() {
+        return idsToObjs;
+    }
+
+    /**
+     * Resolves an ID to an object, handling both regular and path-based IDs
+     */
+    public EObject resolveId(String id) {
+        // Try direct lookup first
+        EObject obj = idsToObjs.get(id);
+        
+        // If not found and it's a path-based ID, try resolving it
+        if (obj == null && id.startsWith("@path:")) {
+            obj = resolvePathBasedId(id);
+            if (obj != null) {
+                // Cache it for future lookups
+                idsToObjs.put(id, obj);
+            }
+        }
+        
+        return obj;
+    }
+}
+
+
+/**
+ * Specialized SerializedReference for deserialization that holds the actual objects
+ * instead of IDs, since we don't know the IDs yet during construction.
+ */
+class SerializedReferenceWithObject extends SerializedReference {
+    private EObject fromObj;
+
+    public SerializedReferenceWithObject(EObject fromObj, String toIdOrPath, String refName) {
+        super("", toIdOrPath, refName);
+        this.fromObj = fromObj;
+    }
+
+    /**
+     * Get the from object for proxy creation
+     */
+    public EObject getFromObj() {
+        return fromObj;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean deserialize(DeserializationContext context) {
+        // Get the stable ID for the from object now that the hierarchy is complete
+        this.fromId = context.getStableId(this.fromObj);
+        
+        // The toId is already set in the parent constructor
+        EObject toObj = context.resolveId(this.toId);
+        
+        if (this.fromObj != null && toObj != null) {
+            EStructuralFeature feature = this.fromObj.eClass().getEStructuralFeature(this.refName);
+            
+            if (feature != null) {
+                if (feature.isMany()) {
+                    EList<EObject> list = (EList<EObject>) this.fromObj.eGet(feature);
+                    list.add(toObj);
+                } else {
+                    this.fromObj.eSet(feature, toObj);
+                }
+                return true;
+            }
+        }
+        // If we couldn't resolve it, make sure fromId is set for proxy creation
+        if (toObj == null) {
+            this.fromId = context.getStableId(this.fromObj);
+        }
+        return false;
+    }
+}
+
