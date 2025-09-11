@@ -30,6 +30,13 @@ Alternative structure using Nx workspace tooling.
 - **Frontend**: Angular 19 with TMF reflective editor
 - **Backend**: Express.js with auto-generated REST API
 
+### [angular-java-nx/](./angular-java-nx/)
+Hybrid polyglot implementation demonstrating TMF-EMF integration.
+- **Architecture**: Nx monorepo
+- **Frontend**: Angular 19 with TMF reflective editor
+- **Backend**: Spring Boot with Eclipse EMF
+- **Data Model**: Shared Ecore generates both TypeScript (TMF) and Java (EMF) classes
+
 ## Key TMF Features
 
 - **Code Generation** from Ecore metamodel (`node generate.mjs` in each project) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
