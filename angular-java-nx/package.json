@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "gen:datamodel-ts": "npx @tripsnek/tmf model/TripPlanning.ecore -o libs/datamodel-ts"
+    "gen:datamodel": "npx @tripsnek/tmf model/TripPlanning.ecore -o libs/datamodel-ts"
   },
   "private": true,
   "dependencies": {

@@ -1,30 +1,30 @@
-import { EObject } from "@tripsnek/tmf";
-import { TUtils } from "@tripsnek/tmf";
-import { EStructuralFeature } from "@tripsnek/tmf";
-import { BasicEList } from "@tripsnek/tmf";
-import { EClass } from "@tripsnek/tmf";
-import { EList } from "@tripsnek/tmf";
-import { EEnum } from "@tripsnek/tmf";
-import { EDataType } from "@tripsnek/tmf";
-import { EObjectImpl } from "@tripsnek/tmf";
-import { IDedEntity } from "../api/i-ded-entity.js";
-import { TripSegment } from "../api/trip-segment.js";
-import { Traveler } from "../api/traveler.js";
+import { EObject } from '@tripsnek/tmf';
+import { TUtils } from '@tripsnek/tmf';
+import { EStructuralFeature } from '@tripsnek/tmf';
+import { BasicEList } from '@tripsnek/tmf';
+import { EClass } from '@tripsnek/tmf';
+import { EList } from '@tripsnek/tmf';
+import { EEnum } from '@tripsnek/tmf';
+import { EDataType } from '@tripsnek/tmf';
+import { EObjectImpl } from '@tripsnek/tmf';
+import { IDedEntity } from '../api/i-ded-entity.js';
+import { TripSegment } from '../api/trip-segment.js';
+import { Traveler } from '../api/traveler.js';
 
-import { TripplanningPackage } from "../tripplanning-package.js";
-import { Trip } from "../api/trip.js";
-import { IDedEntityGen } from "./i-ded-entity-gen.js";
-import { IDedEntityImpl } from "../impl/i-ded-entity-impl.js";
-import { TripSegmentGen } from "./trip-segment-gen.js";
-import { TripSegmentImpl } from "../impl/trip-segment-impl.js";
-import { TravelerGen } from "./traveler-gen.js";
-import { TravelerImpl } from "../impl/traveler-impl.js";
+import { TripplanningPackage } from '../tripplanning-package.js';
+import { Trip } from '../api/trip.js';
+import { IDedEntityGen } from './i-ded-entity-gen.js';
+import { IDedEntityImpl } from '../impl/i-ded-entity-impl.js';
+import { TripSegmentGen } from './trip-segment-gen.js';
+import { TripSegmentImpl } from '../impl/trip-segment-impl.js';
+import { TravelerGen } from './traveler-gen.js';
+import { TravelerImpl } from '../impl/traveler-impl.js';
 
 /**
  * This file is source-code generated and should never be edited. It implements
  * the core TMF functionality for Trip.
  */
-export abstract class TripGen extends IDedEntityImpl implements Trip {
+export abstract class TripGen  extends IDedEntityImpl implements Trip {
   /** feature declarations */
   protected segments: EList<TripSegment> = new BasicEList<TripSegment>(
     undefined,
@@ -45,8 +45,11 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
   protected budgetDollars!: number;
   protected tentative!: boolean;
 
+
+
   //======================================================================
   // Getters and Setters
+
 
   public getSegments(): EList<TripSegment> {
     return this.segments;
@@ -115,7 +118,7 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
    */
   public override eGet(feature: number | EStructuralFeature): any {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -139,15 +142,13 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
     return super.eGet(featureID);
   }
 
+
   /**
    * eSet() - provides ability to reflectively set all features.
    */
-  public override eSet(
-    feature: number | EStructuralFeature,
-    newValue: any
-  ): void {
+  public override eSet(feature: number | EStructuralFeature, newValue: any): void {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -181,12 +182,13 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
     return super.eSet(featureID, newValue);
   }
 
+
   /**
    * eIsSet() - provides ability to reflectively check if any feature is set.
    */
   public override eIsSet(feature: number | EStructuralFeature): boolean {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -210,12 +212,13 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
     return super.eIsSet(featureID);
   }
 
+
   /**
    * eUnset() - provides ability to reflectively unset any feature.
    */
   public override eUnset(feature: number | EStructuralFeature): void {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -250,6 +253,7 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
   //======================================================================
   // Basic setters (allow EOpposite enforcement without triggering infinite cycles)
 
+
   public basicSetName(newName: string): void {
     this.name = newName;
   }
@@ -283,6 +287,7 @@ export abstract class TripGen extends IDedEntityImpl implements Trip {
     }
     return super.eInverseAdd(otherEnd, featureID);
   }
+
 
   //======================================================================
   // Inverse Removers (if needed)
