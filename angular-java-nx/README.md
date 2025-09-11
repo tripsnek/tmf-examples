@@ -28,12 +28,9 @@ nx serve backend
 
 # In another terminal, start Angular client (port 4200)
 nx serve client
-
-# Or run both concurrently
-nx run-many --target=serve --projects=backend,client --parallel
 ```
 
-Visit http://localhost:4200 to see the reflective model editor in action. Data created in the Angular frontend is persisted by the Java Spring Boot backend.
+Visit http://localhost:4200 to see the reflective model editor in action. Data created in the Angular frontend is persisted by the Java Spring Boot backend (simple file-based persistence).
 
 ## The Model
 

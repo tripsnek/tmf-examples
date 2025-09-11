@@ -21,7 +21,7 @@ import { Traveler } from './api/traveler.js';
 import { TravelerImpl } from './impl/traveler-impl.js';
 import { Location } from './api/location.js';
 import { LocationImpl } from './impl/location-impl.js';
-import { TripplanningPackageInitializer } from './tripplanning-package-initializer.js';
+import { TripplanningPackageInitializer} from './tripplanning-package-initializer.js';
 
 export class TripplanningFactory implements EFactory {
   /* Singleton */
@@ -33,11 +33,12 @@ export class TripplanningFactory implements EFactory {
 
     return TripplanningFactory._eINSTANCE;
   }
-
+  
   static get eINSTANCE(): TripplanningFactory {
     TripplanningPackageInitializer.registerAll();
     return this._eINSTANCE;
   }
+  
 
   public create(eClass: EClass): EObject {
     switch (eClass.getClassifierId()) {

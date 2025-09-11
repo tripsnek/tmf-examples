@@ -9,9 +9,9 @@ A full-stack TypeScript application demonstrating the **@tripsnek/tmf** library 
 
 ## Architecture
 
-- **Data Model** (`packages/data-model`) - Generated from `TripPlanning.ecore` metamodel
-- **Server** (`packages/server`) - Express.js with auto-generated reflective REST API
-- **Client** (`packages/client`) - Angular app with TMF reflective editor
+- **Data Model** (`libs/data-model`) - Generated from `TripPlanning.ecore` metamodel
+- **Server** (`apps/server`) - Express.js with auto-generated reflective REST API
+- **Client** (`apps/client`) - Angular app with TMF reflective editor
 
 ## Quick Start
 
@@ -20,10 +20,10 @@ A full-stack TypeScript application demonstrating the **@tripsnek/tmf** library 
 npm install
 
 # [Optional - enables persistence] Start the server (port 3000)
-nx run server
+nx serve server
 
 # In another terminal, start the client (port 4200)
-nx run client
+nx serve client
 ```
 
 Visit http://localhost:4200 to see the reflective model editor in action. If you launched the server, created data will be persistent across page refreshes.
@@ -40,7 +40,7 @@ The example models a trip planning domain with:
 
 ## Key TMF Features Shown
 
-- **Code Generation** from Ecore metamodel (`npm run gen:data-model-ts`) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
+- **Code Generation** from Ecore metamodel (`npm run gen:data-model`) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
 - **Factory Pattern** for creating model instances
 - **Containment & Inverse References** with automatic bidirectional updates
 - **Reflective Backend and Frontend** that adapts to any metamodel - edit the .ecore file as much as you want, or replace with your own! It requires updating only a couple of code references to your generated package 'eINSTANCE'

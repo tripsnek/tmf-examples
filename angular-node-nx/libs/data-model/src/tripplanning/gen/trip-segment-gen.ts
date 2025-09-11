@@ -21,10 +21,7 @@ import { LocationImpl } from '../impl/location-impl.js';
  * This file is source-code generated and should never be edited. It implements
  * the core TMF functionality for TripSegment.
  */
-export abstract class TripSegmentGen
-  extends EObjectImpl
-  implements TripSegment
-{
+export abstract class TripSegmentGen extends EObjectImpl implements TripSegment {
   /** feature declarations */
   protected destinationNights!: number;
   protected trip!: Trip;
@@ -32,8 +29,11 @@ export abstract class TripSegmentGen
   protected destination!: Location;
   protected name!: string;
 
+
+
   //======================================================================
   // Getters and Setters
+
 
   public getDestinationNights(): number {
     return this.destinationNights;
@@ -112,13 +112,11 @@ export abstract class TripSegmentGen
     return super.eGet(featureID);
   }
 
+
   /**
    * eSet() - provides ability to reflectively set all features.
    */
-  public override eSet(
-    feature: number | EStructuralFeature,
-    newValue: any
-  ): void {
+  public override eSet(feature: number | EStructuralFeature, newValue: any): void {
     const featureID: number =
       typeof feature === 'number'
         ? feature
@@ -143,6 +141,7 @@ export abstract class TripSegmentGen
     return super.eSet(featureID, newValue);
   }
 
+
   /**
    * eIsSet() - provides ability to reflectively check if any feature is set.
    */
@@ -165,6 +164,7 @@ export abstract class TripSegmentGen
     }
     return super.eIsSet(featureID);
   }
+
 
   /**
    * eUnset() - provides ability to reflectively unset any feature.
@@ -197,6 +197,7 @@ export abstract class TripSegmentGen
   //======================================================================
   // Basic setters (allow EOpposite enforcement without triggering infinite cycles)
 
+
   public basicSetDestinationNights(newDestinationNights: number): void {
     this.destinationNights = newDestinationNights;
   }
@@ -224,11 +225,15 @@ export abstract class TripSegmentGen
     switch (featureID) {
       case TripplanningPackage.TRIP_SEGMENT__TRIP:
         if (this.trip)
-          this.trip.eInverseRemove(this, TripplanningPackage.TRIP__SEGMENTS);
+          this.trip.eInverseRemove(
+            this,
+            TripplanningPackage.TRIP__SEGMENTS
+          );
         return this.basicSetTrip(<Trip>otherEnd);
     }
     return super.eInverseAdd(otherEnd, featureID);
   }
+
 
   //======================================================================
   // Inverse Removers (if needed)
