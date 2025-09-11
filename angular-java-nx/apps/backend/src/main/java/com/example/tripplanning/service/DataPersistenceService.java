@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.stereotype.Service;
-import org.tripsnek.tmf.json.TJson;
-import org.tripsnek.tmf.json.TUtils;
+import com.tripsnek.tmf.json.TJson;
+import com.tripsnek.tmf.json.TUtils;
 import tripplanning.TripplanningPackage;
 
 import javax.annotation.PostConstruct;
