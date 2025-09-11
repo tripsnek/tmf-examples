@@ -1,33 +1,30 @@
-import { EObject } from "@tripsnek/tmf";
-import { TUtils } from "@tripsnek/tmf";
-import { EStructuralFeature } from "@tripsnek/tmf";
-import { BasicEList } from "@tripsnek/tmf";
-import { EClass } from "@tripsnek/tmf";
-import { EList } from "@tripsnek/tmf";
-import { EEnum } from "@tripsnek/tmf";
-import { EDataType } from "@tripsnek/tmf";
-import { EObjectImpl } from "@tripsnek/tmf";
-import { Trip } from "../api/trip.js";
-import { Location } from "../api/location.js";
-import { Activity } from "../api/activity.js";
+import { EObject } from '@tripsnek/tmf';
+import { TUtils } from '@tripsnek/tmf';
+import { EStructuralFeature } from '@tripsnek/tmf';
+import { BasicEList } from '@tripsnek/tmf';
+import { EClass } from '@tripsnek/tmf';
+import { EList } from '@tripsnek/tmf';
+import { EEnum } from '@tripsnek/tmf';
+import { EDataType } from '@tripsnek/tmf';
+import { EObjectImpl } from '@tripsnek/tmf';
+import { Trip } from '../api/trip.js';
+import { Location } from '../api/location.js';
+import { Activity } from '../api/activity.js';
 
-import { TripplanningPackage } from "../tripplanning-package.js";
-import { TripSegment } from "../api/trip-segment.js";
-import { TripGen } from "./trip-gen.js";
-import { TripImpl } from "../impl/trip-impl.js";
-import { LocationGen } from "./location-gen.js";
-import { LocationImpl } from "../impl/location-impl.js";
-import { ActivityGen } from "./activity-gen.js";
-import { ActivityImpl } from "../impl/activity-impl.js";
+import { TripplanningPackage } from '../tripplanning-package.js';
+import { TripSegment } from '../api/trip-segment.js';
+import { TripGen } from './trip-gen.js';
+import { TripImpl } from '../impl/trip-impl.js';
+import { LocationGen } from './location-gen.js';
+import { LocationImpl } from '../impl/location-impl.js';
+import { ActivityGen } from './activity-gen.js';
+import { ActivityImpl } from '../impl/activity-impl.js';
 
 /**
  * This file is source-code generated and should never be edited. It implements
  * the core TMF functionality for TripSegment.
  */
-export abstract class TripSegmentGen
-  extends EObjectImpl
-  implements TripSegment
-{
+export abstract class TripSegmentGen extends EObjectImpl implements TripSegment {
   /** feature declarations */
   protected destinationNights!: number;
   protected trip!: Trip;
@@ -41,8 +38,11 @@ export abstract class TripSegmentGen
   );
   protected name!: string;
 
+
+
   //======================================================================
   // Getters and Setters
+
 
   public getDestinationNights(): number {
     return this.destinationNights;
@@ -107,7 +107,7 @@ export abstract class TripSegmentGen
    */
   public override eGet(feature: number | EStructuralFeature): any {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -127,15 +127,13 @@ export abstract class TripSegmentGen
     return super.eGet(featureID);
   }
 
+
   /**
    * eSet() - provides ability to reflectively set all features.
    */
-  public override eSet(
-    feature: number | EStructuralFeature,
-    newValue: any
-  ): void {
+  public override eSet(feature: number | EStructuralFeature, newValue: any): void {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -162,12 +160,13 @@ export abstract class TripSegmentGen
     return super.eSet(featureID, newValue);
   }
 
+
   /**
    * eIsSet() - provides ability to reflectively check if any feature is set.
    */
   public override eIsSet(feature: number | EStructuralFeature): boolean {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -187,12 +186,13 @@ export abstract class TripSegmentGen
     return super.eIsSet(featureID);
   }
 
+
   /**
    * eUnset() - provides ability to reflectively unset any feature.
    */
   public override eUnset(feature: number | EStructuralFeature): void {
     const featureID: number =
-      typeof feature === "number"
+      typeof feature === 'number'
         ? feature
         : (<EStructuralFeature>feature).getFeatureID();
     switch (featureID) {
@@ -221,6 +221,7 @@ export abstract class TripSegmentGen
   //======================================================================
   // Basic setters (allow EOpposite enforcement without triggering infinite cycles)
 
+
   public basicSetDestinationNights(newDestinationNights: number): void {
     this.destinationNights = newDestinationNights;
   }
@@ -248,11 +249,15 @@ export abstract class TripSegmentGen
     switch (featureID) {
       case TripplanningPackage.TRIP_SEGMENT__TRIP:
         if (this.trip)
-          this.trip.eInverseRemove(this, TripplanningPackage.TRIP__SEGMENTS);
+          this.trip.eInverseRemove(
+            this,
+            TripplanningPackage.TRIP__SEGMENTS
+          );
         return this.basicSetTrip(<Trip>otherEnd);
     }
     return super.eInverseAdd(otherEnd, featureID);
   }
+
 
   //======================================================================
   // Inverse Removers (if needed)

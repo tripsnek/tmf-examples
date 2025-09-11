@@ -1,6 +1,7 @@
-import { TripplanningPackage } from "./tripplanning-package.js";
-import { TripplanningFactory } from "./tripplanning-factory.js";
-import { TJson, EClassImpl } from "@tripsnek/tmf";
+import { TripplanningPackage } from './tripplanning-package.js';
+import { TripplanningFactory } from './tripplanning-factory.js';
+import { TJson, EClassImpl } from '@tripsnek/tmf';
+
 
 /**
  * A "global initializer" solution for ensuring that package contents
@@ -28,13 +29,17 @@ export class TripplanningPackageInitializer {
     this.registered = true;
     const tripplanning = TripplanningPackage._eINSTANCE;
 
+
     //set package/sub-package relationships
+
 
     //initialize package contents
     tripplanning.initializePackageContents();
 
+
     //initialize package to factory refs
     tripplanning.setEFactoryInstance(TripplanningFactory.eINSTANCE);
+
 
     const allPkgs = [tripplanning];
 
@@ -48,5 +53,6 @@ export class TripplanningPackageInitializer {
 
     //default TJson configuration
     TJson.addPackages(allPkgs);
+
   }
 }
