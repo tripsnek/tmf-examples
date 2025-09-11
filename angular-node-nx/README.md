@@ -19,7 +19,7 @@ A full-stack TypeScript application demonstrating the **@tripsnek/tmf** library 
 # Install dependencies
 npm install
 
-# [Optional] Start the server (port 3000)
+# [Optional - enables persistence] Start the server (port 3000)
 nx run server
 
 # In another terminal, start the client (port 4200)
@@ -40,13 +40,13 @@ The example models a trip planning domain with:
 
 ## Key TMF Features Shown
 
-- **Code Generation** from Ecore metamodel (`node generate.mjs`) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
+- **Code Generation** from Ecore metamodel (`npm run gen:data-model-ts`) or with the [TMF Ecore Editor](https://github.com/tripsnek/tmf-ecore-editor) VSCode Extension
 - **Factory Pattern** for creating model instances
 - **Containment & Inverse References** with automatic bidirectional updates
 - **Reflective Backend and Frontend** that adapts to any metamodel - edit the .ecore file as much as you want, or replace with your own! It requires updating only a couple of code references to your generated package 'eINSTANCE'
 - **JSON Serialization** with TJson, and reflective cross-container reference resolution demonstrated with proxy-resolver.ts
 - **Type Safety** across the entire stack
-- 
+
 ## Useful Links
 
   1. [TMF Github Repository](https://github.com/tripsnek/tmf)
